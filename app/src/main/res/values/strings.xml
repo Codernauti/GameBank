@@ -3,6 +3,7 @@
 
     <string name="bank_tab_title">Bank</string>
     <string name="trans_tab_title">Transactions</string>
+    <string name="title_activity_lobby">lobbyActivity</string>
 
 
 </resources>
