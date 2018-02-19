@@ -1,7 +1,10 @@
 package com.codernauti.gamebank.lobby;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,10 +14,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BluetoothStateChange;
 
 public class LobbyActivity extends AppCompatActivity {
-
-    private static final int REQUEST_ENABLE_BT = 3;
 
     private BluetoothAdapter mBluetoothAdapter;
 
@@ -36,7 +38,6 @@ public class LobbyActivity extends AppCompatActivity {
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             this.finish();
@@ -47,11 +48,7 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-            // Otherwise, setup the chat session
-        }
+        BluetoothStateChange.enableBTIfDisabled(this);
     }
 
 }
