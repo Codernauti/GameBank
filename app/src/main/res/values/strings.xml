@@ -3,7 +3,9 @@
 
     <string name="bank_tab_title">Bank</string>
     <string name="trans_tab_title">Transactions</string>
-    <string name="title_activity_lobby">lobbyActivity</string>
+    <string name="title_activity_lobby">Join Match</string>
+    <string name="predefined_lobby_name">Empty Lobby</string>
+    <string name="predefined_lobby_status">Not defined</string>
 
 
 </resources>
