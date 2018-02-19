@@ -1,9 +1,11 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.game;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.codernauti.gamebank.R;
 
 public class DashboardPagerAdapter extends FragmentPagerAdapter {
 

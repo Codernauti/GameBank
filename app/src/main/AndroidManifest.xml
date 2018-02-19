@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DashboardActivity"
+        <activity android:name=".game.DashboardActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
         </activity>
@@ -34,7 +34,6 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

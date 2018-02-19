@@ -1,4 +1,4 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.game;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -7,28 +7,36 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.codernauti.gamebank.R;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
 
-    private ViewPager mViewPager;
+    @BindView(R.id.dashboard_pager)
+    ViewPager mViewPager;
+    @BindView(R.id.sliding_tabs)
+    TabLayout tabLayout;
+    @BindView(R.id.dashboard_toolbar)
+    Toolbar myToolbar;
+
     private DashboardPagerAdapter mAdapter;
     private Context mContext;
-    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard_activity);
+        ButterKnife.bind(this);
 
         mContext = getApplicationContext();
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.dashboard_toolbar);
         setSupportActionBar(myToolbar);
 
         mAdapter = new DashboardPagerAdapter(getSupportFragmentManager(), mContext);
-
-        mViewPager = (ViewPager) findViewById(R.id.dashboard_pager);
         mViewPager.setAdapter(mAdapter);
 
         setupTopTabber();
@@ -36,7 +44,6 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void setupTopTabber() {
         // Give the TabLayout the ViewPager
-        tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
         // Show HomePage first
