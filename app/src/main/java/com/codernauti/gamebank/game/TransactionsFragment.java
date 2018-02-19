@@ -1,4 +1,4 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.game;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,11 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.TransModel;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class TransactionsFragment extends Fragment {
 
     private static final String TAG = "TransactionsFragment";
 
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.recyclerview_transactions)
+    RecyclerView mRecyclerView;
 
     private TransAdapter mAdapter;
 
@@ -27,8 +34,7 @@ public class TransactionsFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         final ViewGroup root = (ViewGroup) inflater.inflate(R.layout.trans_fragment, container, false);
-
-        mRecyclerView = root.findViewById(R.id.recyclerview_transactions);
+        ButterKnife.bind(this, root);
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);

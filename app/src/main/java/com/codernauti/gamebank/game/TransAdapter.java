@@ -1,10 +1,13 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.game;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.TransModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +16,7 @@ class TransAdapter extends RecyclerView.Adapter<TransAdapterViewHolder> {
 
     private List<TransModel> mTransactionsList = new ArrayList<>();
 
-    public TransAdapter() {
+    TransAdapter() {
     }
 
     @Override
@@ -40,7 +43,7 @@ class TransAdapter extends RecyclerView.Adapter<TransAdapterViewHolder> {
         return mTransactionsList.size();
     }
 
-    public void addTransaction(TransModel trans){
+    void addTransaction(TransModel trans){
         mTransactionsList.add(trans);
         notifyDataSetChanged();
     }

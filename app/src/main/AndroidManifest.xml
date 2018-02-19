@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".DashboardActivity"
+        <activity android:name=".game.DashboardActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
         </activity>
