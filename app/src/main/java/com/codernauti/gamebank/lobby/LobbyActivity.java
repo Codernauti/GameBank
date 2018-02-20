@@ -11,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -38,13 +39,13 @@ public class LobbyActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothStateChange mBTStateChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
         ButterKnife.bind(this);
-
 
         setSupportActionBar(toolbar);
 
@@ -58,11 +59,28 @@ public class LobbyActivity extends AppCompatActivity {
         });
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             this.finish();
         }
+
+        mBTStateChangeReceiver = new BluetoothStateChange();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.bluetooth.adapter.action.STATE_CHANGED");
+        registerReceiver(mBTStateChangeReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        unregisterReceiver(mBTStateChangeReceiver);
     }
 
     @Override
