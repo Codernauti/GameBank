@@ -11,7 +11,7 @@ import android.util.Log;
  * Created by dpolonio on 19/02/18.
  */
 
-public class BluetoothStateChange extends BroadcastReceiver {
+public class BTStateChange extends BroadcastReceiver {
 
     private static final int BT_STATE_OFF = 10;
     private static final String EXTRA_STATE = "android.bluetooth.adapter.extra.STATE";

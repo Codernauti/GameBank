@@ -4,8 +4,18 @@ package com.codernauti.gamebank.bluetooth;
  * Created by dpolonio on 19/02/18.
  */
 
-public interface BTDevice {
+public abstract class BTDevice {
 
-    String getName();
-    String getAddress();
+    private String name;
+    private String address;
+
+    public String getName() {
+        return name;
+    }
+    public String getAddress() {
+        return address;
+    }
+
+    @Override
+    public abstract boolean equals (Object other);
 }

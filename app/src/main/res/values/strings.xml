@@ -6,6 +6,7 @@
     <string name="title_activity_lobby">Join Match</string>
     <string name="predefined_lobby_name">Empty Lobby</string>
     <string name="predefined_lobby_status">Not defined</string>
+    <string name="devices_bluetooth_title">Bluetooth devices list</string>
 
 
 </resources>

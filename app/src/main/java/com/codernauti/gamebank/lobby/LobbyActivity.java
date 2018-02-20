@@ -1,6 +1,7 @@
 package com.codernauti.gamebank.lobby;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,22 +9,16 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTClient;
-import com.codernauti.gamebank.bluetooth.BTDevice;
-import com.codernauti.gamebank.bluetooth.BluetoothStateChange;
+import com.codernauti.gamebank.bluetooth.BTHost;
+import com.codernauti.gamebank.bluetooth.BTStateChange;
 
 import java.util.ArrayList;
 
@@ -33,13 +28,52 @@ import butterknife.ButterKnife;
 public class LobbyActivity extends AppCompatActivity {
 
 
+    private final static String BT_STATE_CHANGED = "android.bluetooth.adapter.action.STATE_CHANGED";
+    private final static String TAG = "LobbyActivity";
+
     @BindView(R.id.device_list)
     ListView devicesList;
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothStateChange mBTStateChangeReceiver;
+    private BTStateChange mBTStateChangeReceiver;
+    private ArrayList<BTHost> mBTDevices;
+    private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            // When discovery finds a device
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.d(TAG, "Found: "
+                        + device.getName()
+                        + " with address "
+                        + device.getAddress()
+                        + " bonded? "
+                        + (device.getBondState() == BluetoothDevice.BOND_BONDED));
+
+                BTHost newHost = new BTHost(
+                        device.getName(),
+                        device.getAddress(),
+                        device.getBondState() == BluetoothDevice.BOND_BONDED);
+
+                // This removes devices with "null" name and devices that are find multiple times
+                if (!device.getName().equals("null") && !mBTDevices.contains(newHost)){
+                    mBTDevices.add(newHost);
+                    Log.d(TAG, device.getName() + " added in the list.");
+                }
+
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+
+                Log.d(TAG, "BT Discovery finished");
+                devicesList.setAdapter(new BTHostAdapter(LobbyActivity.this, mBTDevices));
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +83,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
+        // TODO lobby creation
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,16 +99,33 @@ public class LobbyActivity extends AppCompatActivity {
             this.finish();
         }
 
-        mBTStateChangeReceiver = new BluetoothStateChange();
+        mBTStateChangeReceiver = new BTStateChange();
+        mBTDevices = new ArrayList<>();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.bluetooth.adapter.action.STATE_CHANGED");
+        // Registering BT state change
+        IntentFilter intentFilter = new IntentFilter(BT_STATE_CHANGED);
         registerReceiver(mBTStateChangeReceiver, intentFilter);
+
+        // Register for broadcasts when a device is discovered
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mBTDiscoveryReceiver, filter);
+
+        // Register for broadcasts when discovery has finished
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(mBTDiscoveryReceiver, filter);
+
+        // Start BT discovery
+        if (mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
+
+        Log.d(TAG, "Starting BT discovery");
+        mBluetoothAdapter.startDiscovery();
     }
 
     @Override
@@ -81,21 +133,13 @@ public class LobbyActivity extends AppCompatActivity {
         super.onStop();
 
         unregisterReceiver(mBTStateChangeReceiver);
+        unregisterReceiver(mBTDiscoveryReceiver);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        BluetoothStateChange.enableBTIfDisabled(this);
-
-        BTDevice prova = new BTClient("aa", "bb");
-        BTDevice prova2 = new BTClient("cc", "dd");
-
-        ArrayList<BTDevice> btDevices = new ArrayList<>();
-        btDevices.add(prova);
-        btDevices.add(prova2);
-
-        devicesList.setAdapter(new BTDevicesAdapter(this, btDevices));
+        BTStateChange.enableBTIfDisabled(this);
     }
 }

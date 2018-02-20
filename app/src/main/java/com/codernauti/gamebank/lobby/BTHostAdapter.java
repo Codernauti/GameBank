@@ -6,10 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTDevice;
+import com.codernauti.gamebank.bluetooth.BTHost;
 
 import java.util.ArrayList;
 
@@ -17,12 +19,12 @@ import java.util.ArrayList;
  * Created by dpolonio on 19/02/18.
  */
 
-public class BTDevicesAdapter extends BaseAdapter {
+public class BTHostAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<BTDevice> btDevices;
+    private ArrayList<BTHost> btDevices;
 
-    BTDevicesAdapter(Context context, ArrayList<BTDevice> btDevices) {
+    BTHostAdapter(Context context, ArrayList<BTHost> btDevices) {
         this.context = context;
         this.btDevices = btDevices;
     }
@@ -56,8 +58,25 @@ public class BTDevicesAdapter extends BaseAdapter {
             btDeviceItem = (ConstraintLayout) view;
         }
 
-        ((TextView)btDeviceItem.findViewById(R.id.lobby_name)).setText(btDevices.get(i).getName());
-        ((TextView)btDeviceItem.findViewById(R.id.lobby_status)).setText("blaaa");
+        ((TextView)btDeviceItem.findViewById(R.id.lobby_name))
+                .setText(btDevices
+                        .get(i)
+                        .getName());
+
+        ((TextView)btDeviceItem.findViewById(R.id.lobby_status))
+                .setText(btDevices
+                        .get(i)
+                        .getAddress());
+
+        int drawableResource = R.drawable.ic_lock_outline_black_24dp;
+        if (((BTHost)getItem(i)).isPaired()) {
+            drawableResource = R.drawable.ic_lock_open_black_24dp;
+        }
+
+        ((ImageView)btDeviceItem.findViewById(R.id.status_icon))
+                .setImageDrawable(btDeviceItem
+                        .getContext()
+                        .getDrawable(drawableResource));
 
         return btDeviceItem;
     }
