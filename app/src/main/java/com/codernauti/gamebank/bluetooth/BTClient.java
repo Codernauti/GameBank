@@ -8,10 +8,12 @@ public class BTClient extends BTDevice {
 
     private String name;
     private String address;
+    private boolean isReady;
 
-    public BTClient (String name, String address) {
+    public BTClient (String name, String address, boolean isReady) {
         this.name = name;
         this.address = address;
+        this.isReady = isReady;
     }
 
 
@@ -23,6 +25,10 @@ public class BTClient extends BTDevice {
     @Override
     public String getAddress() {
         return address;
+    }
+
+    public boolean isReady() {
+        return isReady;
     }
 
     @Override

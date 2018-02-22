@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.codernauti.gamebank.lobby.lobbyActivity"
+    tools:context="com.codernauti.gamebank.lobby.client.LobbyActivity"
     tools:showIn="@layout/activity_lobby">
 
     <TextView
@@ -29,12 +29,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        android:layout_marginTop="25dp">
+        android:layout_marginTop="30dp">
 
         <ListView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="405dp"
+            android:layout_height="0dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="parent"

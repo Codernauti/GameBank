@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.lobby;
+package com.codernauti.gamebank.lobby.client;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
@@ -47,6 +47,7 @@ public class BTHostAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         ConstraintLayout btDeviceItem;
+        BTHost device = btDevices.get(i);
 
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context
@@ -59,17 +60,13 @@ public class BTHostAdapter extends BaseAdapter {
         }
 
         ((TextView)btDeviceItem.findViewById(R.id.lobby_name))
-                .setText(btDevices
-                        .get(i)
-                        .getName());
+                .setText(device.getName());
 
         ((TextView)btDeviceItem.findViewById(R.id.lobby_status))
-                .setText(btDevices
-                        .get(i)
-                        .getAddress());
+                .setText(device.getAddress());
 
         int drawableResource = R.drawable.ic_lock_outline_black_24dp;
-        if (((BTHost)getItem(i)).isPaired()) {
+        if (device.isPaired()) {
             drawableResource = R.drawable.ic_lock_open_black_24dp;
         }
 

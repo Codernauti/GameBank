@@ -7,6 +7,14 @@
     <string name="predefined_lobby_name">Empty Lobby</string>
     <string name="predefined_lobby_status">Not defined</string>
     <string name="devices_bluetooth_title">Bluetooth devices list</string>
-
+    <string name="title_activity_create_match">Create a new match</string>
+    <string name="room_name">Room name</string>
+    <string name="member_number_description">Select the maximum number of members</string>
+    <string name="open_lobby_button">Open the lobby</string>
+    <string name="start_match_button">Start!</string>
+    <string name="hot_join_allowed">Allow hotjoin</string>
+    <string name="status_member_not_ready">Not Ready</string>
+    <string name="predefined_member_name">No one</string>
+    <string name="status_member_ready">Ready</string>
 
 </resources>

@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.codernauti.gamebank.lobby.LobbyActivity;
+import com.codernauti.gamebank.lobby.client.LobbyActivity;
 
 public class MainActivity extends AppCompatActivity {
 

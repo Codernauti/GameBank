@@ -7,4 +7,13 @@
     <string name="predefined_lobby_name">Partita vuota</string>
     <string name="predefined_lobby_status">Non definito</string>
     <string name="devices_bluetooth_title">Lista dei dispositivi Bluetooth</string>
+    <string name="room_name">Nome partita</string>
+    <string name="member_number_description">Seleziona il numero massimo di membri</string>
+    <string name="open_lobby_button">Apri la lobby</string>
+    <string name="start_match_button">Start!</string>
+    <string name="hot_join_allowed">Permetti agli utenti di entrare in partite in corso</string>
+    <string name="title_activity_create_match">Crea una nuova partita</string>
+    <string name="status_member_not_ready">Non Pronto</string>
+    <string name="predefined_member_name">Nessuno</string>
+    <string name="status_member_ready">Pronto</string>
 </resources>
