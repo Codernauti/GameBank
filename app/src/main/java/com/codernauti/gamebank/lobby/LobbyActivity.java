@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,11 +32,14 @@ public class LobbyActivity extends AppCompatActivity {
     private final static String BT_STATE_CHANGED = "android.bluetooth.adapter.action.STATE_CHANGED";
     private final static String TAG = "LobbyActivity";
 
-    @BindView(R.id.device_list)
+    @BindView(R.id.list)
     ListView devicesList;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+
+    @BindView(R.id.swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTStateChange mBTStateChangeReceiver;
@@ -62,7 +66,12 @@ public class LobbyActivity extends AppCompatActivity {
                         device.getBondState() == BluetoothDevice.BOND_BONDED);
 
                 // This removes devices with "null" name and devices that are find multiple times
-                if (!device.getName().equals("null") && !mBTDevices.contains(newHost)){
+
+                String deviceName = device.getName();
+
+                if (deviceName != null &&
+                        !deviceName.equals("null") &&
+                        !mBTDevices.contains(newHost)){
                     mBTDevices.add(newHost);
                     Log.d(TAG, device.getName() + " added in the list.");
                 }
@@ -70,6 +79,7 @@ public class LobbyActivity extends AppCompatActivity {
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 
                 Log.d(TAG, "BT Discovery finished");
+                swipeRefreshLayout.setRefreshing(false);
                 devicesList.setAdapter(new BTHostAdapter(LobbyActivity.this, mBTDevices));
             }
         }
@@ -88,8 +98,12 @@ public class LobbyActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                if (mBluetoothAdapter.isDiscovering()) {
+                    mBluetoothAdapter.cancelDiscovery();
+                }
+
+
             }
         });
 
@@ -101,6 +115,14 @@ public class LobbyActivity extends AppCompatActivity {
 
         mBTStateChangeReceiver = new BTStateChange();
         mBTDevices = new ArrayList<>();
+        swipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        restartBTDiscovery();
+                    }
+                }
+        );
     }
 
     @Override
@@ -119,13 +141,7 @@ public class LobbyActivity extends AppCompatActivity {
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(mBTDiscoveryReceiver, filter);
 
-        // Start BT discovery
-        if (mBluetoothAdapter.isDiscovering()) {
-            mBluetoothAdapter.cancelDiscovery();
-        }
-
-        Log.d(TAG, "Starting BT discovery");
-        mBluetoothAdapter.startDiscovery();
+        restartBTDiscovery();
     }
 
     @Override
@@ -141,5 +157,24 @@ public class LobbyActivity extends AppCompatActivity {
         super.onStart();
 
         BTStateChange.enableBTIfDisabled(this);
+    }
+
+    private void restartBTDiscovery() {
+
+        if (mBluetoothAdapter.isEnabled()) {
+
+            // Start BT discovery
+            if (mBluetoothAdapter.isDiscovering()) {
+                Log.d(TAG, "Stopping previous BT discovery");
+                swipeRefreshLayout.setRefreshing(false);
+                mBluetoothAdapter.cancelDiscovery();
+            }
+
+            Log.d(TAG, "Starting BT discovery");
+            mBTDevices.clear();
+            devicesList.setAdapter(null);
+            swipeRefreshLayout.setRefreshing(true);
+            mBluetoothAdapter.startDiscovery();
+        }
     }
 }
