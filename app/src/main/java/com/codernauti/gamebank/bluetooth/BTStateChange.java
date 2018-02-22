@@ -32,6 +32,9 @@ public class BTStateChange extends BroadcastReceiver {
 
         BluetoothAdapter mba = BluetoothAdapter.getDefaultAdapter();
         if (!mba.isEnabled()) {
+
+            Log.d(TAG, "Enabling Bluetooth");
+
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             context.startActivity(enableIntent);
         }

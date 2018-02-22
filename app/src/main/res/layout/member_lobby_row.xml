@@ -29,7 +29,7 @@
         android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/user_icon"
+        app:layout_constraintLeft_toRightOf="@+id/member_icon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/predefined_member_name" />
 

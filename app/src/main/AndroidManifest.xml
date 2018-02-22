@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -22,7 +23,7 @@
         <activity
             android:name=".game.DashboardActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".lobby.client.LobbyActivity"
             android:label="@string/title_activity_lobby"
@@ -31,7 +32,7 @@
             android:name=".lobby.server.CreateMatchActivity"
             android:label="@string/title_activity_create_match"
             android:parentActivityName=".lobby.client.LobbyActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.lobby.client.LobbyActivity" />

@@ -1,14 +1,21 @@
 package com.codernauti.gamebank.lobby.client;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,12 +32,14 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class LobbyActivity extends AppCompatActivity {
 
 
     private final static String BT_STATE_CHANGED = "android.bluetooth.adapter.action.STATE_CHANGED";
     private final static String TAG = "LobbyActivity";
+    private final static int REQUEST_ACCESS_COARSE_LOCATION = 1;
 
     @BindView(R.id.list)
     ListView devicesList;
@@ -44,6 +53,7 @@ public class LobbyActivity extends AppCompatActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private BTStateChange mBTStateChangeReceiver;
     private ArrayList<BTHost> mBTDevices;
+    private AlertDialog mPermissionDialog;
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -93,9 +103,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        // TODO lobby creation
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        /*fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -106,7 +114,7 @@ public class LobbyActivity extends AppCompatActivity {
                 Intent intent = new Intent(LobbyActivity.this, CreateMatchActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -130,6 +138,7 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+
         // Registering BT state change
         IntentFilter intentFilter = new IntentFilter(BT_STATE_CHANGED);
         registerReceiver(mBTStateChangeReceiver, intentFilter);
@@ -142,7 +151,7 @@ public class LobbyActivity extends AppCompatActivity {
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(mBTDiscoveryReceiver, filter);
 
-        restartBTDiscovery();
+        requestPermission();
     }
 
     @Override
@@ -153,11 +162,92 @@ public class LobbyActivity extends AppCompatActivity {
         unregisterReceiver(mBTDiscoveryReceiver);
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
 
-        BTStateChange.enableBTIfDisabled(this);
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           final String permissions[],
+                                           final int[] grantResults) {
+
+        Log.d(TAG, "onRequestPermissionResult");
+
+        if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
+
+            if (mPermissionDialog != null) {
+                mPermissionDialog.hide();
+                mPermissionDialog.dismiss();
+                mPermissionDialog = null;
+            }
+
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                BTStateChange.enableBTIfDisabled(this);
+                restartBTDiscovery();
+
+            } else {
+                mPermissionDialog = new AlertDialog.Builder(this)
+                        .setTitle("Localization needed")
+                        .setMessage("In some devices, the location is necessary in order to find nearby devices. Please enable it.")
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .create();
+
+                mPermissionDialog.show();
+            }
+        }
+    }
+
+    @OnClick(R.id.fab)
+    void onClickFab() {
+        if (mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
+
+        Intent intent = new Intent(this, CreateMatchActivity.class);
+        startActivity(intent);
+    }
+
+    private void requestPermission() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            final String[] permissions = {
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "Permission not granted, asking for it");
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        permissions,
+                        REQUEST_ACCESS_COARSE_LOCATION);
+            } else {
+
+                Log.d(TAG, "Permission granted, going forward");
+
+                BTStateChange.enableBTIfDisabled(this);
+                restartBTDiscovery();
+            }
+        } else {
+            BTStateChange.enableBTIfDisabled(this);
+            restartBTDiscovery();
+        }
     }
 
     private void restartBTDiscovery() {
