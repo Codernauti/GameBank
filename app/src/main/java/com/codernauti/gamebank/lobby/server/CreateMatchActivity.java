@@ -161,8 +161,6 @@ public class CreateMatchActivity extends AppCompatActivity {
                     flag = false;
                 }
 
-                Log.d(TAG, "Socket value: " + socket);
-
                 if (socket != null) {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
@@ -170,19 +168,28 @@ public class CreateMatchActivity extends AppCompatActivity {
                     Log.d(TAG, "AAAAAAA CONNECTION ESTABLISHED");
 
                     // FIXME sending data, just for test
-                    try {
-                        OutputStream os = socket.getOutputStream();
+                    try (OutputStream os = socket.getOutputStream()) {
+                        // Important! Don't close the os otherwise data transfer will fail!
 
                         byte[] nameToByte = mLobbyName.getText().toString().getBytes();
-                        os.write(nameToByte);
-                        os.close();
 
+                        Log.d(TAG, "Sending this message: " + mLobbyName.getText());
+
+                        os.write(nameToByte);
+                        os.flush();
                         Log.d(TAG, "DATA SENT");
+
+                        // If we close the stream too early, the reader won't be able to perform the
+                        // read, leading to a crash.
+                        Thread.sleep(250);
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
 
                         Log.e(TAG, "DATA NOT SENT");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                     // END FIXME
 

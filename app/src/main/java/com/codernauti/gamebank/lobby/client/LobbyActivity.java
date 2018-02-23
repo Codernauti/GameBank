@@ -213,16 +213,15 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void run() {
                 BluetoothDevice selectedHost = mBTDevices.get(position);
-                BTClientConnection cc =
-                        new BTClientConnection(
-                                UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
-                                selectedHost);
 
-                try {
+                try (BTClientConnection cc =
+                             new BTClientConnection(
+                                     UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
+                                     selectedHost)) {
                     cc.connect();
                     Log.d(TAG, "Preparing to read data");
                     Log.d(TAG, "Data read: " + new String(cc.readData()));
-                    cc.disconnect();
+
                 } catch (IOException e) {
 
                     Log.e(TAG, "Something went wrong");

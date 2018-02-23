@@ -23,30 +23,14 @@ public class BTClientConnection extends BTConnection {
 
     private final static String TAG = "BTClientConnection";
 
-    private final BluetoothDevice mServer;
-    private final Thread mConnection;
-    private final BluetoothAdapter mBTAdapter;
+    private BluetoothDevice mServer;
 
     private BluetoothSocket mBTSocket;
 
-    public BTClientConnection(@NonNull UUID uuid,
-                       @NonNull BluetoothDevice server) {
+    public BTClientConnection(@NonNull UUID uuid, @NonNull BluetoothDevice server) {
         super(uuid);
 
-        this.mBTAdapter = BluetoothAdapter.getDefaultAdapter();
         this.mServer = server;
-        mConnection = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    mBTSocket = mServer.createRfcommSocketToServiceRecord(UUID);
-                    mBTSocket.connect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     @Override
@@ -83,10 +67,18 @@ public class BTClientConnection extends BTConnection {
                 }
 
                 return fromByteList(data);
+
+                /*byte[] res = new byte[1024];
+                int bytes = is.read(res);
+
+                return new String(res).substring(0, bytes).getBytes();*/
+
             } catch (IOException e) {
 
                 Log.e(TAG, "Error while reading data from " + mServer.getName());
                 e.printStackTrace();
+
+                Log.e(TAG, "Data size: " + data.size());
 
                 return fromByteList(data);
             }
@@ -96,9 +88,11 @@ public class BTClientConnection extends BTConnection {
     }
 
     @Override
-    public void disconnect() throws IOException {
+    public void close() throws IOException {
 
         if (mBTSocket != null && mBTSocket.isConnected()) {
+
+            Log.d(TAG, "Closing BT connection");
             mBTSocket.close();
         }
     }
