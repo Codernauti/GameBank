@@ -2,6 +2,7 @@ package com.codernauti.gamebank.lobby.server;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,9 @@ public class BTClientAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
+        // view : older view to recycle if needed
+        // viewGroup : ListView
+
         ConstraintLayout btDeviceItem;
         BTClient client = clientList.get(i);
 
@@ -51,18 +55,20 @@ public class BTClientAdapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            btDeviceItem = (ConstraintLayout) inflater.inflate(
-                    R.layout.bt_list_row, null);
+            btDeviceItem = (ConstraintLayout) inflater.inflate(R.layout.member_lobby_row, null);
         } else {
             btDeviceItem = (ConstraintLayout) view;
         }
 
-        ((TextView)btDeviceItem.findViewById(R.id.member_name))
+        ((TextView) btDeviceItem.findViewById(R.id.member_name))
                 .setText(client.getName());
 
+        TextView readyText = ((TextView)btDeviceItem.findViewById(R.id.member_ready));
+
         if (client.isReady()) {
-            ((TextView)btDeviceItem.findViewById(R.id.member_ready))
-                .setText(context.getText(R.string.status_member_ready));
+            readyText.setText(context.getString(R.string.status_member_ready));
+        } else {
+            readyText.setText(context.getString(R.string.status_member_not_ready));
         }
 
         return btDeviceItem;
