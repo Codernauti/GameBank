@@ -57,9 +57,18 @@ public class BTClientConnection extends BTConnection {
                     byte[] tmpData = new byte[1024];
                     final int byteRead = is.read(tmpData);
 
+                    Log.d(TAG, "Just read " + new String(tmpData).substring(0, byteRead));
+
                     if (byteRead != 0) {
-                        for (int i = 0; i < byteRead; i++) {
-                            data.add(tmpData[i]);
+                        for (int i = 0; i < byteRead && read; i++) {
+
+                            if (tmpData[i] == Byte.MIN_VALUE) {
+                                Log.d(TAG, "Read MIN_VALUE");
+                                read = false;
+                            } else {
+
+                                data.add(tmpData[i]);
+                            }
                         }
                     } else {
                         read = false;
