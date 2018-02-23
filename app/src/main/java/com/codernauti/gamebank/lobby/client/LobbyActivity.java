@@ -3,6 +3,7 @@ package com.codernauti.gamebank.lobby.client;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,16 +24,20 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.bluetooth.BTDevice;
 import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHost;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 
 public class LobbyActivity extends AppCompatActivity {
 
@@ -52,7 +57,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTStateChange mBTStateChangeReceiver;
-    private ArrayList<BTHost> mBTDevices;
+    private ArrayList<BluetoothDevice> mBTDevices;
     private AlertDialog mPermissionDialog;
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
         @Override
@@ -70,19 +75,14 @@ public class LobbyActivity extends AppCompatActivity {
                         + " bonded? "
                         + (device.getBondState() == BluetoothDevice.BOND_BONDED));
 
-                BTHost newHost = new BTHost(
-                        device.getName(),
-                        device.getAddress(),
-                        device.getBondState() == BluetoothDevice.BOND_BONDED);
-
                 // This removes devices with "null" name and devices that are find multiple times
 
                 String deviceName = device.getName();
 
                 if (deviceName != null &&
                         !deviceName.equals("null") &&
-                        !mBTDevices.contains(newHost)){
-                    mBTDevices.add(newHost);
+                        !mBTDevices.contains(device)){
+                    mBTDevices.add(device);
                     Log.d(TAG, device.getName() + " added in the list.");
                 }
 
@@ -217,6 +217,38 @@ public class LobbyActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, CreateMatchActivity.class);
         startActivity(intent);
+    }
+
+    @OnItemClick(R.id.list)
+    void onItemClick(int position) {
+
+        BluetoothDevice selectedHost = mBTDevices.get(position);
+
+        try {
+            final BluetoothSocket btSocket = selectedHost.createRfcommSocketToServiceRecord(UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"));
+
+            Log.d(TAG, "Performing connection...");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.d(TAG, "In the connection thread");
+                        btSocket.connect();
+                        Log.d(TAG, "Connect released");
+                    } catch (IOException e) {
+
+                        Log.e(TAG, "Something went wrong");
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+            Log.d(TAG, "Connection launched");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void requestPermission() {

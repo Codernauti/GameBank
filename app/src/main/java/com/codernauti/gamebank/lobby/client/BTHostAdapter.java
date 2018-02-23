@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.lobby.client;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
@@ -22,9 +23,9 @@ import java.util.ArrayList;
 public class BTHostAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<BTHost> btDevices;
+    private ArrayList<BluetoothDevice> btDevices;
 
-    BTHostAdapter(Context context, ArrayList<BTHost> btDevices) {
+    BTHostAdapter(Context context, ArrayList<BluetoothDevice> btDevices) {
         this.context = context;
         this.btDevices = btDevices;
     }
@@ -47,7 +48,7 @@ public class BTHostAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         ConstraintLayout btDeviceItem;
-        BTHost device = btDevices.get(i);
+        BluetoothDevice device = btDevices.get(i);
 
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context
@@ -66,7 +67,7 @@ public class BTHostAdapter extends BaseAdapter {
                 .setText(device.getAddress());
 
         int drawableResource = R.drawable.ic_lock_outline_black_24dp;
-        if (device.isPaired()) {
+        if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
             drawableResource = R.drawable.ic_lock_open_black_24dp;
         }
 
