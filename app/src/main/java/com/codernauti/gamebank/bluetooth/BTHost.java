@@ -6,8 +6,6 @@ package com.codernauti.gamebank.bluetooth;
 
 public class BTHost extends BTDevice {
 
-    private String name;
-    private String address;
     private boolean paired;
 
     public BTHost (String name, String address) {
@@ -16,19 +14,9 @@ public class BTHost extends BTDevice {
     }
 
     public BTHost (String name, String address, boolean paired) {
-        this.name = name;
-        this.address = address;
+        super(name, address);
+
         this.paired = paired;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getAddress() {
-        return address;
     }
 
     @Override

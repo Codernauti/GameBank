@@ -6,25 +6,12 @@ package com.codernauti.gamebank.bluetooth;
 
 public class BTClient extends BTDevice {
 
-    private String name;
-    private String address;
     private boolean isReady;
 
     public BTClient (String name, String address, boolean isReady) {
-        this.name = name;
-        this.address = address;
+        super(name, address);
+
         this.isReady = isReady;
-    }
-
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getAddress() {
-        return address;
     }
 
     public boolean isReady() {

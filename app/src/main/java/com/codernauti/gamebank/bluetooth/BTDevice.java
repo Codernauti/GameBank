@@ -6,8 +6,13 @@ package com.codernauti.gamebank.bluetooth;
 
 public abstract class BTDevice {
 
-    private String name;
-    private String address;
+    protected String name;
+    protected String address;
+
+    public BTDevice (String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
 
     public String getName() {
         return name;
