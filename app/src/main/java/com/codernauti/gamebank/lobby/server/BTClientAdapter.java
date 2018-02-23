@@ -48,22 +48,22 @@ public class BTClientAdapter extends BaseAdapter {
         // view : older view to recycle if needed
         // viewGroup : ListView
 
-        ConstraintLayout btDeviceItem;
+        ConstraintLayout btDeviceView;
         BTClient client = clientList.get(i);
 
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            btDeviceItem = (ConstraintLayout) inflater.inflate(R.layout.member_lobby_row, null);
+            btDeviceView = (ConstraintLayout) inflater.inflate(R.layout.member_lobby_row, viewGroup);
         } else {
-            btDeviceItem = (ConstraintLayout) view;
+            btDeviceView = (ConstraintLayout) view;
         }
 
-        ((TextView) btDeviceItem.findViewById(R.id.member_name))
+        ((TextView) btDeviceView.findViewById(R.id.member_name))
                 .setText(client.getName());
 
-        TextView readyText = ((TextView)btDeviceItem.findViewById(R.id.member_ready));
+        TextView readyText = btDeviceView.findViewById(R.id.member_ready);
 
         if (client.isReady()) {
             readyText.setText(context.getString(R.string.status_member_ready));
@@ -71,6 +71,6 @@ public class BTClientAdapter extends BaseAdapter {
             readyText.setText(context.getString(R.string.status_member_not_ready));
         }
 
-        return btDeviceItem;
+        return btDeviceView;
     }
 }
