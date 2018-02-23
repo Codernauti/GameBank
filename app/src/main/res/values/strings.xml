@@ -16,5 +16,7 @@
     <string name="status_member_not_ready">Not Ready</string>
     <string name="predefined_member_name">No one</string>
     <string name="status_member_ready">Ready</string>
+    <string name="dialog_coarse_permission_title">Localization needed</string>
+    <string name="dialog_coarse_permission_description">In some devices, the location is necessary in order to find nearby devices. Please enable it.</string>
 
 </resources>

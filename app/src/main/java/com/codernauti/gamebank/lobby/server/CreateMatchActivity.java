@@ -96,11 +96,15 @@ public class CreateMatchActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.open_lobby)
-    void onStartMatch() {
+    void onOpenMatch() {
 
         openLobbyButton.setEnabled(false);
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
+
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        this.startActivity(discoverableIntent);
     }
 
     @OnClick(R.id.cancel_match)
@@ -119,10 +123,6 @@ public class CreateMatchActivity extends AppCompatActivity {
         startingMatchProgressBar.setVisibility(View.VISIBLE);
         startMatchButton.setEnabled(false);
         startingMatchProgressBar.animate();
-
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        this.startActivity(discoverableIntent);
 
         Log.d(TAG, "Accepting connections");
         AcceptThread ac = new AcceptThread();
@@ -175,6 +175,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
                         byte[] nameToByte = mLobbyName.getText().toString().getBytes();
                         os.write(nameToByte);
+                        os.close();
 
                         Log.d(TAG, "DATA SENT");
 

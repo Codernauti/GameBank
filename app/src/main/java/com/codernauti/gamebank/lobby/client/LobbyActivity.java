@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BTClientConnection;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
 
@@ -100,19 +101,6 @@ public class LobbyActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-
-        /*fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mBluetoothAdapter.isDiscovering()) {
-                    mBluetoothAdapter.cancelDiscovery();
-                }
-
-                Intent intent = new Intent(LobbyActivity.this, CreateMatchActivity.class);
-                startActivity(intent);
-            }
-        });*/
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -191,8 +179,8 @@ public class LobbyActivity extends AppCompatActivity {
 
             } else {
                 mPermissionDialog = new AlertDialog.Builder(this)
-                        .setTitle("Localization needed")
-                        .setMessage("In some devices, the location is necessary in order to find nearby devices. Please enable it.")
+                        .setTitle(R.string.dialog_coarse_permission_title)
+                        .setMessage(R.string.dialog_coarse_permission_description)
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -218,83 +206,32 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     @OnItemClick(R.id.list)
-    void onItemClick(int position) {
+    void onItemClick(final int position) {
 
-        BluetoothDevice selectedHost = mBTDevices.get(position);
+        mBluetoothAdapter.cancelDiscovery();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BluetoothDevice selectedHost = mBTDevices.get(position);
+                BTClientConnection cc =
+                        new BTClientConnection(
+                                UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
+                                selectedHost);
 
-        try {
-            final BluetoothSocket btSocket = selectedHost.createRfcommSocketToServiceRecord(UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"));
+                try {
+                    cc.connect();
+                    Log.d(TAG, "Preparing to read data");
+                    Log.d(TAG, "Data read: " + new String(cc.readData()));
+                    cc.disconnect();
+                } catch (IOException e) {
 
-            Log.d(TAG, "Performing connection...");
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    mBluetoothAdapter.cancelDiscovery();
-
-
-                    try {
-                        Log.d(TAG, "In the connection thread");
-                        btSocket.connect();
-                        Log.d(TAG, "Connected");
-
-                        // FIXME reading data, just for test
-
-                        InputStream is = btSocket.getInputStream();
-                        byte[] byteReads = new byte[1024];
-                        int numBytes = 0;
-
-                        StringBuilder res = new StringBuilder();
-                        boolean flag = true;
-                        int totByteRead = 0;
-
-                        while (flag) {
-                            try {
-                                // Read from the InputStream.
-                                numBytes = is.read(byteReads);
-                                totByteRead += numBytes;
-
-                                Log.d(TAG, "Bytes read: " + numBytes);
-
-                                // Send the obtained bytes to the UI activity.
-                                res.append(new String(byteReads));
-
-                                Log.d(TAG, "Data saved in res");
-
-                            } catch (IOException e) {
-                                Log.d(TAG, "Input stream was disconnected", e);
-                                flag = false;
-                            }
-                        }
-
-                        Log.d(TAG, res.toString().substring(0, totByteRead));
-
-                        // END FIXME
-
-                        btSocket.close();
-                    } catch (IOException e) {
-
-                        Log.e(TAG, "Something went wrong");
-                        e.printStackTrace();
-
-                        try {
-                            btSocket.close();
-                        } catch (IOException e1) {
-
-                            Log.e(TAG, "Could not close the client socket");
-                            e1.printStackTrace();
-                        }
-                    }
+                    Log.e(TAG, "Something went wrong");
+                    e.printStackTrace();
                 }
+            }
+        }).start();
 
-            }).start();
-
-            Log.d(TAG, "Connection launched");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Log.d(TAG, "Connection launched");
     }
 
     private void requestPermission() {
