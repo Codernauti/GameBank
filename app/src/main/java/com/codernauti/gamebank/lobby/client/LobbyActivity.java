@@ -12,7 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,17 +20,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.codernauti.gamebank.bluetooth.BTDevice;
-import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTHost;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
+import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -231,16 +229,64 @@ public class LobbyActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+
+                    mBluetoothAdapter.cancelDiscovery();
+
+
                     try {
                         Log.d(TAG, "In the connection thread");
                         btSocket.connect();
-                        Log.d(TAG, "Connect released");
+                        Log.d(TAG, "Connected");
+
+                        // FIXME reading data, just for test
+
+                        InputStream is = btSocket.getInputStream();
+                        byte[] byteReads = new byte[1024];
+                        int numBytes = 0;
+
+                        StringBuilder res = new StringBuilder();
+                        boolean flag = true;
+                        int totByteRead = 0;
+
+                        while (flag) {
+                            try {
+                                // Read from the InputStream.
+                                numBytes = is.read(byteReads);
+                                totByteRead += numBytes;
+
+                                Log.d(TAG, "Bytes read: " + numBytes);
+
+                                // Send the obtained bytes to the UI activity.
+                                res.append(new String(byteReads));
+
+                                Log.d(TAG, "Data saved in res");
+
+                            } catch (IOException e) {
+                                Log.d(TAG, "Input stream was disconnected", e);
+                                flag = false;
+                            }
+                        }
+
+                        Log.d(TAG, res.toString().substring(0, totByteRead));
+
+                        // END FIXME
+
+                        btSocket.close();
                     } catch (IOException e) {
 
                         Log.e(TAG, "Something went wrong");
                         e.printStackTrace();
+
+                        try {
+                            btSocket.close();
+                        } catch (IOException e1) {
+
+                            Log.e(TAG, "Could not close the client socket");
+                            e1.printStackTrace();
+                        }
                     }
                 }
+
             }).start();
 
             Log.d(TAG, "Connection launched");

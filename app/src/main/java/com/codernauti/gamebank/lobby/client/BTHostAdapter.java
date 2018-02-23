@@ -11,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTDevice;
-import com.codernauti.gamebank.bluetooth.BTHost;
 
 import java.util.ArrayList;
 

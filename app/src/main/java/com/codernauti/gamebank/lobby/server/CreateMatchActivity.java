@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
@@ -19,6 +20,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -55,6 +57,9 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     @BindView(R.id.member_list_joined)
     ListView memberListJoined;
+
+    @BindView(R.id.name)
+    EditText mLobbyName;
 
     private BTClientAdapter mBTClientAdapter;
     private BluetoothAdapter mBluetoothAdapter;
@@ -121,13 +126,14 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         Log.d(TAG, "Accepting connections");
         AcceptThread ac = new AcceptThread();
+        ac.start();
         Log.d(TAG, "Thread launched");
     }
 
     private class AcceptThread extends Thread {
         private final BluetoothServerSocket mmServerSocket;
 
-        public AcceptThread() {
+        AcceptThread() {
             // Use a temporary object that is later assigned to mmServerSocket
             // because mmServerSocket is final.
             BluetoothServerSocket tmp = null;
@@ -144,6 +150,8 @@ public class CreateMatchActivity extends AppCompatActivity {
             BluetoothSocket socket = null;
             // Keep listening until exception occurs or a socket is returned.
 
+            Log.d(TAG, "In AccountThread run() function");
+
             boolean flag = true;
             while (flag) {
                 try {
@@ -153,11 +161,29 @@ public class CreateMatchActivity extends AppCompatActivity {
                     flag = false;
                 }
 
+                Log.d(TAG, "Socket value: " + socket);
+
                 if (socket != null) {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
 
-                    Log.wtf(TAG, "AAAAAAA CONNECTION ESTABLISHED");
+                    Log.d(TAG, "AAAAAAA CONNECTION ESTABLISHED");
+
+                    // FIXME sending data, just for test
+                    try {
+                        OutputStream os = socket.getOutputStream();
+
+                        byte[] nameToByte = mLobbyName.getText().toString().getBytes();
+                        os.write(nameToByte);
+
+                        Log.d(TAG, "DATA SENT");
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+
+                        Log.e(TAG, "DATA NOT SENT");
+                    }
+                    // END FIXME
 
                     try {
                         mmServerSocket.close();
