@@ -61,9 +61,9 @@ public class CreateMatchActivity extends AppCompatActivity {
     @BindView(R.id.name)
     EditText mLobbyName;
 
-    private BTClientAdapter mBTClientAdapter;
+
     private BluetoothAdapter mBluetoothAdapter;
-    private ArrayList<BTClient> mBTDevices;
+    private BTClientAdapter mMemberAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,18 +81,19 @@ public class CreateMatchActivity extends AppCompatActivity {
         startingMatchProgressBar.setVisibility(View.INVISIBLE);
         cancelMatchButton.setEnabled(false);
 
-        mBTDevices = new ArrayList<>();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        mMemberAdapter = new BTClientAdapter(this);
+        memberListJoined.setAdapter(mMemberAdapter);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        mBTDevices.add(new BTClient("a", "b", true));
-        mBTDevices.add(new BTClient("c", "d", false));
-
-        memberListJoined.setAdapter(new BTClientAdapter(this, mBTDevices));
+        // FIXME: remove this fake entities
+        mMemberAdapter.add(new BTClient("a", "b", true));
+        mMemberAdapter.add(new BTClient("c", "d", false));
     }
 
     @OnClick(R.id.open_lobby)
