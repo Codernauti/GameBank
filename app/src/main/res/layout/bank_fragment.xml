@@ -1,11 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/chat_diary_fragment_layout"
+<android.support.constraint.ConstraintLayout android:id="@+id/chat_diary_fragment_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/colorPrimaryDark"
-    >
+    android:padding="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <TextView
+        android:id="@+id/bank_account_balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:text="Your  Balance"
 
-</FrameLayout>
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_bias="0.2"
+
+        app:layout_constraintHorizontal_bias="0.1"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bank_account_balance"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/bank_account_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="34sp"
+
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_account_balance_label"
+        app:layout_constraintBottom_toTopOf="@+id/bank_plus_5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        tools:text="30.000"
+        />
+
+    <Button
+        android:id="@+id/bank_plus_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 5"
+
+        app:layout_constraintVertical_bias="0.05"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_account_balance"
+        app:layout_constraintBottom_toTopOf="@+id/bank_minus_5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <Button
+        android:id="@+id/bank_minus_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="- 5"
+
+        app:layout_constraintVertical_bias="0.05"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_plus_5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</android.support.constraint.ConstraintLayout>
