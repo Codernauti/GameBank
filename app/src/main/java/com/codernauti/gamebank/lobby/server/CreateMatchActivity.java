@@ -18,10 +18,12 @@ import android.widget.ProgressBar;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
+import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTHostConnection;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -125,10 +127,20 @@ public class CreateMatchActivity extends AppCompatActivity {
         startMatchButton.setEnabled(false);
         startingMatchProgressBar.animate();
 
+        try {
+            BTHostConnection gameHost = new BTHostConnection(1,
+                    mBluetoothAdapter.listenUsingRfcommWithServiceRecord(CONNECTION_NAME, MY_UUID));
+
+            gameHost.acceptConnections();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+/*
         Log.d(TAG, "Accepting connections");
         AcceptThread ac = new AcceptThread();
         ac.start();
         Log.d(TAG, "Thread launched");
+*/
     }
 
     private class AcceptThread extends Thread {
@@ -157,45 +169,34 @@ public class CreateMatchActivity extends AppCompatActivity {
             while (flag) {
                 try {
                     socket = mmServerSocket.accept();
+                    if (socket != null) {
+                        // A connection was accepted. Perform work associated with
+                        // the connection in a separate thread.
+
+                        Log.d(TAG, "AAAAAAA CONNECTION ESTABLISHED");
+
+                            // Important! Don't close the os otherwise data transfer will fail!
+                            OutputStream os = socket.getOutputStream();
+                            ObjectOutputStream objos = new ObjectOutputStream(os);
+
+                            Log.d(TAG, "Sending this message: " + mLobbyName.getText());
+
+                            BTBundle b = new BTBundle(mLobbyName.getText().toString());
+
+                            b.getMapData().put("prova", "ciao mondo");
+                            b.getMapData().put("provina", "ciaone");
+                            objos.writeObject(b);
+                            Log.d(TAG, "DATA SENT");
+
+                            mmServerSocket.close();
+                    } else {
+                        flag = false;
+                    }
                 } catch (IOException e) {
                     Log.e(TAG, "Socket's accept() method failed", e);
                     flag = false;
                 }
 
-                if (socket != null) {
-                    // A connection was accepted. Perform work associated with
-                    // the connection in a separate thread.
-
-                    Log.d(TAG, "AAAAAAA CONNECTION ESTABLISHED");
-
-                    // FIXME sending data, just for test
-                    try {
-                        // Important! Don't close the os otherwise data transfer will fail!
-                        OutputStream os = socket.getOutputStream();
-
-                        byte[] nameToByte = mLobbyName.getText().toString().getBytes();
-
-                        Log.d(TAG, "Sending this message: " + mLobbyName.getText());
-
-                        os.write(nameToByte);
-                        os.write(Byte.MIN_VALUE);
-                        Log.d(TAG, "DATA SENT");
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-
-                        Log.e(TAG, "DATA NOT SENT");
-                    }
-                    // END FIXME
-
-                    try {
-                        mmServerSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    flag = false;
-                }
             }
         }
 

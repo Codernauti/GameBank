@@ -1,125 +1,120 @@
 package com.codernauti.gamebank.bluetooth;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Parcelable;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by dpolonio on 23/02/18.
  */
 
-public class BTClientConnection extends BTConnection {
+public class BTClientConnection implements Closeable{
+
+    public final static String EVENT_CONNECTION_ESTABLISHED = "ce";
+    public final static String EVENT_CONNECTION_ERRONEED = "cerr";
+    public final static String EVENT_INCOMING_DATA = "id";
 
     private final static String TAG = "BTClientConnection";
 
-    private BluetoothDevice mServer;
+    private final BluetoothDevice mServer;
+    private final ExecutorService mExecutorService;
+    private final UUID mUuid;
+    private final LocalBroadcastManager mLocalBroadcastManager;
 
     private BluetoothSocket mBTSocket;
+    private BTConnection mBTConnection;
 
-    public BTClientConnection(@NonNull UUID uuid, @NonNull BluetoothDevice server) {
-        super(uuid);
+    public BTClientConnection(@NonNull UUID uuid,
+                              @NonNull BluetoothDevice server,
+                              @NonNull LocalBroadcastManager mLocalBroadcastManager) {
 
+        this.mUuid = uuid;
         this.mServer = server;
+        this.mLocalBroadcastManager = mLocalBroadcastManager;
+        this.mExecutorService = Executors.newFixedThreadPool(1);
     }
 
-    @Override
-    public void writeData(Parcelable toSend, BluetoothDevice device) {
+    public void connect () throws IOException {
 
-    }
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mBTSocket = mServer.createRfcommSocketToServiceRecord(mUuid);
+                    mBTSocket.connect();
+                    Log.d(TAG, "Connected with " + mServer.getName());
 
-    @Override
-    public void writeData(byte[] toSend, BluetoothDevice device) {
+                    Intent connectionCompleted = new Intent(EVENT_CONNECTION_ESTABLISHED);
+                    mLocalBroadcastManager.sendBroadcast(connectionCompleted);
 
-    }
+                } catch (IOException e) {
+                    e.printStackTrace();
 
-    @Override
-    public byte[] readData() {
-
-        if (mBTSocket.isConnected()) {
-            final List<Byte> data = new LinkedList<>();
-
-            try (final InputStream is = mBTSocket.getInputStream()) {
-
-                boolean read = true;
-                while(read) {
-
-                    byte[] tmpData = new byte[1024];
-                    final int byteRead = is.read(tmpData);
-
-                    Log.d(TAG, "Just read " + new String(tmpData).substring(0, byteRead));
-
-                    if (byteRead != 0) {
-                        for (int i = 0; i < byteRead && read; i++) {
-
-                            if (tmpData[i] == Byte.MIN_VALUE) {
-                                Log.d(TAG, "Read MIN_VALUE");
-                                read = false;
-                            } else {
-
-                                data.add(tmpData[i]);
-                            }
-                        }
-                    } else {
-                        read = false;
-                    }
+                    Intent error = new Intent(EVENT_CONNECTION_ERRONEED);
+                    mLocalBroadcastManager.sendBroadcast(error);
                 }
 
-                return fromByteList(data);
-
-                /*byte[] res = new byte[1024];
-                int bytes = is.read(res);
-
-                return new String(res).substring(0, bytes).getBytes();*/
-
-            } catch (IOException e) {
-
-                Log.e(TAG, "Error while reading data from " + mServer.getName());
-                e.printStackTrace();
-
-                Log.e(TAG, "Data size: " + data.size());
-
-                return fromByteList(data);
+                mBTConnection = new BTConnection(mBTSocket);
             }
-        }
+        });
+    }
 
-        return new byte[0];
+    public void subscribeForData () {
+
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                boolean flag = true;
+                while (flag) {
+
+                    try {
+
+                        Object tmp = mBTConnection.readData();
+
+                        if (tmp != null) {
+
+                            BTBundle dataReceived = (BTBundle) tmp;
+
+                            Intent toSend = new Intent(EVENT_INCOMING_DATA);
+                            toSend.putExtra(BTBundle.BT_IDENTIFIER, dataReceived);
+
+                            Log.d(TAG, "Data received, sending event");
+
+                            mLocalBroadcastManager.sendBroadcast(toSend);
+                        }
+
+                    } catch (IOException e) {
+
+                        Log.d(TAG, "Stopped receiving data");
+                        e.printStackTrace();
+                        flag = false;
+                    }
+                }
+            }
+        });
+    }
+
+    public void connedAndSubscribe() throws IOException {
+        connect();
+        subscribeForData();
     }
 
     @Override
     public void close() throws IOException {
 
-        if (mBTSocket != null && mBTSocket.isConnected()) {
+        if (mBTSocket != null) {
 
-            Log.d(TAG, "Closing BT connection");
             mBTSocket.close();
+            mExecutorService.shutdownNow();
         }
-    }
-
-    public void connect () throws IOException {
-
-        mBTSocket = mServer.createRfcommSocketToServiceRecord(UUID);
-        mBTSocket.connect();
-    }
-
-    private byte[] fromByteList (List<Byte> byteList) {
-
-        byte[] res = new byte[byteList.size()];
-        int i = 0;
-        for (Byte b : byteList) {
-            res[i] = b;
-            i++;
-        }
-        return res;
     }
 }
