@@ -129,9 +129,19 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         try {
             BTHostConnection gameHost = new BTHostConnection(1,
-                    mBluetoothAdapter.listenUsingRfcommWithServiceRecord(CONNECTION_NAME, MY_UUID));
+                    mBluetoothAdapter
+                    .listenUsingRfcommWithServiceRecord(
+                        CONNECTION_NAME,
+                        MY_UUID));
 
             gameHost.acceptConnections();
+
+            BTBundle b = new BTBundle(mLobbyName.getText().toString());
+            b.getMapData().put("prova", "ciao mondo");
+            b.getMapData().put("provina", "ciaone");
+            
+            gameHost.sendBroadcast(b);
+            Log.d(TAG, "Sent broadcast message");
         } catch (IOException e) {
             e.printStackTrace();
         }

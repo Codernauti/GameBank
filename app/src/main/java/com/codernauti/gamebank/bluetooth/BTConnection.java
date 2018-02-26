@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * Created by dpolonio on 23/02/18.
@@ -30,11 +31,11 @@ class BTConnection implements Closeable {
         this.mBTSocket = mBTSocket;
     }
 
-    void writeData(@NonNull Object toSend, BluetoothDevice device) throws IOException {
+    void writeData(@NonNull Serializable toSend) throws IOException {
 
         ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
 
-        Log.d(TAG, "Sending data to " + device.getName());
+        Log.d(TAG, "Sending data");
 
         objos.writeObject(toSend);
         Log.d(TAG, "DATA SENT");

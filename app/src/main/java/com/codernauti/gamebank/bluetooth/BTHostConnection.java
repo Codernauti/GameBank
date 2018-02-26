@@ -4,9 +4,11 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.support.annotation.NonNull;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -57,6 +59,13 @@ public class BTHostConnection implements Closeable {
                     }
                 });
             }
+        }
+    }
+
+    public void sendBroadcast(@NonNull Serializable data) throws IOException {
+        for (Map.Entry<Integer, BTConnection> btc : mConnections.entrySet()) {
+            Log.d(TAG, "Sending data to " + btc.getKey());
+            btc.getValue().writeData(data);
         }
     }
 
