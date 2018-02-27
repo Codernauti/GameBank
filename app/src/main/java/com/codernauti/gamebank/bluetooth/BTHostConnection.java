@@ -71,7 +71,7 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                     Object received = objis.readObject();
                                     if (received != null) {
                                         BTBundle clientInfo = (BTBundle) received;
-                                        if (clientInfo.getAction().equals("CONNECTION_INFO")) {
+                                        if (clientInfo.getBluetoothAction().equals(BTActions.CONNECTION_INFO)) {
                                             UUID client = (UUID) clientInfo.getMapData().get("IDENTIFIER");
                                             Log.d(TAG, "Connection accepted from " + client);
                                             mConnections.put(client, new BTio(btSocket));

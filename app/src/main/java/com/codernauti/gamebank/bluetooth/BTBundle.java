@@ -19,13 +19,13 @@ public class BTBundle implements Serializable {
     private String action;
     private final HashMap<String, Serializable> data;
 
-    public BTBundle(String action) {
-        this.action = action;
+    public BTBundle(String bluetoothAction) {
+        this.action = bluetoothAction;
         this.data = new HashMap<>();
     }
 
     @NonNull
-    public String getAction() {
+    public String getBluetoothAction() {
         return action;
     }
 

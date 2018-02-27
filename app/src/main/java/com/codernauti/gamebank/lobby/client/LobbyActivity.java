@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.PlayerProfile;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BTActions;
 import com.codernauti.gamebank.bluetooth.BTClientConnection;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.bluetooth.BTBundle;
@@ -112,7 +113,7 @@ public class LobbyActivity extends AppCompatActivity {
                 BTBundle b = BTBundle.extract(intent);
                 if (b != null) {
 
-                    Log.d(TAG, "Received: " + b.getAction());
+                    Log.d(TAG, "Received: " + b.getBluetoothAction());
                     Log.d(TAG, "Data received:");
 
                     for (Map.Entry<String, Serializable> bte : b.getMapData().entrySet()) {
@@ -259,7 +260,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         try {
             PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
-            BTBundle btBundle = new BTBundle("CONNECTION_INFO");
+            BTBundle btBundle = new BTBundle(BTActions.CONNECTION_INFO);
             btBundle.getMapData().put("IDENTIFIER", playerProfile.getId());
             btBundle.getMapData().put("PLAYER_INFO", playerProfile);
 
