@@ -109,10 +109,9 @@ public class LobbyActivity extends AppCompatActivity {
 
             } else if (BTClientConnection.EVENT_INCOMING_DATA.equals(action)) {
 
-                Bundle tmp = intent.getExtras();
-                if (tmp != null) {
+                BTBundle b = BTBundle.extract(intent);
+                if (b != null) {
 
-                    BTBundle b = (BTBundle) tmp.get(BTBundle.BTBUNDLE_KEY);
                     Log.d(TAG, "Received: " + b.getAction());
                     Log.d(TAG, "Data received:");
 
@@ -187,7 +186,7 @@ public class LobbyActivity extends AppCompatActivity {
         IntentFilter incomingTransmissionFilter = new IntentFilter();
         incomingTransmissionFilter.addAction(BTClientConnection.EVENT_INCOMING_DATA);
         incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ESTABLISHED);
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ERRONEED);
+        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ERRONEOUS);
 
         // Registering broadcasts
         registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);

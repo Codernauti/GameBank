@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 public class BTClientConnection extends BTConnection implements Closeable{
 
     public final static String EVENT_CONNECTION_ESTABLISHED = "ce";
-    public final static String EVENT_CONNECTION_ERRONEED = "cerr";
+    public final static String EVENT_CONNECTION_ERRONEOUS = "cerr";
     public final static String EVENT_INCOMING_DATA = "id";
 
     private final static String TAG = "BTClientConnection";
@@ -62,7 +62,7 @@ public class BTClientConnection extends BTConnection implements Closeable{
                 } catch (IOException e) {
                     e.printStackTrace();
 
-                    Intent error = new Intent(EVENT_CONNECTION_ERRONEED);
+                    Intent error = new Intent(EVENT_CONNECTION_ERRONEOUS);
                     mLocalBroadcastManager.sendBroadcast(error);
                 }
 
@@ -80,19 +80,14 @@ public class BTClientConnection extends BTConnection implements Closeable{
                 while (flag) {
 
                     try {
-
                         Object tmp = mBTio.readData();
-
                         if (tmp != null) {
-
-                            BTBundle dataReceived = (BTBundle) tmp;
-
-                            Intent toSend = new Intent(EVENT_INCOMING_DATA);
-                            toSend.putExtra(BTBundle.BTBUNDLE_KEY, dataReceived);
 
                             Log.d(TAG, "Data received, sending event");
 
-                            mLocalBroadcastManager.sendBroadcast(toSend);
+                            BTBundle dataReceived = (BTBundle) tmp;
+                            mLocalBroadcastManager.sendBroadcast(
+                                    dataReceived.getIntent(EVENT_INCOMING_DATA));
                         }
 
                     } catch (IOException e) {
