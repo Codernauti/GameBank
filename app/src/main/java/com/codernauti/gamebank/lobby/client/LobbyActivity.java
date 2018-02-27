@@ -59,7 +59,7 @@ public class LobbyActivity extends AppCompatActivity {
     private BTStateChange mBTStateChangeReceiver;
     private ArrayList<BluetoothDevice> mBTDevices;
     private AlertDialog mPermissionDialog;
-    //private BTClientConnection mHostConnection;
+
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -253,27 +253,6 @@ public class LobbyActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BTClientService.class);
         intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
         startService(intent);
-
-        /*mHostConnection = new BTClientConnection(
-                UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
-                selectedHost,
-                LocalBroadcastManager.getInstance(this));*/
-
-        /*try {
-            PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
-            BTBundle btBundle = new BTBundle(BTActions.CONNECTION_INFO);
-            btBundle.getMapData().put("IDENTIFIER", playerProfile.getId());
-            btBundle.getMapData().put("PLAYER_INFO", playerProfile);
-
-            mHostConnection.connectAndSubscribe(btBundle);
-
-        } catch (IOException e) {
-            Log.e(TAG, "Something went wrong");
-
-            e.printStackTrace();
-        }*/
-
-        Log.d(TAG, "Connection requested");
     }
 
     private void requestPermission() {

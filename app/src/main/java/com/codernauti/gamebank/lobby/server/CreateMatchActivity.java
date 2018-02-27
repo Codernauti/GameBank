@@ -35,8 +35,6 @@ import butterknife.OnClick;
 public class CreateMatchActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateMatchActivity";
-    //private static final String CONNECTION_NAME = "Game Bank";
-    //private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -68,7 +66,6 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTClientAdapter mMemberAdapter;
-    //private BTHostConnection mClientsConnections;
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -174,21 +171,5 @@ public class CreateMatchActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BTHostService.class);
         intent.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
         startService(intent);
-
-        /*try {
-            mClientsConnections = new BTHostConnection(membersNumber.getValue(),
-                    mBluetoothAdapter
-                    .listenUsingRfcommWithServiceRecord(
-                        CONNECTION_NAME,
-                        MY_UUID),
-                    LocalBroadcastManager.getInstance(this));
-
-            mClientsConnections.acceptConnections();
-
-            Log.d(TAG, "Accepting connections");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 }

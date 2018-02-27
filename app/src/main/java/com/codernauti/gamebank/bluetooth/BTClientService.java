@@ -60,6 +60,7 @@ public class BTClientService extends Service {
                 registerReceiver(mFromUiReceiver, filters);*/
 
                 connect();
+
             } else {
                 Log.e(TAG, "Start intent service not initialized!");
             }
