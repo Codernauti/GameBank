@@ -1,10 +1,12 @@
 package com.codernauti.gamebank.lobby.server;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,14 +18,13 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
+import com.codernauti.gamebank.PlayerProfile;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTHostConnection;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -66,6 +67,42 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTClientAdapter mMemberAdapter;
+    private BTHostConnection mClientsConnections;
+
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Log.d(TAG, "Received action: " + intent.getAction());
+
+            if (intent.getAction().equals(BTHostConnection.EVENT_INCOMING_CONNECTION_ESTABLISHED)) {
+
+                Log.d(TAG, "A new client connected");
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+
+                    PlayerProfile pl = (PlayerProfile) bundle.get("PLAYERPROFILE");
+                    Log.d(TAG, "Adding a new player into the list: " + pl.getNickname());
+                    mMemberAdapter.add(new BTClient(pl.getNickname(), pl.getId().toString(), true));
+
+
+                    BTBundle b = new BTBundle(mLobbyName.getText().toString());
+                    b.getMapData().put("prova", "ciao mondo");
+                    b.getMapData().put("provina", "ciaone");
+
+                    //gameHost.sendBroadcast(b);
+                    try {
+                        mClientsConnections.sendTo(b, pl.getId());
+                        Log.d(TAG, "Sent back a message");
+                    } catch (IOException e) {
+
+                        Log.e(TAG, "Failed to send a message");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +130,15 @@ public class CreateMatchActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        // FIXME: remove this fake entities
-        mMemberAdapter.add(new BTClient("a", "b", true));
-        mMemberAdapter.add(new BTClient("c", "d", false));
+        IntentFilter filter = new IntentFilter(BTHostConnection.EVENT_INCOMING_CONNECTION_ESTABLISHED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 
     @OnClick(R.id.open_lobby)
@@ -121,6 +164,8 @@ public class CreateMatchActivity extends AppCompatActivity {
     @OnClick(R.id.start_match)
     void onMatchStart() {
 
+        Log.d(TAG, "onMatchStart");
+
         cancelMatchButton.setVisibility(View.INVISIBLE);
         openLobbyButton.setVisibility(View.INVISIBLE);
         startingMatchProgressBar.setVisibility(View.VISIBLE);
@@ -128,95 +173,19 @@ public class CreateMatchActivity extends AppCompatActivity {
         startingMatchProgressBar.animate();
 
         try {
-            BTHostConnection gameHost = new BTHostConnection(1,
+            mClientsConnections = new BTHostConnection(1,
                     mBluetoothAdapter
                     .listenUsingRfcommWithServiceRecord(
                         CONNECTION_NAME,
-                        MY_UUID));
+                        MY_UUID),
+                    LocalBroadcastManager.getInstance(this));
 
-            gameHost.acceptConnections();
+            mClientsConnections.acceptConnections();
 
-            BTBundle b = new BTBundle(mLobbyName.getText().toString());
-            b.getMapData().put("prova", "ciao mondo");
-            b.getMapData().put("provina", "ciaone");
-            
-            gameHost.sendBroadcast(b);
-            Log.d(TAG, "Sent broadcast message");
+            Log.d(TAG, "Accepting connections");
+
         } catch (IOException e) {
             e.printStackTrace();
-        }
-/*
-        Log.d(TAG, "Accepting connections");
-        AcceptThread ac = new AcceptThread();
-        ac.start();
-        Log.d(TAG, "Thread launched");
-*/
-    }
-
-    private class AcceptThread extends Thread {
-        private final BluetoothServerSocket mmServerSocket;
-
-        AcceptThread() {
-            // Use a temporary object that is later assigned to mmServerSocket
-            // because mmServerSocket is final.
-            BluetoothServerSocket tmp = null;
-            try {
-                // MY_UUID is the app's UUID string, also used by the client code.
-                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(CONNECTION_NAME, MY_UUID);
-            } catch (IOException e) {
-                Log.e(TAG, "Socket's listen() method failed", e);
-            }
-            mmServerSocket = tmp;
-        }
-
-        public void run() {
-            BluetoothSocket socket = null;
-            // Keep listening until exception occurs or a socket is returned.
-
-            Log.d(TAG, "In AccountThread run() function");
-
-            boolean flag = true;
-            while (flag) {
-                try {
-                    socket = mmServerSocket.accept();
-                    if (socket != null) {
-                        // A connection was accepted. Perform work associated with
-                        // the connection in a separate thread.
-
-                        Log.d(TAG, "AAAAAAA CONNECTION ESTABLISHED");
-
-                            // Important! Don't close the os otherwise data transfer will fail!
-                            OutputStream os = socket.getOutputStream();
-                            ObjectOutputStream objos = new ObjectOutputStream(os);
-
-                            Log.d(TAG, "Sending this message: " + mLobbyName.getText());
-
-                            BTBundle b = new BTBundle(mLobbyName.getText().toString());
-
-                            b.getMapData().put("prova", "ciao mondo");
-                            b.getMapData().put("provina", "ciaone");
-                            objos.writeObject(b);
-                            Log.d(TAG, "DATA SENT");
-
-                            mmServerSocket.close();
-                    } else {
-                        flag = false;
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Socket's accept() method failed", e);
-                    flag = false;
-                }
-
-            }
-        }
-
-        // Closes the connect socket and causes the thread to finish.
-        public void cancel() {
-            try {
-                mmServerSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Could not close the connect socket", e);
-            }
         }
     }
 }

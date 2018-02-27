@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,7 +18,7 @@ import java.util.concurrent.Executors;
  * Created by dpolonio on 23/02/18.
  */
 
-public class BTClientConnection implements Closeable{
+public class BTClientConnection extends BTConnection implements Closeable{
 
     public final static String EVENT_CONNECTION_ESTABLISHED = "ce";
     public final static String EVENT_CONNECTION_ERRONEED = "cerr";
@@ -28,22 +29,21 @@ public class BTClientConnection implements Closeable{
     private final BluetoothDevice mServer;
     private final ExecutorService mExecutorService;
     private final UUID mUuid;
-    private final LocalBroadcastManager mLocalBroadcastManager;
 
     private BluetoothSocket mBTSocket;
-    private BTConnection mBTConnection;
+    private BTio mBTio;
 
     public BTClientConnection(@NonNull UUID uuid,
                               @NonNull BluetoothDevice server,
                               @NonNull LocalBroadcastManager mLocalBroadcastManager) {
+        super(mLocalBroadcastManager);
 
         this.mUuid = uuid;
         this.mServer = server;
-        this.mLocalBroadcastManager = mLocalBroadcastManager;
         this.mExecutorService = Executors.newFixedThreadPool(1);
     }
 
-    public void connect () throws IOException {
+    public void connect(@NonNull final BTBundle rendezvous) throws IOException {
 
         mExecutorService.submit(new Runnable() {
             @Override
@@ -52,6 +52,9 @@ public class BTClientConnection implements Closeable{
                     mBTSocket = mServer.createRfcommSocketToServiceRecord(mUuid);
                     mBTSocket.connect();
                     Log.d(TAG, "Connected with " + mServer.getName());
+
+                    ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
+                    objos.writeObject(rendezvous);
 
                     Intent connectionCompleted = new Intent(EVENT_CONNECTION_ESTABLISHED);
                     mLocalBroadcastManager.sendBroadcast(connectionCompleted);
@@ -63,12 +66,12 @@ public class BTClientConnection implements Closeable{
                     mLocalBroadcastManager.sendBroadcast(error);
                 }
 
-                mBTConnection = new BTConnection(mBTSocket);
+                mBTio = new BTio(mBTSocket);
             }
         });
     }
 
-    public void subscribeForData () {
+    public void subscribeForData() {
 
         mExecutorService.submit(new Runnable() {
             @Override
@@ -78,7 +81,7 @@ public class BTClientConnection implements Closeable{
 
                     try {
 
-                        Object tmp = mBTConnection.readData();
+                        Object tmp = mBTio.readData();
 
                         if (tmp != null) {
 
@@ -103,8 +106,8 @@ public class BTClientConnection implements Closeable{
         });
     }
 
-    public void connedAndSubscribe() throws IOException {
-        connect();
+    public void connectAndSubscribe(@NonNull final BTBundle rendezvous) throws IOException {
+        connect(rendezvous);
         subscribeForData();
     }
 

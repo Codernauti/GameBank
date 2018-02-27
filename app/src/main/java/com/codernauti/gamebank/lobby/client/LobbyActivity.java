@@ -22,6 +22,7 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.PlayerProfile;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientConnection;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
@@ -59,6 +60,7 @@ public class LobbyActivity extends AppCompatActivity {
     private BTStateChange mBTStateChangeReceiver;
     private ArrayList<BluetoothDevice> mBTDevices;
     private AlertDialog mPermissionDialog;
+    private BTClientConnection mHostConnection;
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -155,28 +157,6 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-
-        // Registering BT state change
-        IntentFilter btChangeStateFilter = new IntentFilter(BT_STATE_CHANGED);
-        registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
-
-        // Register for broadcasts when a device is discovered
-        IntentFilter btActionFoundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
-
-        // Register for broadcasts when discovery has finished
-        IntentFilter btEndDiscoveryFilter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(mBTDiscoveryReceiver, btEndDiscoveryFilter);
-
-        // Register for BT connection and data receiver
-        IntentFilter incomingTransmissionFilter = new IntentFilter();
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_INCOMING_DATA);
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ESTABLISHED);
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ERRONEED);
-        LocalBroadcastManager
-                .getInstance(this)
-                .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
-
         requestPermission();
     }
 
@@ -195,6 +175,26 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        // Registering BT state change
+        IntentFilter btChangeStateFilter = new IntentFilter(BT_STATE_CHANGED);
+
+        // Register for broadcasts when a device is discovered
+        IntentFilter btActionFoundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        btActionFoundFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+        // Register for BT connection and data receiver
+        IntentFilter incomingTransmissionFilter = new IntentFilter();
+        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_INCOMING_DATA);
+        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ESTABLISHED);
+        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ERRONEED);
+
+        // Registering broadcasts
+        registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
+        registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
+        LocalBroadcastManager
+                .getInstance(this)
+                .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
 
         swipeRefreshLayout.setRefreshing(false);
     }
@@ -274,13 +274,18 @@ public class LobbyActivity extends AppCompatActivity {
         }).start();*/
 
         BluetoothDevice selectedHost = mBTDevices.get(position);
-        BTClientConnection btc = new BTClientConnection(
+        mHostConnection = new BTClientConnection(
                 UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
                 selectedHost,
                 LocalBroadcastManager.getInstance(this));
 
         try {
-            btc.connedAndSubscribe();
+            PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
+            BTBundle btBundle = new BTBundle("CONNECTION_INFO");
+            btBundle.getMapData().put("IDENTIFIER", playerProfile.getId());
+            btBundle.getMapData().put("PLAYER_INFO", playerProfile);
+
+            mHostConnection.connectAndSubscribe(btBundle);
 
         } catch (IOException e) {
             Log.e(TAG, "Something went wrong");
