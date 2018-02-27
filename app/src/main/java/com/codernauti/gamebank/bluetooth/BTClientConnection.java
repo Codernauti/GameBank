@@ -88,7 +88,7 @@ public class BTClientConnection extends BTConnection implements Closeable{
                             BTBundle dataReceived = (BTBundle) tmp;
 
                             Intent toSend = new Intent(EVENT_INCOMING_DATA);
-                            toSend.putExtra(BTBundle.BT_IDENTIFIER, dataReceived);
+                            toSend.putExtra(BTBundle.BTBUNDLE_KEY, dataReceived);
 
                             Log.d(TAG, "Data received, sending event");
 

@@ -173,7 +173,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         startingMatchProgressBar.animate();
 
         try {
-            mClientsConnections = new BTHostConnection(1,
+            mClientsConnections = new BTHostConnection(membersNumber.getValue(),
                     mBluetoothAdapter
                     .listenUsingRfcommWithServiceRecord(
                         CONNECTION_NAME,

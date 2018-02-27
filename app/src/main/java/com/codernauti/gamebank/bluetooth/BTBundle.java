@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class BTBundle implements Serializable {
 
-    public final static String BT_IDENTIFIER = "BTBUNDLE";
+    public final static String BTBUNDLE_KEY = "BTBUNDLE";
 
     private String action;
     private final HashMap<String, Serializable> data;

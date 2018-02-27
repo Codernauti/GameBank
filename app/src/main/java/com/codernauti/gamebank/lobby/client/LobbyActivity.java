@@ -112,7 +112,7 @@ public class LobbyActivity extends AppCompatActivity {
                 Bundle tmp = intent.getExtras();
                 if (tmp != null) {
 
-                    BTBundle b = (BTBundle) tmp.get(BTBundle.BT_IDENTIFIER);
+                    BTBundle b = (BTBundle) tmp.get(BTBundle.BTBUNDLE_KEY);
                     Log.d(TAG, "Received: " + b.getAction());
                     Log.d(TAG, "Data received:");
 
@@ -252,27 +252,6 @@ public class LobbyActivity extends AppCompatActivity {
     void onItemClick(final int position) {
 
         mBluetoothAdapter.cancelDiscovery();
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                BluetoothDevice selectedHost = mBTDevices.get(position);
-
-                try (BTClientConnection cc =
-                             new BTClientConnection(
-                                     UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
-                                     selectedHost)) {
-                    cc.connect();
-                    Log.d(TAG, "Preparing to read data");
-                    Log.d(TAG, "Data read: " + new String(cc.readData()));
-
-                } catch (IOException e) {
-
-                    Log.e(TAG, "Something went wrong");
-                    e.printStackTrace();
-                }
-            }
-        }).start();*/
-
         BluetoothDevice selectedHost = mBTDevices.get(position);
         mHostConnection = new BTClientConnection(
                 UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),

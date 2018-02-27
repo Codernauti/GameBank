@@ -38,10 +38,15 @@ public class BTHostConnection extends BTConnection implements Closeable {
                             @NonNull LocalBroadcastManager localBroadcastManager) {
         super(localBroadcastManager);
 
-        this.mExecutorService = Executors.newCachedThreadPool();
-        this.mConnections = new ConcurrentHashMap<>();
-        this.mAcceptedConnections = acceptedConnections;
-        this.mBtServerSocket = btServerSocket;
+        if (acceptedConnections > 0 && acceptedConnections < 8) {
+
+            this.mExecutorService = Executors.newCachedThreadPool();
+            this.mConnections = new ConcurrentHashMap<>();
+            this.mAcceptedConnections = acceptedConnections;
+            this.mBtServerSocket = btServerSocket;
+        } else {
+            throw new RuntimeException();
+        }
 
     }
 
@@ -49,44 +54,48 @@ public class BTHostConnection extends BTConnection implements Closeable {
 
         Log.d(TAG, "Accepting connections");
 
-        if (mAcceptedConnections < 8) {
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (int i = 0; i < mAcceptedConnections; i++) {
 
-            for (int i = 0; i < mAcceptedConnections; i++) {
+                        Log.d(TAG, "Waiting for a new connection...");
+                        final BluetoothSocket btSocket = mBtServerSocket.accept();
 
-                final int jobId = i;
+                        mExecutorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ObjectInputStream objis = new ObjectInputStream(btSocket.getInputStream());
+                                    Object received = objis.readObject();
+                                    if (received != null) {
+                                        BTBundle clientInfo = (BTBundle) received;
+                                        if (clientInfo.getAction().equals("CONNECTION_INFO")) {
+                                            UUID client = (UUID) clientInfo.getMapData().get("IDENTIFIER");
+                                            Log.d(TAG, "Connection accepted from " + client);
+                                            mConnections.put(client, new BTio(btSocket));
 
-                mExecutorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Log.d(TAG, "Waiting for a new connection...");
-                            BluetoothSocket btSocket = mBtServerSocket.accept();
+                                            Intent connection = new Intent(EVENT_INCOMING_CONNECTION_ESTABLISHED);
+                                            connection.putExtra("PLAYERPROFILE", clientInfo.getMapData().get("PLAYER_INFO"));
 
-                            ObjectInputStream objis = new ObjectInputStream(btSocket.getInputStream());
-
-                            Object received = objis.readObject();
-                            if (received != null) {
-                                BTBundle clientInfo = (BTBundle) received;
-                                if (clientInfo.getAction().equals("CONNECTION_INFO")) {
-                                    UUID client = (UUID) clientInfo.getMapData().get("IDENTIFIER");
-                                    Log.d(TAG, "Connection accepted from " + client);
-                                    mConnections.put(client, new BTio(btSocket));
-
-                                    Intent connection = new Intent(EVENT_INCOMING_CONNECTION_ESTABLISHED);
-                                    connection.putExtra("PLAYERPROFILE", clientInfo.getMapData().get("PLAYER_INFO"));
-
-                                    mLocalBroadcastManager.sendBroadcast(connection);
+                                            mLocalBroadcastManager.sendBroadcast(connection);
+                                        }
+                                    }
+                                } catch (IOException | ClassNotFoundException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                        } catch (IOException | ClassNotFoundException e) {
-
-
-                            e.printStackTrace();
-                        }
+                        });
                     }
-                });
+
+                    Log.d(TAG, "Ended waiting for new connections");
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 
     public void sendTo(@NonNull Serializable data, UUID who) throws IOException {
