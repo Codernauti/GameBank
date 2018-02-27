@@ -22,19 +22,17 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.codernauti.gamebank.PlayerProfile;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTActions;
+import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTClientConnection;
+import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,7 +59,7 @@ public class LobbyActivity extends AppCompatActivity {
     private BTStateChange mBTStateChangeReceiver;
     private ArrayList<BluetoothDevice> mBTDevices;
     private AlertDialog mPermissionDialog;
-    private BTClientConnection mHostConnection;
+    //private BTClientConnection mHostConnection;
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -253,12 +251,17 @@ public class LobbyActivity extends AppCompatActivity {
 
         mBluetoothAdapter.cancelDiscovery();
         BluetoothDevice selectedHost = mBTDevices.get(position);
-        mHostConnection = new BTClientConnection(
+
+        Intent intent = new Intent(this, BTClientService.class);
+        intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
+        startService(intent);
+
+        /*mHostConnection = new BTClientConnection(
                 UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
                 selectedHost,
-                LocalBroadcastManager.getInstance(this));
+                LocalBroadcastManager.getInstance(this));*/
 
-        try {
+        /*try {
             PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
             BTBundle btBundle = new BTBundle(BTActions.CONNECTION_INFO);
             btBundle.getMapData().put("IDENTIFIER", playerProfile.getId());
@@ -270,9 +273,9 @@ public class LobbyActivity extends AppCompatActivity {
             Log.e(TAG, "Something went wrong");
 
             e.printStackTrace();
-        }
+        }*/
 
-        Log.d(TAG, "Connection launched");
+        Log.d(TAG, "Connection requested");
     }
 
     private void requestPermission() {
