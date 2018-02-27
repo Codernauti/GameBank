@@ -37,6 +37,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.lobby.client.LobbyActivity" />
         </activity>
+
+        <!-- Services -->
+        <service android:name=".bluetooth.BTClientService" />
+        <service android:name=".bluetooth.BTHostService" />
+
     </application>
 
 </manifest>

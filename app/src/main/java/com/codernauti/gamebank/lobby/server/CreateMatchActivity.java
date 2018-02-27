@@ -23,6 +23,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTHostConnection;
+import com.codernauti.gamebank.bluetooth.BTHostService;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -34,8 +35,6 @@ import butterknife.OnClick;
 public class CreateMatchActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateMatchActivity";
-    private static final String CONNECTION_NAME = "Game Bank";
-    private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -67,7 +66,6 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTClientAdapter mMemberAdapter;
-    private BTHostConnection mClientsConnections;
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -81,24 +79,22 @@ public class CreateMatchActivity extends AppCompatActivity {
                 Bundle bundle = intent.getExtras();
                 if (bundle != null) {
 
+                    // Decode data from intent
                     PlayerProfile pl = (PlayerProfile) bundle.get("PLAYERPROFILE");
                     Log.d(TAG, "Adding a new player into the list: " + pl.getNickname());
+
+                    // Update UI
                     mMemberAdapter.add(new BTClient(pl.getNickname(), pl.getId().toString(), true));
 
+                    // DEBUG
+                    // send fake response to client
+                    Intent fakeResponseToClient = new Intent(BTHostService.SEND_DATA);
+                    fakeResponseToClient.putExtra("LOBBY_NAME",
+                            mLobbyName.getText().toString());
+                    fakeResponseToClient.putExtra("PLAYER_UUID", pl.getId());
 
-                    BTBundle b = new BTBundle(mLobbyName.getText().toString());
-                    b.getMapData().put("prova", "ciao mondo");
-                    b.getMapData().put("provina", "ciaone");
-
-                    //gameHost.sendBroadcast(b);
-                    try {
-                        mClientsConnections.sendTo(b, pl.getId());
-                        Log.d(TAG, "Sent back a message");
-                    } catch (IOException e) {
-
-                        Log.e(TAG, "Failed to send a message");
-                        e.printStackTrace();
-                    }
+                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
+                            .sendBroadcast(fakeResponseToClient);
                 }
             }
         }
@@ -150,7 +146,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        this.startActivity(discoverableIntent);
+        startActivity(discoverableIntent);
     }
 
     @OnClick(R.id.cancel_match)
@@ -172,20 +168,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         startMatchButton.setEnabled(false);
         startingMatchProgressBar.animate();
 
-        try {
-            mClientsConnections = new BTHostConnection(membersNumber.getValue(),
-                    mBluetoothAdapter
-                    .listenUsingRfcommWithServiceRecord(
-                        CONNECTION_NAME,
-                        MY_UUID),
-                    LocalBroadcastManager.getInstance(this));
-
-            mClientsConnections.acceptConnections();
-
-            Log.d(TAG, "Accepting connections");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Intent intent = new Intent(this, BTHostService.class);
+        intent.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
+        startService(intent);
     }
 }
