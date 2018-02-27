@@ -61,7 +61,7 @@ public class BTClientService extends Service {
 
                 connect();
             } else {
-                Log.e(TAG, "Host server not initialize!");
+                Log.e(TAG, "Start intent service not initialized!");
             }
         }
 

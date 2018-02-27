@@ -164,8 +164,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         unregisterReceiver(mBTStateChangeReceiver);
         unregisterReceiver(mBTDiscoveryReceiver);
-        LocalBroadcastManager
-                .getInstance(this)
+        LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mBluetoothTransmissionReceiver);
     }
 
@@ -190,8 +189,7 @@ public class LobbyActivity extends AppCompatActivity {
         // Registering broadcasts
         registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
         registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
-        LocalBroadcastManager
-                .getInstance(this)
+        LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
 
         swipeRefreshLayout.setRefreshing(false);

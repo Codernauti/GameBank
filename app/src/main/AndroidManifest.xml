@@ -40,6 +40,7 @@
 
         <!-- Services -->
         <service android:name=".bluetooth.BTClientService" />
+        <service android:name=".bluetooth.BTHostService" />
 
     </application>
 
