@@ -12,6 +12,8 @@ public interface Event {
         String STOP_GAME = "stop_game";
         String LEADERBOARD = "leaderboard";
         String LIST_TRANSACTIONS = "list_transactions";
+        String POKE = "poke";
+        String MEMBER_JOINED = "member_joined";
     }
 
     interface Network {

@@ -105,8 +105,9 @@ public class LobbyActivity extends AppCompatActivity {
 
             if (Event.Network.CONN_ESTABLISHED.equals(action)) {
                 Log.d(TAG, "Connection established");
+                startActivity(new Intent(LobbyActivity.this, RoomActivity.class));
 
-            } else if (BTClientConnection.EVENT_INCOMING_DATA.equals(action)) {
+            } else if (BTClientConnection.EVENT_INCOMING_DATA.equals(action)) { // TODO: remove this
 
                 BTBundle b = BTBundle.extract(intent);
                 if (b != null) {

@@ -2,7 +2,10 @@ package com.codernauti.gamebank.bluetooth;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -26,20 +29,26 @@ public class BTClientService extends Service {
 
     // data in start intent
     public static final String HOST_DEVICE = "server_device";
-    // action to bluetooth network
-    // public static final String ...
 
+    private LocalBroadcastManager mLocalBroadcastManager;
     private BTClientConnection mConnection;
 
-    /*private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (action != null) {
+            if (Event.Game.POKE.equals(action)) {
+                Log.e(TAG, "Cannot send poke to host, not implemented yet");
             }
         }
-    };*/
+    };
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -54,9 +63,9 @@ public class BTClientService extends Service {
                         host,
                         LocalBroadcastManager.getInstance(this));
 
-                /*IntentFilter filters = new IntentFilter();
-                filters.addAction();
-                registerReceiver(mFromUiReceiver, filters);*/
+                IntentFilter filters = new IntentFilter();
+                filters.addAction(Event.Game.POKE);
+                mLocalBroadcastManager.registerReceiver(mFromUiReceiver, filters);
 
                 connect();
 
@@ -94,6 +103,6 @@ public class BTClientService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //unregisterReceiver(mFromUiReceiver);
+        mLocalBroadcastManager.unregisterReceiver(mFromUiReceiver);
     }
 }

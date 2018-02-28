@@ -13,6 +13,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dpolonio on 22/02/18.
@@ -46,5 +47,14 @@ class BTClientAdapter extends ArrayAdapter<BTClient> {
         }
 
         return view;
+    }
+
+    ArrayList<BTClient> getAllBTClients() {
+        ArrayList<BTClient> result = new ArrayList<>();
+        for (int i = 0; i < getCount(); i++) {
+            result.add(getItem(i));
+        }
+
+        return result;
     }
 }

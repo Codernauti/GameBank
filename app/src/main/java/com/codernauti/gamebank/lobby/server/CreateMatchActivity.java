@@ -18,11 +18,15 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
+import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTHostConnection;
 import com.codernauti.gamebank.bluetooth.BTHostService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,12 +70,10 @@ public class CreateMatchActivity extends AppCompatActivity {
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
 
-            Log.d(TAG, "Received action: " + intent.getAction());
-
-            if (intent.getAction().equals(BTHostConnection.EVENT_INCOMING_CONNECTION_ESTABLISHED)) {
-
-                Log.d(TAG, "A new client connected");
+            if (Event.Network.CONN_ESTABLISHED.equals(action)) {
                 Bundle bundle = intent.getExtras();
                 if (bundle != null) {
 
@@ -84,13 +86,21 @@ public class CreateMatchActivity extends AppCompatActivity {
 
                     // DEBUG
                     // send fake response to client
-                    Intent fakeResponseToClient = new Intent(BTHostService.SEND_DATA);
+                    /*Intent fakeResponseToClient = new Intent(BTHostService.SEND_DATA);
                     fakeResponseToClient.putExtra("LOBBY_NAME",
                             mLobbyName.getText().toString());
                     fakeResponseToClient.putExtra("PLAYER_UUID", pl.getId());
 
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(fakeResponseToClient);
+                            .sendBroadcast(fakeResponseToClient);*/
+
+                    // update status Room to all clients
+                    Intent allClients = new Intent(Event.Game.MEMBER_JOINED);
+                    ArrayList<BTClient> clients = mMemberAdapter.getAllBTClients();
+                    allClients.putExtra(clients.getClass().getName(), clients);
+
+                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
+                            .sendBroadcast(allClients);
                 }
             }
         }
@@ -122,7 +132,7 @@ public class CreateMatchActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        IntentFilter filter = new IntentFilter(BTHostConnection.EVENT_INCOMING_CONNECTION_ESTABLISHED);
+        IntentFilter filter = new IntentFilter(Event.Network.CONN_ESTABLISHED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
     }
 

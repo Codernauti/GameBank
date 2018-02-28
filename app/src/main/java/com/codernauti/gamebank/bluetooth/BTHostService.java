@@ -12,8 +12,12 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -38,10 +42,10 @@ public class BTHostService extends Service {
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive()");
-
             String action = intent.getAction();
             Bundle bundle = intent.getExtras();
+
+            Log.d(TAG, "Received action:" + action);
 
             if (action != null && action.equals(SEND_DATA)) {
 
@@ -62,6 +66,18 @@ public class BTHostService extends Service {
                     }
 
 
+                }
+            } else if (Event.Game.MEMBER_JOINED.equals(action)) {
+
+                BTBundle btBundle = new BTBundle(Event.Game.MEMBER_JOINED);
+                String key = ArrayList.class.getName();
+                btBundle.getMapData().put(key, intent.getSerializableExtra(key));
+
+                try {
+                    mConnections.sendBroadcast(btBundle);
+                } catch (IOException e) {
+                    Toast.makeText(context, "Error to send: " + key, Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
                 }
             }
         }
@@ -92,6 +108,7 @@ public class BTHostService extends Service {
 
                 IntentFilter filters = new IntentFilter();
                 filters.addAction(SEND_DATA);
+                filters.addAction(Event.Game.MEMBER_JOINED);
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filters);
 
@@ -118,6 +135,7 @@ public class BTHostService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mFromUiReceiver);
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mFromUiReceiver);
     }
 }

@@ -83,11 +83,10 @@ public class BTClientConnection extends BTConnection implements Closeable{
                         Object tmp = mBTio.readData();
                         if (tmp != null) {
 
-                            Log.d(TAG, "Data received, sending event");
-
                             BTBundle dataReceived = (BTBundle) tmp;
-                            //mLocalBroadcastManager.sendBroadcast(
-                                    //dataReceived.getIntent(EVENT_INCOMING_DATA));
+
+                            Log.d(TAG, "Data event received: " +
+                                    dataReceived.getBluetoothAction());
 
                             mLocalBroadcastManager.sendBroadcast(dataReceived.getIntent());
                         }
