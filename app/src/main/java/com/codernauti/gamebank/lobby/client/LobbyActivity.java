@@ -57,7 +57,8 @@ public class LobbyActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTStateChange mBTStateChangeReceiver;
-    private ArrayList<BluetoothDevice> mBTDevices;
+
+    private BTHostAdapter mAdapter;
     private AlertDialog mPermissionDialog;
 
     private final BroadcastReceiver mBTDiscoveryReceiver = new BroadcastReceiver() {
@@ -80,10 +81,9 @@ public class LobbyActivity extends AppCompatActivity {
 
                 String deviceName = device.getName();
 
-                if (deviceName != null &&
-                        !deviceName.equals("null") &&
-                        !mBTDevices.contains(device)){
-                    mBTDevices.add(device);
+                if (deviceName != null && !deviceName.equals("null")){
+                    mAdapter.add(device);
+
                     Log.d(TAG, device.getName() + " added in the list.");
                 }
 
@@ -91,7 +91,6 @@ public class LobbyActivity extends AppCompatActivity {
 
                 Log.d(TAG, "BT Discovery finished");
                 swipeRefreshLayout.setRefreshing(false);
-                devicesList.setAdapter(new BTHostAdapter(LobbyActivity.this, mBTDevices));
             }
         }
     };
@@ -141,7 +140,10 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         mBTStateChangeReceiver = new BTStateChange();
-        mBTDevices = new ArrayList<>();
+
+        mAdapter = new BTHostAdapter(this);
+        devicesList.setAdapter(mAdapter);
+
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -249,7 +251,7 @@ public class LobbyActivity extends AppCompatActivity {
     void onItemClick(final int position) {
 
         mBluetoothAdapter.cancelDiscovery();
-        BluetoothDevice selectedHost = mBTDevices.get(position);
+        BluetoothDevice selectedHost = mAdapter.getItem(position);
 
         Intent intent = new Intent(this, BTClientService.class);
         intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
@@ -299,8 +301,8 @@ public class LobbyActivity extends AppCompatActivity {
             }
 
             Log.d(TAG, "Starting BT discovery");
-            mBTDevices.clear();
-            devicesList.setAdapter(null);
+            mAdapter.clear();
+
             swipeRefreshLayout.setRefreshing(true);
             mBluetoothAdapter.startDiscovery();
         }
