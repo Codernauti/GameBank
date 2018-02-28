@@ -22,11 +22,10 @@ import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
-import com.codernauti.gamebank.bluetooth.BTHostConnection;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,6 +66,9 @@ public class CreateMatchActivity extends AppCompatActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private BTClientAdapter mMemberAdapter;
 
+    // FIXME: Game Logic field
+    private ArrayList<PlayerProfile> mPlayerProfiles = new ArrayList<>();
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -75,32 +77,26 @@ public class CreateMatchActivity extends AppCompatActivity {
 
             if (Event.Network.CONN_ESTABLISHED.equals(action)) {
                 Bundle bundle = intent.getExtras();
+
                 if (bundle != null) {
 
                     // Decode data from intent
-                    PlayerProfile pl = (PlayerProfile) bundle.get(PlayerProfile.class.getName());
-                    Log.d(TAG, "Adding a new player into the list: " + pl.getNickname());
+                    PlayerProfile newPlayer = (PlayerProfile) bundle.get(PlayerProfile.class.getName());
+                    Log.d(TAG, "Adding a new player into the list: " + newPlayer.getNickname());
+
+                    // Update Game Logic
+                    mPlayerProfiles.add(newPlayer);
 
                     // Update UI
-                    mMemberAdapter.add(new BTClient(pl.getNickname(), pl.getId().toString(), true));
+                    mMemberAdapter.add(new BTClient(newPlayer.getNickname(), newPlayer.getId().toString(), true));
 
-                    // DEBUG
-                    // send fake response to client
-                    /*Intent fakeResponseToClient = new Intent(BTHostService.SEND_DATA);
-                    fakeResponseToClient.putExtra("LOBBY_NAME",
-                            mLobbyName.getText().toString());
-                    fakeResponseToClient.putExtra("PLAYER_UUID", pl.getId());
+                    // Synchronize clients
+                    Intent newMemberIntent = new Intent(Event.Game.MEMBER_JOINED);
+                    newMemberIntent.putExtra(mPlayerProfiles.getClass().getName(),
+                            mPlayerProfiles);
 
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(fakeResponseToClient);*/
-
-                    // update status Room to all clients
-                    Intent allClients = new Intent(Event.Game.MEMBER_JOINED);
-                    ArrayList<BTClient> clients = mMemberAdapter.getAllBTClients();
-                    allClients.putExtra(clients.getClass().getName(), clients);
-
-                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(allClients);
+                            .sendBroadcast(newMemberIntent);
                 }
             }
         }
@@ -149,6 +145,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         openLobbyButton.setEnabled(false);
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
+
+        // Game logic
+        mPlayerProfiles.add(new PlayerProfile("HostName", UUID.randomUUID()));
 
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);

@@ -1,8 +1,7 @@
-package com.codernauti.gamebank.lobby.server;
+package com.codernauti.gamebank.lobby;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,24 +10,22 @@ import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClient;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.codernauti.gamebank.util.PlayerProfile;
 
 /**
- * Created by dpolonio on 22/02/18.
+ * Created by Eduard on 28-Feb-18.
  */
 
-class BTClientAdapter extends ArrayAdapter<BTClient> {
+public class PlayerProfileAdapter extends ArrayAdapter<PlayerProfile> {
 
-    BTClientAdapter(Context context) {
+    public PlayerProfileAdapter(@NonNull Context context) {
         super(context, R.layout.member_lobby_row);
     }
 
     @NonNull
     @Override
     public View getView(int i, View view, @NonNull ViewGroup viewGroup) {
-        BTClient client = getItem(i);
+        PlayerProfile client = getItem(i);
 
         if (view == null) {
             view = LayoutInflater.from(getContext())
@@ -36,15 +33,15 @@ class BTClientAdapter extends ArrayAdapter<BTClient> {
         }
 
         ((TextView)view.findViewById(R.id.member_name))
-                .setText(client.getName());
+                .setText(client.getNickname());
 
         TextView readyText = view.findViewById(R.id.member_ready);
 
-        if (client.isReady()) {
+        /*if (client.()) {
             readyText.setText(getContext().getString(R.string.status_member_ready));
         } else {
             readyText.setText(getContext().getString(R.string.status_member_not_ready));
-        }
+        }*/
 
         return view;
     }
