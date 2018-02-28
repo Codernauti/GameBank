@@ -13,15 +13,9 @@ import java.util.UUID;
 public class EventFactory {
 
     public static BTBundle newInitInformation(@NonNull PlayerProfile profile) {
-        BTBundle btBundle = new BTBundle(Event.Network.INIT_INFORMATION);
-        btBundle.getMapData().put(
-                profile.getId().getClass().getName(),
-                profile.getId());
-        btBundle.getMapData().put(
-                profile.getClass().getName(),
-                profile);
-
-        return btBundle;
+        return new BTBundle(Event.Network.INIT_INFORMATION)
+                .append(profile.getId())
+                .append(profile);
     }
 
 }

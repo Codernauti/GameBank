@@ -16,8 +16,8 @@ public class BTBundle implements Serializable {
 
     private final static String BTBUNDLE_KEY = "BTBUNDLE";
 
-    private String action;
-    private HashMap<String, Serializable> data;
+    private final String action;
+    private final HashMap<String, Serializable> data;
 
     public BTBundle(String bluetoothAction) {
         this(bluetoothAction, new HashMap<String, Serializable>());
@@ -66,33 +66,9 @@ public class BTBundle implements Serializable {
         return null;
     }
 
-    public BTBundle appned() {
-
+    public BTBundle append(Serializable content) {
+        data.put(content.getClass().getName(), content);
         return this;
-    }
-
-    static class Builder {
-        private String mEvent;
-        private final HashMap<String, Serializable> data;
-
-        public Builder() {
-            data = new HashMap<>();
-        }
-
-        public Builder setAction(String event) {
-            mEvent = event;
-            return this;
-        }
-
-        public Builder append(Serializable content) {
-            data.put(content.getClass().getName(), content);
-            return this;
-        }
-
-        public BTBundle build() {
-            return new BTBundle(mEvent, data);
-        }
-
     }
 
 }
