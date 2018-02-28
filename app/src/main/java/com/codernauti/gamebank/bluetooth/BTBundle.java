@@ -46,6 +46,14 @@ public class BTBundle implements Serializable {
         return res;
     }
 
+    @NonNull
+    public Intent getIntent() {
+        Intent res = new Intent(action);
+        res.putExtra(BTBUNDLE_KEY, this);
+
+        return res;
+    }
+
     @Nullable
     public static BTBundle extract(@NonNull Intent intent) {
         Bundle tmp = intent.getExtras();

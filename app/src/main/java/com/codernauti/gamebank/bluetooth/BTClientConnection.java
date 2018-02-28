@@ -86,8 +86,10 @@ public class BTClientConnection extends BTConnection implements Closeable{
                             Log.d(TAG, "Data received, sending event");
 
                             BTBundle dataReceived = (BTBundle) tmp;
-                            mLocalBroadcastManager.sendBroadcast(
-                                    dataReceived.getIntent(EVENT_INCOMING_DATA));
+                            //mLocalBroadcastManager.sendBroadcast(
+                                    //dataReceived.getIntent(EVENT_INCOMING_DATA));
+
+                            mLocalBroadcastManager.sendBroadcast(dataReceived.getIntent());
                         }
 
                     } catch (IOException e) {
