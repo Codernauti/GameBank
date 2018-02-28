@@ -8,11 +8,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.PlayerProfile;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,12 +76,16 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                     if (received != null) {
                                         BTBundle clientInfo = (BTBundle) received;
                                         if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
-                                            UUID client = (UUID) clientInfo.getMapData().get("IDENTIFIER");
+                                            UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
+
                                             Log.d(TAG, "Connection accepted from " + client);
                                             mConnections.put(client, new BTio(btSocket));
 
+                                            // update Ui
                                             Intent connection = new Intent(EVENT_INCOMING_CONNECTION_ESTABLISHED);
-                                            connection.putExtra("PLAYERPROFILE", clientInfo.getMapData().get("PLAYER_INFO"));
+
+                                            String key = PlayerProfile.class.getName();
+                                            connection.putExtra(key, clientInfo.getMapData().get(key));
 
                                             mLocalBroadcastManager.sendBroadcast(connection);
                                         }
