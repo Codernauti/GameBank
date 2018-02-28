@@ -2,17 +2,16 @@ package com.codernauti.gamebank.bluetooth;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.PlayerProfile;
+import com.codernauti.gamebank.util.EventFactory;
+import com.codernauti.gamebank.util.PlayerProfile;
+import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -75,12 +74,9 @@ public class BTClientService extends Service {
         // TODO: get this data from shared preferences
         PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
 
-        BTBundle btBundle = new BTBundle(BTActions.CONNECTION_INFO);
-        btBundle.getMapData().put("IDENTIFIER", playerProfile.getId());
-        btBundle.getMapData().put("PLAYER_INFO", playerProfile);
-
         try {
-            mConnection.connectAndSubscribe(btBundle);
+            mConnection.connectAndSubscribe(
+                    EventFactory.newInitInformation(playerProfile));
         } catch (IOException e) {
             Log.e(TAG, "Something in connection went wrong");
             e.printStackTrace();

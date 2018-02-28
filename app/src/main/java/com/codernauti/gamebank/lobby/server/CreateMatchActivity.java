@@ -18,15 +18,11 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
-import com.codernauti.gamebank.PlayerProfile;
+import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTHostConnection;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-
-import java.io.IOException;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -80,7 +76,7 @@ public class CreateMatchActivity extends AppCompatActivity {
                 if (bundle != null) {
 
                     // Decode data from intent
-                    PlayerProfile pl = (PlayerProfile) bundle.get("PLAYERPROFILE");
+                    PlayerProfile pl = (PlayerProfile) bundle.get(PlayerProfile.class.getName());
                     Log.d(TAG, "Adding a new player into the list: " + pl.getNickname());
 
                     // Update UI

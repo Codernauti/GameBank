@@ -1,4 +1,4 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.util;
 
 import android.support.annotation.NonNull;
 

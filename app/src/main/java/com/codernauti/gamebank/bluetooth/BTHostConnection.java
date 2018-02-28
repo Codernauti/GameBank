@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.util.Event;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -71,7 +73,7 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                     Object received = objis.readObject();
                                     if (received != null) {
                                         BTBundle clientInfo = (BTBundle) received;
-                                        if (clientInfo.getBluetoothAction().equals(BTActions.CONNECTION_INFO)) {
+                                        if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
                                             UUID client = (UUID) clientInfo.getMapData().get("IDENTIFIER");
                                             Log.d(TAG, "Connection accepted from " + client);
                                             mConnections.put(client, new BTio(btSocket));

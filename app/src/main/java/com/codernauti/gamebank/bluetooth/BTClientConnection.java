@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.util.Event;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -20,8 +22,6 @@ import java.util.concurrent.Executors;
 
 public class BTClientConnection extends BTConnection implements Closeable{
 
-    public final static String EVENT_CONNECTION_ESTABLISHED = "ce";
-    public final static String EVENT_CONNECTION_ERRONEOUS = "cerr";
     public final static String EVENT_INCOMING_DATA = "id";
 
     private final static String TAG = "BTClientConnection";
@@ -56,13 +56,13 @@ public class BTClientConnection extends BTConnection implements Closeable{
                     ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
                     objos.writeObject(rendezvous);
 
-                    Intent connectionCompleted = new Intent(EVENT_CONNECTION_ESTABLISHED);
+                    Intent connectionCompleted = new Intent(Event.Network.CONN_ESTABLISHED);
                     mLocalBroadcastManager.sendBroadcast(connectionCompleted);
 
                 } catch (IOException e) {
                     e.printStackTrace();
 
-                    Intent error = new Intent(EVENT_CONNECTION_ERRONEOUS);
+                    Intent error = new Intent(Event.Network.CONN_ERRONEOUS);
                     mLocalBroadcastManager.sendBroadcast(error);
                 }
 

@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTClient;
+import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.bluetooth.BTClientConnection;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
@@ -103,7 +103,7 @@ public class LobbyActivity extends AppCompatActivity {
             String action = intent.getAction();
             Log.d(TAG, "Action received: " + action);
 
-            if (BTClientConnection.EVENT_CONNECTION_ESTABLISHED.equals(action)) {
+            if (Event.Network.CONN_ESTABLISHED.equals(action)) {
                 Log.d(TAG, "Connection established");
 
             } else if (BTClientConnection.EVENT_INCOMING_DATA.equals(action)) {
@@ -183,8 +183,8 @@ public class LobbyActivity extends AppCompatActivity {
         // Register for BT connection and data receiver
         IntentFilter incomingTransmissionFilter = new IntentFilter();
         incomingTransmissionFilter.addAction(BTClientConnection.EVENT_INCOMING_DATA);
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ESTABLISHED);
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_CONNECTION_ERRONEOUS);
+        incomingTransmissionFilter.addAction(Event.Network.CONN_ESTABLISHED);
+        incomingTransmissionFilter.addAction(Event.Network.CONN_ERRONEOUS);
 
         // Registering broadcasts
         registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
