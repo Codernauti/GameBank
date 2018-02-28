@@ -27,8 +27,6 @@ import java.util.concurrent.Executors;
 
 public class BTHostConnection extends BTConnection implements Closeable {
 
-    public static final String EVENT_INCOMING_CONNECTION_ESTABLISHED = "ice";
-
     private static final String TAG = "BTHostConnection";
 
     private final ExecutorService mExecutorService;
@@ -82,7 +80,7 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                             mConnections.put(client, new BTio(btSocket));
 
                                             // update Ui
-                                            Intent connection = new Intent(EVENT_INCOMING_CONNECTION_ESTABLISHED);
+                                            Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
 
                                             String key = PlayerProfile.class.getName();
                                             connection.putExtra(key, clientInfo.getMapData().get(key));

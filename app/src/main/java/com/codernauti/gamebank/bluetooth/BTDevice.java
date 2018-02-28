@@ -1,10 +1,12 @@
 package com.codernauti.gamebank.bluetooth;
 
+import java.io.Serializable;
+
 /**
  * Created by dpolonio on 19/02/18.
  */
 
-public abstract class BTDevice {
+public abstract class BTDevice implements Serializable {
 
     protected String name;
     protected String address;
