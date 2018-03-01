@@ -9,41 +9,34 @@ import android.util.Log;
 
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.PlayerProfile;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Created by dpolonio on 26/02/18.
  */
 
-public class BTHostConnection extends BTConnection implements Closeable {
+public class BTHostConnection extends BTConnection {
 
     private static final String TAG = "BTHostConnection";
 
-    private final ExecutorService mExecutorService;
-    private final Map<UUID, BTio> mConnections;
     private final int mAcceptedConnections;
     private final BluetoothServerSocket mBtServerSocket;
 
 
-    public BTHostConnection(int acceptedConnections,
-                            @NonNull BluetoothServerSocket btServerSocket,
-                            @NonNull LocalBroadcastManager localBroadcastManager) {
-        super(localBroadcastManager);
+    BTHostConnection(int acceptedConnections,
+                     @NonNull BluetoothServerSocket btServerSocket,
+                     @NonNull LocalBroadcastManager localBroadcastManager) {
+        super(localBroadcastManager, Executors.newCachedThreadPool());
 
         if (acceptedConnections > 0 && acceptedConnections < 8) {
 
-            this.mExecutorService = Executors.newCachedThreadPool();
-            this.mConnections = new ConcurrentHashMap<>();
             this.mAcceptedConnections = acceptedConnections;
             this.mBtServerSocket = btServerSocket;
         } else {
@@ -52,7 +45,7 @@ public class BTHostConnection extends BTConnection implements Closeable {
 
     }
 
-    public void acceptConnections() {
+    void acceptConnections() {
 
         Log.d(TAG, "Accepting connections");
 
@@ -77,7 +70,9 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                             UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
 
                                             Log.d(TAG, "Connection accepted from " + client);
-                                            mConnections.put(client, new BTio(btSocket));
+                                            BTio btio = new BTio(btSocket);
+                                            mConnections.put(client, btio);
+                                            subscribeForData(btio);
 
                                             // update Ui
                                             Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
@@ -104,14 +99,17 @@ public class BTHostConnection extends BTConnection implements Closeable {
         });
     }
 
-    public void sendTo(@NonNull Serializable data, UUID who) throws IOException {
-        Log.d(TAG, "Sending data to " + who);
-        mConnections.get(who).writeData(data);
-    }
-
-    public void sendBroadcast(@NonNull Serializable data) throws IOException {
+    void sendBroadcast(@NonNull Serializable data) throws IOException {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
             sendTo(data, btc.getKey());
+        }
+    }
+
+    void sendMulticast(@NonNull Serializable data, @NonNull List<UUID> exceptions) throws IOException {
+        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
+            if (!exceptions.contains(btc.getKey())) {
+                sendTo(data, btc.getKey());
+            }
         }
     }
 

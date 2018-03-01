@@ -18,5 +18,9 @@
     <string name="status_member_ready">Ready</string>
     <string name="dialog_coarse_permission_title">Localization needed</string>
     <string name="dialog_coarse_permission_description">In some devices, the location is necessary in order to find nearby devices. Please enable it.</string>
+    <string name="waiting_room_title">Waiting room</string>
+    <string name="poke_action">Poke sent!</string>
+    <string name="client_set_ready">Ready to start!</string>
+    <string name="client_set_not_ready">Not ready to start!</string>
 
 </resources>

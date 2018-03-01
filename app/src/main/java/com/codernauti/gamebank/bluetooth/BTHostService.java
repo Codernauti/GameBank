@@ -18,6 +18,7 @@ import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -33,7 +34,6 @@ public class BTHostService extends Service {
 
 
     public static final String ACCEPTED_CONNECTIONS = "accepted_connections";
-    public static final String SEND_DATA = "send_data";
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
@@ -43,31 +43,9 @@ public class BTHostService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Bundle bundle = intent.getExtras();
-
             Log.d(TAG, "Received action:" + action);
 
-            if (action != null && action.equals(SEND_DATA)) {
-
-                if (bundle != null) {
-                    String lobbyName = bundle.getString("LOBBY_NAME");
-                    UUID uuid = (UUID) bundle.get("PLAYER_UUID");
-
-                    BTBundle btBundle = new BTBundle(lobbyName);
-                    btBundle.getMapData().put("prova", "ciao mondo");
-                    btBundle.getMapData().put("provina", "ciaone");
-
-                    try {
-                        mConnections.sendTo(btBundle, uuid);
-                        Log.d(TAG, "Sent back a message");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to send a message");
-                        e.printStackTrace();
-                    }
-
-
-                }
-            } else if (Event.Game.MEMBER_JOINED.equals(action)) {
+            if (Event.Game.MEMBER_JOINED.equals(action)) {
 
                 BTBundle btBundle = new BTBundle(Event.Game.MEMBER_JOINED);
                 String key = ArrayList.class.getName();
@@ -79,6 +57,22 @@ public class BTHostService extends Service {
                     Toast.makeText(context, "Error to send: " + key, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
+            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
+
+                boolean isReady = Event.Game.MEMBER_READY.equals(action);
+                BTBundle btBundle = BTBundle.extract(intent);
+
+                List<UUID> exceptions = new ArrayList<>();
+                exceptions.add((UUID)btBundle.getMapData().get(UUID.class.getName()));
+
+                BTBundle toSend = new BTBundle(action);
+                try {
+                    mConnections.sendMulticast(toSend, exceptions);
+                } catch (IOException e) {
+                    Toast.makeText(context, "Error to send: " + action, Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
             }
         }
     };
@@ -107,7 +101,6 @@ public class BTHostService extends Service {
                         LocalBroadcastManager.getInstance(this));
 
                 IntentFilter filters = new IntentFilter();
-                filters.addAction(SEND_DATA);
                 filters.addAction(Event.Game.MEMBER_JOINED);
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filters);

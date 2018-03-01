@@ -7,49 +7,47 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.util.Event;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Created by dpolonio on 23/02/18.
  */
 
-public class BTClientConnection extends BTConnection implements Closeable{
+public class BTClientConnection extends BTConnection {
 
     public final static String EVENT_INCOMING_DATA = "id";
 
     private final static String TAG = "BTClientConnection";
 
     private final BluetoothDevice mServer;
-    private final ExecutorService mExecutorService;
-    private final UUID mUuid;
+    private final UUID mBluetoothConnectionUuid;
 
     private BluetoothSocket mBTSocket;
-    private BTio mBTio;
+    private UUID mHostUUID;
 
-    public BTClientConnection(@NonNull UUID uuid,
-                              @NonNull BluetoothDevice server,
-                              @NonNull LocalBroadcastManager mLocalBroadcastManager) {
-        super(mLocalBroadcastManager);
+    BTClientConnection(@NonNull UUID uuid,
+                       @NonNull BluetoothDevice server,
+                       @NonNull LocalBroadcastManager mLocalBroadcastManager) {
+        super(mLocalBroadcastManager, Executors.newFixedThreadPool(1));
 
-        this.mUuid = uuid;
+        this.mBluetoothConnectionUuid = uuid;
         this.mServer = server;
-        this.mExecutorService = Executors.newFixedThreadPool(1);
+
     }
 
-    public void connect(@NonNull final BTBundle rendezvous) throws IOException {
+    private void connect(@NonNull final BTBundle rendezvous) throws IOException {
 
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mBTSocket = mServer.createRfcommSocketToServiceRecord(mUuid);
+                    mBTSocket = mServer.createRfcommSocketToServiceRecord(mBluetoothConnectionUuid);
                     mBTSocket.connect();
                     Log.d(TAG, "Connected with " + mServer.getName());
 
@@ -65,46 +63,24 @@ public class BTClientConnection extends BTConnection implements Closeable{
                     Intent error = new Intent(Event.Network.CONN_ERRONEOUS);
                     mLocalBroadcastManager.sendBroadcast(error);
                 }
-
-                mBTio = new BTio(mBTSocket);
             }
         });
+
+        mHostUUID = UUID.randomUUID();
+        GameBank.setBtHostAddress(mHostUUID);
+        mConnections.put(mHostUUID, new BTio(mBTSocket));
     }
 
-    public void subscribeForData() {
+    void connectAndSubscribe(@NonNull final BTBundle rendezvous) throws IOException {
 
-        mExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                boolean flag = true;
-                while (flag) {
-
-                    try {
-                        Object tmp = mBTio.readData();
-                        if (tmp != null) {
-
-                            BTBundle dataReceived = (BTBundle) tmp;
-
-                            Log.d(TAG, "Data event received: " +
-                                    dataReceived.getBluetoothAction());
-
-                            mLocalBroadcastManager.sendBroadcast(dataReceived.getIntent());
-                        }
-
-                    } catch (IOException e) {
-
-                        Log.d(TAG, "Stopped receiving data");
-                        e.printStackTrace();
-                        flag = false;
-                    }
-                }
-            }
-        });
-    }
-
-    public void connectAndSubscribe(@NonNull final BTBundle rendezvous) throws IOException {
+        // FIXME connect should be a FutureTask that returns a uuid, and at that point I subscribe for data
         connect(rendezvous);
-        subscribeForData();
+        if (mHostUUID == null) {
+            Log.e(TAG, "Mhostuuid is null");
+        } else {
+
+            subscribeForData(mConnections.get(mHostUUID));
+        }
     }
 
     @Override

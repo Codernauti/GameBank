@@ -18,4 +18,5 @@
     <string name="status_member_ready">Pronto</string>
     <string name="dialog_coarse_permission_title">Localizzazione necessaria`</string>
     <string name="dialog_coarse_permission_description">In alcuni dispositivi, la localizzazione è necessaria per trovare dispositivi vicini. Per favore concedi il permesso.</string>
+    <string name="waiting_room_title">Stanza pre-partita</string>
 </resources>
