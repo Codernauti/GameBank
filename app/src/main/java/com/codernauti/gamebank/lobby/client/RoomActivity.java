@@ -12,7 +12,8 @@ import android.widget.ListView;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.lobby.PlayerProfileAdapter;
+import com.codernauti.gamebank.lobby.RoomPlayer;
+import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 
@@ -34,7 +35,7 @@ public class RoomActivity extends AppCompatActivity {
     ListView mMembersList;
 
 
-    private PlayerProfileAdapter mMembersAdapter;
+    private RoomPlayerAdapter mMembersAdapter;
 
     private BroadcastReceiver mUpdateUiReceiver = new BroadcastReceiver() {
         @Override
@@ -44,7 +45,7 @@ public class RoomActivity extends AppCompatActivity {
             if (Event.Game.MEMBER_JOINED.equals(action)) {
                 BTBundle btBundle = BTBundle.extract(intent);
 
-                ArrayList<PlayerProfile> members = (ArrayList<PlayerProfile>)
+                ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
                         btBundle.getMapData().get(ArrayList.class.getName());
 
                 mMembersAdapter.addAll(members);
@@ -58,7 +59,7 @@ public class RoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_room);
         ButterKnife.bind(this);
 
-        mMembersAdapter = new PlayerProfileAdapter(this);
+        mMembersAdapter = new RoomPlayerAdapter(this);
         mMembersList.setAdapter(mMembersAdapter);
     }
 

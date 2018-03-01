@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
+import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
@@ -67,7 +68,7 @@ public class CreateMatchActivity extends AppCompatActivity {
     private BTClientAdapter mMemberAdapter;
 
     // FIXME: Game Logic field
-    private ArrayList<PlayerProfile> mPlayerProfiles = new ArrayList<>();
+    private ArrayList<RoomPlayer> mRoomPlayers = new ArrayList<>();
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -81,19 +82,19 @@ public class CreateMatchActivity extends AppCompatActivity {
                 if (bundle != null) {
 
                     // Decode data from intent
-                    PlayerProfile newPlayer = (PlayerProfile) bundle.get(PlayerProfile.class.getName());
+                    RoomPlayer newPlayer = (RoomPlayer) bundle.get(RoomPlayer.class.getName());
                     Log.d(TAG, "Adding a new player into the list: " + newPlayer.getNickname());
 
                     // Update Game Logic
-                    mPlayerProfiles.add(newPlayer);
+                    mRoomPlayers.add(newPlayer);
 
                     // Update UI
-                    mMemberAdapter.add(new BTClient(newPlayer.getNickname(), newPlayer.getId().toString(), true));
+                    mMemberAdapter.add(newPlayer.getBTClient()); // FIXME how about user pic?
 
                     // Synchronize clients
                     Intent newMemberIntent = new Intent(Event.Game.MEMBER_JOINED);
-                    newMemberIntent.putExtra(mPlayerProfiles.getClass().getName(),
-                            mPlayerProfiles);
+                    newMemberIntent.putExtra(mRoomPlayers.getClass().getName(),
+                            mRoomPlayers);
 
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(newMemberIntent);
@@ -147,8 +148,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         startMatchButton.setVisibility(View.VISIBLE);
 
         // Game logic
-        mPlayerProfiles.add(new PlayerProfile("HostName", UUID.randomUUID()));
+        mRoomPlayers.add(new RoomPlayer("HostName", UUID.randomUUID(), true));
 
+        // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);

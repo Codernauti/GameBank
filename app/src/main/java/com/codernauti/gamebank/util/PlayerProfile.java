@@ -21,10 +21,12 @@ public class PlayerProfile implements Serializable {
         this.mId = id;
     }
 
+    @NonNull
     public UUID getId() {
         return mId;
     }
 
+    @NonNull
     public String getNickname() {
         return mNickname;
     }

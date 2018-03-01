@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 
@@ -14,7 +15,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,7 +82,7 @@ public class BTHostConnection extends BTConnection implements Closeable {
                                             // update Ui
                                             Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
 
-                                            String key = PlayerProfile.class.getName();
+                                            String key = RoomPlayer.class.getName();
                                             connection.putExtra(key, clientInfo.getMapData().get(key));
 
                                             mLocalBroadcastManager.sendBroadcast(connection);

@@ -1,6 +1,7 @@
 package com.codernauti.gamebank.bluetooth;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.EventFactory;
 import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.util.Event;
@@ -81,13 +83,13 @@ public class BTClientService extends Service {
         Log.d(TAG, "Connection requested to ClientConnection");
 
         // TODO: get this data from shared preferences
-        PlayerProfile playerProfile = new PlayerProfile("Gino", UUID.randomUUID());
+        RoomPlayer roomPlayer = new RoomPlayer("Gino", UUID.randomUUID(), false);
 
         try {
             mConnection.connectAndSubscribe(
-                    EventFactory.newInitInformation(playerProfile));
+                    EventFactory.newInitInformation(roomPlayer));
         } catch (IOException e) {
-            Log.e(TAG, "Something in connection went wrong");
+            Log.e(TAG, "Something in the connection went wrong");
             e.printStackTrace();
             // TODO: send to Activity Error to send
         }

@@ -3,8 +3,7 @@ package com.codernauti.gamebank.util;
 import android.support.annotation.NonNull;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-
-import java.util.UUID;
+import com.codernauti.gamebank.bluetooth.BTClient;
 
 /**
  * Created by Eduard on 28-Feb-18.
