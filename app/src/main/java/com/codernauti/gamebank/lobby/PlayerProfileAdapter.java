@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.util.PlayerProfile;
 
 /**
@@ -19,7 +18,7 @@ import com.codernauti.gamebank.util.PlayerProfile;
 public class PlayerProfileAdapter extends ArrayAdapter<PlayerProfile> {
 
     public PlayerProfileAdapter(@NonNull Context context) {
-        super(context, R.layout.member_lobby_row);
+        super(context, R.layout.member_list_row);
     }
 
     @NonNull
@@ -29,7 +28,7 @@ public class PlayerProfileAdapter extends ArrayAdapter<PlayerProfile> {
 
         if (view == null) {
             view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.member_lobby_row, viewGroup, false);
+                    .inflate(R.layout.member_list_row, viewGroup, false);
         }
 
         ((TextView)view.findViewById(R.id.member_name))
@@ -37,7 +36,7 @@ public class PlayerProfileAdapter extends ArrayAdapter<PlayerProfile> {
 
         TextView readyText = view.findViewById(R.id.member_ready);
 
-        /*if (client.()) {
+/*        if (client.isReady()) {
             readyText.setText(getContext().getString(R.string.status_member_ready));
         } else {
             readyText.setText(getContext().getString(R.string.status_member_not_ready));

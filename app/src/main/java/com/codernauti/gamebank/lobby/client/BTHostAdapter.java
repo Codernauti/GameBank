@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * Created by dpolonio on 19/02/18.
  */
 
-public class BTHostAdapter extends ArrayAdapter<BluetoothDevice> {
+class BTHostAdapter extends ArrayAdapter<BluetoothDevice> {
 
     BTHostAdapter(Context context) {
         super(context, R.layout.bt_list_row);
