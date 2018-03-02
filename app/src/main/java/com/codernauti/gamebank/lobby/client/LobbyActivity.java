@@ -81,6 +81,9 @@ public class LobbyActivity extends AppCompatActivity {
 
                 String deviceName = device.getName();
 
+                /* FIXME @ed revert to base adapter and check if the bt devices has already been
+                 * discovered
+                 */
                 if (deviceName != null && !deviceName.equals("null")){
                     mAdapter.add(device);
 
