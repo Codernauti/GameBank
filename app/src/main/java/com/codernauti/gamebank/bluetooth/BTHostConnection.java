@@ -58,7 +58,35 @@ public class BTHostConnection extends BTConnection {
                         Log.d(TAG, "Waiting for a new connection...");
                         final BluetoothSocket btSocket = mBtServerSocket.accept();
 
-                        mExecutorService.submit(new Runnable() {
+                        // Read init information from client just connected
+                        try {
+                            ObjectInputStream inputStream = new ObjectInputStream(btSocket.getInputStream());
+                            Object received = inputStream.readObject();
+
+                            if (received != null) {
+                                BTBundle clientInfo = (BTBundle) received;
+
+                                if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
+
+                                    UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
+
+                                    addNewAcceptedConnection(client, btSocket);
+                                    startListeningData(client);
+
+                                    // update Ui
+                                    Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
+
+                                    String key = RoomPlayer.class.getName();
+                                    connection.putExtra(key, clientInfo.getMapData().get(key));
+
+                                    mLocalBroadcastManager.sendBroadcast(connection);
+                                }
+                            }
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                        /*mExecutorService.submit(new Runnable() {
                             @Override
                             public void run() {
                                 try {
@@ -72,7 +100,7 @@ public class BTHostConnection extends BTConnection {
                                             Log.d(TAG, "Connection accepted from " + client);
                                             BTio btio = new BTio(btSocket);
                                             mConnections.put(client, btio);
-                                            subscribeForData(btio);
+                                            startListeningData(btio);
 
                                             // update Ui
                                             Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
@@ -87,7 +115,7 @@ public class BTHostConnection extends BTConnection {
                                     e.printStackTrace();
                                 }
                             }
-                        });
+                        });*/
                     }
 
                     Log.d(TAG, "Ended waiting for new connections");
@@ -99,31 +127,9 @@ public class BTHostConnection extends BTConnection {
         });
     }
 
-    void sendBroadcast(@NonNull Serializable data) throws IOException {
-        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
-            sendTo(data, btc.getKey());
-        }
-    }
-
-    void sendMulticast(@NonNull Serializable data, @NonNull List<UUID> exceptions) throws IOException {
-        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
-            if (!exceptions.contains(btc.getKey())) {
-                sendTo(data, btc.getKey());
-            }
-        }
-    }
-
-    public void closeAcceptConnections() throws IOException {
-        mBtServerSocket.close();
-    }
-
     @Override
     public void close() throws IOException {
-
         mBtServerSocket.close();
-        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
-            btc.getValue().close();
-        }
-        mExecutorService.shutdownNow();
+        super.close();
     }
 }

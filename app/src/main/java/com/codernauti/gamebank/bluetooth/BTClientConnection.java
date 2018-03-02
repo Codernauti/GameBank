@@ -11,7 +11,6 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -21,38 +20,45 @@ import java.util.concurrent.Executors;
 
 public class BTClientConnection extends BTConnection {
 
-    public final static String EVENT_INCOMING_DATA = "id";
+    private static final String TAG = "BTClientConnection";
 
-    private final static String TAG = "BTClientConnection";
+
+    // TODO: understand what is this fields
+    private static final UUID mHardcodedUUID =
+            UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
     private final BluetoothDevice mServer;
-    private final UUID mBluetoothConnectionUuid;
 
-    private BluetoothSocket mBTSocket;
     private UUID mHostUUID;
+    private BTio mConnectionWithHost;   // FIXME: use super.mConnections
 
-    BTClientConnection(@NonNull UUID uuid,
-                       @NonNull BluetoothDevice server,
+    BTClientConnection(@NonNull BluetoothDevice server,
                        @NonNull LocalBroadcastManager mLocalBroadcastManager) {
-        super(mLocalBroadcastManager, Executors.newFixedThreadPool(1));
+        super(mLocalBroadcastManager, Executors.newFixedThreadPool(2));
 
-        this.mBluetoothConnectionUuid = uuid;
         this.mServer = server;
-
     }
 
-    private void connect(@NonNull final BTBundle rendezvous) throws IOException {
+    private void connectToHost(@NonNull final BTBundle rendezvous) throws IOException {
 
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mBTSocket = mServer.createRfcommSocketToServiceRecord(mBluetoothConnectionUuid);
-                    mBTSocket.connect();
+                    BluetoothSocket socket = mServer.createRfcommSocketToServiceRecord(mHardcodedUUID);
+                    socket.connect();
                     Log.d(TAG, "Connected with " + mServer.getName());
 
-                    ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
-                    objos.writeObject(rendezvous);
+                    // Create connection with host
+                    mHostUUID = UUID.randomUUID();
+                    GameBank.setBtHostAddress(mHostUUID);   // DANGER global variable from one thread
+                    mConnectionWithHost = new BTio(socket);
+
+                    // Send rendezvous to server
+                    mConnectionWithHost.writeData(rendezvous);
+
+                    // Start listening for data
+                    BTClientConnection.super.startListeningData(mConnectionWithHost);
 
                     Intent connectionCompleted = new Intent(Event.Network.CONN_ESTABLISHED);
                     mLocalBroadcastManager.sendBroadcast(connectionCompleted);
@@ -65,31 +71,32 @@ public class BTClientConnection extends BTConnection {
                 }
             }
         });
-
-        mHostUUID = UUID.randomUUID();
-        GameBank.setBtHostAddress(mHostUUID);
-        mConnections.put(mHostUUID, new BTio(mBTSocket));
     }
 
-    void connectAndSubscribe(@NonNull final BTBundle rendezvous) throws IOException {
+    void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
+        connectToHost(rendezvous);
+    }
 
-        // FIXME connect should be a FutureTask that returns a uuid, and at that point I subscribe for data
-        connect(rendezvous);
-        if (mHostUUID == null) {
-            Log.e(TAG, "Mhostuuid is null");
-        } else {
+    void sendDataToHost(BTBundle data) {
+        try {
+            mConnectionWithHost.writeData(data);
+        } catch (IOException e) {
+            Log.d(TAG, "Event: " + Event.Network.SEND_DATA_ERROR);
 
-            subscribeForData(mConnections.get(mHostUUID));
+            Intent error = new Intent(Event.Network.SEND_DATA_ERROR);
+            mLocalBroadcastManager.sendBroadcast(error);
+
+            e.printStackTrace();
         }
     }
 
     @Override
     public void close() throws IOException {
+        super.close();
 
-        if (mBTSocket != null) {
-
-            mBTSocket.close();
-            mExecutorService.shutdownNow();
+        if (mConnectionWithHost != null) {
+            mConnectionWithHost.close();
+            mConnectionWithHost = null;
         }
     }
 }

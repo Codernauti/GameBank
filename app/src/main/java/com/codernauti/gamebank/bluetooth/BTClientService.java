@@ -18,7 +18,6 @@ import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.EventFactory;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Created by Eduard on 27-Feb-18.
@@ -40,23 +39,33 @@ public class BTClientService extends Service {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
+            Log.d(TAG, "Action received: " + action);
+
             if (Event.Game.POKE.equals(action)) {
-                Log.e(TAG, "Cannot send poke to host, not implemented yet");
-            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
+                mConnection.sendDataToHost(BTBundle.extractFrom(intent));
+
+            } else if (Event.Game.MEMBER_READY.equals(action)) {
+                Bundle bundle = intent.getExtras();
+
+                if (bundle != null) {
+                    boolean isReady = bundle.getBoolean(boolean.class.getName());
+                    BTBundle btBundle = EventFactory.newReadinessInfo(isReady);
+
+                    mConnection.sendDataToHost(btBundle);
+                }
+            } /*else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
 
                 // Take the action and send it to the host
-
-                BTBundle bundle = new BTBundle(action);
-
-                bundle.append(playerInfo);
+                BTBundle bundle = new BTBundle(action)
+                        .append(playerInfo);
 
                 try {
-                    mConnection.sendTo(new BTBundle(action), GameBank.getBtHostAddress());
+                    mConnection.sendTo(bundle, GameBank.getBtHostAddress());
                 } catch (IOException e) {
                     Log.e(TAG, "Unable to send readiness change");
                     e.printStackTrace();
                 }
-            }
+            }*/
         }
     };
 
@@ -65,7 +74,7 @@ public class BTClientService extends Service {
         super.onCreate();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         // TODO: get this data from shared preferences
-        playerInfo = new RoomPlayer("Gino", UUID.randomUUID(), false);
+        playerInfo = new RoomPlayer("ClientNickname", GameBank.BT_ADDRESS, false);
     }
 
     @Override
@@ -76,9 +85,7 @@ public class BTClientService extends Service {
             BluetoothDevice host = (BluetoothDevice) bundle.get(HOST_DEVICE);
 
             if (host != null) {
-                mConnection = new BTClientConnection(
-                        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"),
-                        host,
+                mConnection = new BTClientConnection(host,
                         LocalBroadcastManager.getInstance(this));
 
                 IntentFilter filters = new IntentFilter();
@@ -101,8 +108,8 @@ public class BTClientService extends Service {
         Log.d(TAG, "Connection requested to ClientConnection");
 
         try {
-            mConnection.connectAndSubscribe(
-                    EventFactory.newInitInformation(playerInfo));
+            mConnection.connectAndListen(
+                    EventFactory.newInitInfo(playerInfo));
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");
             e.printStackTrace();

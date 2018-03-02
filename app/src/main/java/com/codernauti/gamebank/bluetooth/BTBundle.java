@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.codernauti.gamebank.GameBank;
+
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -21,6 +23,7 @@ public class BTBundle implements Serializable {
 
     public BTBundle(String bluetoothAction) {
         this(bluetoothAction, new HashMap<String, Serializable>());
+        append(GameBank.BT_ADDRESS);
     }
 
     private BTBundle(String bluetoothAction, HashMap<String, Serializable> data) {
@@ -55,7 +58,7 @@ public class BTBundle implements Serializable {
     }
 
     @Nullable
-    public static BTBundle extract(@NonNull Intent intent) {
+    public static BTBundle extractFrom(@NonNull Intent intent) {
         Bundle tmp = intent.getExtras();
         Object received = tmp.get(BTBUNDLE_KEY);
 

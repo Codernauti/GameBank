@@ -23,12 +23,12 @@ import java.io.Serializable;
 
 class BTio implements Closeable {
 
-    private final String TAG = "BTio";
-    BluetoothSocket mBTSocket;
+    private static final String TAG = "BTio";
 
+    private final BluetoothSocket mBTSocket;
 
-    BTio(BluetoothSocket mBTSocket) {
-        this.mBTSocket = mBTSocket;
+    BTio(BluetoothSocket socket) {
+        mBTSocket = socket;
     }
 
     void writeData(@NonNull Serializable toSend) throws IOException {

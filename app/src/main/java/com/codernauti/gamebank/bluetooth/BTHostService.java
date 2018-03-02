@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.EventFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,10 +58,25 @@ public class BTHostService extends Service {
                     Toast.makeText(context, "Error to send: " + key, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
+            } else if (Event.Game.MEMBER_READY.equals(action)) {
+
+                boolean isReady = intent.getExtras().getBoolean(boolean.class.getName());
+
+                UUID address = (UUID) intent.getExtras().get(UUID.class.getName());
+
+                List<UUID> exceptions = new ArrayList<>();
+                exceptions.add(address);
+
+                try {
+                    mConnections.sendMulticast(EventFactory.newReadinessInfo(isReady), exceptions);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
 
                 boolean isReady = Event.Game.MEMBER_READY.equals(action);
-                BTBundle btBundle = BTBundle.extract(intent);
+                BTBundle btBundle = BTBundle.extractFrom(intent);
 
                 List<UUID> exceptions = new ArrayList<>();
                 exceptions.add((UUID)btBundle.getMapData().get(UUID.class.getName()));

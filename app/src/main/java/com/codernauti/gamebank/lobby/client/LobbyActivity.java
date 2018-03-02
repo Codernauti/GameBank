@@ -106,21 +106,6 @@ public class LobbyActivity extends AppCompatActivity {
                 Log.d(TAG, "Connection established");
                 startActivity(new Intent(LobbyActivity.this, RoomActivity.class));
 
-            } else if (BTClientConnection.EVENT_INCOMING_DATA.equals(action)) { // TODO: remove this
-
-                BTBundle b = BTBundle.extract(intent);
-                if (b != null) {
-
-                    Log.d(TAG, "Received: " + b.getBluetoothAction());
-                    Log.d(TAG, "Data received:");
-
-                    for (Map.Entry<String, Serializable> bte : b.getMapData().entrySet()) {
-                        Log.d(TAG, "Field: " + bte.getKey() + ". Data: " + bte.getValue());
-                    }
-                } else {
-
-                    Log.d(TAG, "I received something but the bundle is empty");
-                }
             }
         }
     };
@@ -185,7 +170,6 @@ public class LobbyActivity extends AppCompatActivity {
 
         // Register for BT connection and data receiver
         IntentFilter incomingTransmissionFilter = new IntentFilter();
-        incomingTransmissionFilter.addAction(BTClientConnection.EVENT_INCOMING_DATA);
         incomingTransmissionFilter.addAction(Event.Network.CONN_ESTABLISHED);
         incomingTransmissionFilter.addAction(Event.Network.CONN_ERRONEOUS);
 

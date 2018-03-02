@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
@@ -20,6 +21,7 @@ import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,7 +50,7 @@ public class RoomActivity extends AppCompatActivity {
             String action = intent.getAction();
 
             if (Event.Game.MEMBER_JOINED.equals(action)) {
-                BTBundle btBundle = BTBundle.extract(intent);
+                BTBundle btBundle = BTBundle.extractFrom(intent);
 
                 ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
                         btBundle.getMapData().get(ArrayList.class.getName());
@@ -57,7 +59,7 @@ public class RoomActivity extends AppCompatActivity {
             } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
 
                 // Get the member that changed the status and update the UI
-                BTBundle update = BTBundle.extract(intent);
+                BTBundle update = BTBundle.extractFrom(intent);
 
                 Log.d(TAG, "Received to update member status");
             }
@@ -108,10 +110,10 @@ public class RoomActivity extends AppCompatActivity {
     @OnClick(R.id.member_set_status)
     public void toggleReadiness() {
 
-        String event = isReady ? Event.Game.MEMBER_NOT_READY : Event.Game.MEMBER_READY;
         int icon = isReady ? R.drawable.ic_close_white_24dp : R.drawable.ic_add_white_24dp;
 
-        Intent intent = new Intent(event);
+        Intent intent = new Intent(Event.Game.MEMBER_READY);
+        intent.putExtra(boolean.class.toString(), isReady);
 
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intent);

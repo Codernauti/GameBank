@@ -24,6 +24,7 @@ public interface Event {
         String CONN_ESTABLISHED = "conn_established";
         String CONN_ERRONEOUS = "conn_erroneous";
         String INIT_INFORMATION = "init_information";
+        String SEND_DATA_ERROR = "send_data_error";
     }
 
     interface Util {

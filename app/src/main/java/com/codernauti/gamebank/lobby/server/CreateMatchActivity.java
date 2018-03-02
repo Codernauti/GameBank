@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
+import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
@@ -89,7 +90,7 @@ public class CreateMatchActivity extends AppCompatActivity {
                     mRoomPlayers.add(newPlayer);
 
                     // Update UI
-                    mMemberAdapter.add(newPlayer.getBTClient()); // FIXME how about user pic?
+                    mMemberAdapter.add(newPlayer.getBTClient()); // TODO how about user pic?
 
                     // Synchronize clients
                     Intent newMemberIntent = new Intent(Event.Game.MEMBER_JOINED);
@@ -99,6 +100,19 @@ public class CreateMatchActivity extends AppCompatActivity {
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(newMemberIntent);
                 }
+            } else if (Event.Game.MEMBER_READY.equals(action)) {
+                 // Decode
+                    boolean isReady = (boolean) BTBundle.extractFrom(intent)
+                            .getMapData().get(boolean.class.getName());
+                    UUID uuid = (UUID) BTBundle.extractFrom(intent)
+                            .getMapData().get(UUID.class.getName());
+
+                    Intent i = new Intent(action);
+                    i.putExtra(UUID.class.getName(), uuid);
+                    i.putExtra(boolean.class.getName(), isReady);
+
+                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
+                            .sendBroadcast(i);
             }
         }
     };

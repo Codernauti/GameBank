@@ -13,14 +13,15 @@ public class EventFactory {
 
     private EventFactory(){}
 
-    private static BTBundle addBasicInfo(@NonNull BTBundle bundle) {
-        bundle.append(GameBank.BT_ADDRESS);
-        return bundle;
+    public static BTBundle newInitInfo(@NonNull PlayerProfile profile) {
+        return new BTBundle(Event.Network.INIT_INFORMATION)
+                .append(profile);
     }
 
-    public static BTBundle newInitInformation(@NonNull PlayerProfile profile) {
-        return addBasicInfo(new BTBundle(Event.Network.INIT_INFORMATION)
-                .append(profile));
+
+    public static BTBundle newReadinessInfo(boolean isReady) {
+        return new BTBundle(Event.Game.MEMBER_READY)
+                .append(isReady);
     }
 
 }
