@@ -27,7 +27,7 @@ public class BTClientConnection extends BTConnection {
 
     BTClientConnection(@NonNull BluetoothDevice server,
                        @NonNull LocalBroadcastManager mLocalBroadcastManager) {
-        super(mLocalBroadcastManager, Executors.newFixedThreadPool(2));
+        super(mLocalBroadcastManager, Executors.newCachedThreadPool());
 
         this.mServer = server;
     }

@@ -108,6 +108,9 @@ public class BTClientService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        mConnection.close();
+
         mLocalBroadcastManager.unregisterReceiver(mFromUiReceiver);
     }
 }

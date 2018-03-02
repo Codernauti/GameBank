@@ -112,6 +112,9 @@ public class BTHostService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        mConnections.close();
+
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mFromUiReceiver);
     }

@@ -83,37 +83,6 @@ public class BTHostConnection extends BTConnection {
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();
                         }
-
-                        /*mExecutorService.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    ObjectInputStream objis = new ObjectInputStream(btSocket.getInputStream());
-                                    Object received = objis.readObject();
-                                    if (received != null) {
-                                        BTBundle clientInfo = (BTBundle) received;
-                                        if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
-                                            UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
-
-                                            Log.d(TAG, "Connection accepted from " + client);
-                                            BTio btio = new BTio(btSocket);
-                                            mConnections.put(client, btio);
-                                            startListeningRunnable(btio);
-
-                                            // update Ui
-                                            Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
-
-                                            String key = RoomPlayer.class.getName();
-                                            connection.putExtra(key, clientInfo.getMapData().get(key));
-
-                                            mLocalBroadcastManager.sendBroadcast(connection);
-                                        }
-                                    }
-                                } catch (IOException | ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });*/
                     }
 
                     Log.d(TAG, "Ended waiting for new connections");
@@ -126,8 +95,14 @@ public class BTHostConnection extends BTConnection {
     }
 
     @Override
-    public void close() throws IOException {
-        mBtServerSocket.close();
+    public void close() {
         super.close();
+        try {
+            mBtServerSocket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Impossible to close server socket: " +
+                    mBtServerSocket.toString() + "\n" + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

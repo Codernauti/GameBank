@@ -125,9 +125,15 @@ abstract class BTConnection implements Closeable {
 
     @Override
     @CallSuper
-    public void close() throws IOException {
+    public void close() {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
-            btc.getValue().close();
+            try {
+                btc.getValue().close();
+            } catch (IOException e) {
+                Log.e(TAG, "Impossible to close socket: " +
+                        btc.getValue().toString() + "\n" + e.getMessage());
+                e.printStackTrace();
+            }
         }
         mExecutorService.shutdownNow();
     }
