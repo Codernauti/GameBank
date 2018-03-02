@@ -21,6 +21,7 @@ import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,20 +50,27 @@ public class RoomActivity extends AppCompatActivity {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Game.MEMBER_JOINED.equals(action)) {
-                BTBundle btBundle = BTBundle.extractFrom(intent);
+            BTBundle btBundle = BTBundle.extractFrom(intent);
+            if (btBundle != null) {
 
-                ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
-                        btBundle.get(ArrayList.class.getName());
+                if (Event.Game.MEMBER_JOINED.equals(action)) {
 
-                mMembersAdapter.clear();
-                mMembersAdapter.addAll(members);
-            } else if (Event.Game.MEMBER_READY.equals(action)) {
+                    ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
+                            btBundle.get(ArrayList.class.getName());
 
-                // Get the member that changed the status and update the UI
-                BTBundle update = BTBundle.extractFrom(intent);
+                    mMembersAdapter.clear();
+                    mMembersAdapter.addAll(members);
 
-                Log.d(TAG, "Received to update member status");
+                } else if (Event.Game.MEMBER_READY.equals(action)) {
+
+                    UUID uuid = (UUID) btBundle.get(UUID.class.getName());
+                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
+
+                    // Update Ui
+                    mMembersAdapter.updatePlayerState(uuid, isReady);
+
+                    Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
+                }
             }
         }
     };

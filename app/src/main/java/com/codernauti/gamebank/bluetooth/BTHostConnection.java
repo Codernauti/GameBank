@@ -65,7 +65,7 @@ public class BTHostConnection extends BTConnection {
 
                                 if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
 
-                                    UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
+                                    UUID client = (UUID) clientInfo.get(UUID.class.getName());
 
                                     addConnection(client, btSocket);
                                     startListeningRunnable(client);

@@ -112,18 +112,9 @@ public class CreateMatchActivity extends AppCompatActivity {
                     boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
 
                     // Update Ui
-                    // TODO
                     mMemberAdapter.updatePlayerState(uuid, isReady);
 
                     Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
-
-                    //I'm host, update all my client
-                    //Intent i = new Intent(action);
-                    //i.putExtra(UUID.class.getName(), uuid);
-                    //i.putExtra(boolean.class.getName(), isReady);
-
-                    /*LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(intent);*/
                 }
             }  else {
                 Log.e(TAG, "BTBundle null!");
