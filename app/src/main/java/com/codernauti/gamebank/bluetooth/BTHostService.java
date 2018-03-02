@@ -32,7 +32,6 @@ public class BTHostService extends Service {
 
     private static final String CONNECTION_NAME = "Game Bank";
 
-
     public static final String ACCEPTED_CONNECTIONS = "accepted_connections";
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -51,14 +50,12 @@ public class BTHostService extends Service {
 
             } else if (Event.Game.MEMBER_READY.equals(action)) {
                 BTBundle btBundle = BTBundle.extractFrom(intent);
-
-                boolean isReady = (boolean) btBundle.get(boolean.class.getName());
                 UUID address = (UUID) btBundle.get(UUID.class.getName());
 
                 List<UUID> exceptions = new ArrayList<>();
                 exceptions.add(address);
 
-                mConnections.sendMulticast(EventFactory.newReadinessInfo(isReady), exceptions);
+                mConnections.sendMulticast(btBundle, exceptions);
 
             }
         }

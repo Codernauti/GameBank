@@ -38,7 +38,6 @@ public class BTClientService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             Log.d(TAG, "Action received: " + action);
 
             BTBundle btBundle = BTBundle.extractFrom(intent);
@@ -47,32 +46,6 @@ public class BTClientService extends Service {
             } else {
                 Log.e(TAG, "BTBundle null!");
             }
-
-            /*if (Event.Game.POKE.equals(action)) {
-                mConnection.sendDataToHost(BTBundle.extractFrom(intent));
-
-            } else if (Event.Game.MEMBER_READY.equals(action)) {
-                Bundle bundle = intent.getExtras();
-
-                if (bundle != null) {
-                    boolean isReady = bundle.getBoolean(boolean.class.getName());
-                    BTBundle btBundle = EventFactory.newReadinessInfo(isReady);
-
-                    mConnection.sendDataToHost(btBundle);
-                }
-            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
-
-                // Take the action and send it to the host
-                BTBundle bundle = new BTBundle(action)
-                        .append(playerInfo);
-
-                try {
-                    mConnection.sendTo(bundle, GameBank.getBtHostAddress());
-                } catch (IOException e) {
-                    Log.e(TAG, "Unable to send readiness change");
-                    e.printStackTrace();
-                }
-            }*/
         }
     };
 
@@ -97,7 +70,6 @@ public class BTClientService extends Service {
 
                 IntentFilter filters = new IntentFilter();
                 filters.addAction(Event.Game.POKE);
-                filters.addAction(Event.Game.MEMBER_NOT_READY);
                 filters.addAction(Event.Game.MEMBER_READY);
                 mLocalBroadcastManager.registerReceiver(mFromUiReceiver, filters);
 
@@ -120,7 +92,9 @@ public class BTClientService extends Service {
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");
             e.printStackTrace();
-            // TODO: send to Activity Error to send
+
+            Intent intent = new Intent(Event.Network.CONN_ERRONEOUS);
+            mLocalBroadcastManager.sendBroadcast(intent);
         }
     }
 

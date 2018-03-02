@@ -51,7 +51,7 @@ public class RoomActivity extends AppCompatActivity {
                 BTBundle btBundle = BTBundle.extractFrom(intent);
 
                 ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
-                        btBundle.getMapData().get(ArrayList.class.getName());
+                        btBundle.get(ArrayList.class.getName());
 
                 mMembersAdapter.clear();
                 mMembersAdapter.addAll(members);
@@ -82,7 +82,6 @@ public class RoomActivity extends AppCompatActivity {
 
         IntentFilter filters = new IntentFilter(Event.Game.MEMBER_JOINED);
         filters.addAction(Event.Game.MEMBER_READY);
-        filters.addAction(Event.Game.MEMBER_NOT_READY);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mUpdateUiReceiver, filters);
     }
