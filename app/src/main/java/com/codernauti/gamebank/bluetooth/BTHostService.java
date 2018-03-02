@@ -31,7 +31,6 @@ public class BTHostService extends Service {
     private static final String TAG = "BTHostService";
 
     private static final String CONNECTION_NAME = "Game Bank";
-    private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
 
     public static final String ACCEPTED_CONNECTIONS = "accepted_connections";
@@ -52,12 +51,14 @@ public class BTHostService extends Service {
                 String key = ArrayList.class.getName();
                 btBundle.getMapData().put(key, intent.getSerializableExtra(key));
 
-                try {
+                Log.e(TAG, "Not implemented yet");
+
+                /*try {
                     mConnections.sendBroadcast(btBundle);
                 } catch (IOException e) {
                     Toast.makeText(context, "Error to send: " + key, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
-                }
+                }*/
             } else if (Event.Game.MEMBER_READY.equals(action)) {
 
                 boolean isReady = intent.getExtras().getBoolean(boolean.class.getName());
@@ -73,7 +74,7 @@ public class BTHostService extends Service {
                     e.printStackTrace();
                 }
 
-            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
+            } /*else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
 
                 boolean isReady = Event.Game.MEMBER_READY.equals(action);
                 BTBundle btBundle = BTBundle.extractFrom(intent);
@@ -89,7 +90,7 @@ public class BTHostService extends Service {
                     e.printStackTrace();
                 }
 
-            }
+            }*/
         }
     };
 
@@ -111,13 +112,14 @@ public class BTHostService extends Service {
                 BluetoothServerSocket mServerSocket =
                         mBluetoothAdapter.listenUsingRfcommWithServiceRecord(
                                 CONNECTION_NAME,
-                                MY_UUID);
+                                BTConnection.MY_UUID);
 
                 mConnections = new BTHostConnection(acceptedConn, mServerSocket,
                         LocalBroadcastManager.getInstance(this));
 
                 IntentFilter filters = new IntentFilter();
                 filters.addAction(Event.Game.MEMBER_JOINED);
+                filters.addAction(Event.Game.MEMBER_READY);
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filters);
 

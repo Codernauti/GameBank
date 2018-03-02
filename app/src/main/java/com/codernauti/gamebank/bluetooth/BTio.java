@@ -25,7 +25,7 @@ class BTio implements Closeable {
 
     private static final String TAG = "BTio";
 
-    private final BluetoothSocket mBTSocket;
+    private BluetoothSocket mBTSocket;
 
     BTio(BluetoothSocket socket) {
         mBTSocket = socket;
@@ -35,7 +35,7 @@ class BTio implements Closeable {
 
         ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
 
-        Log.d(TAG, "Sending data");
+        Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
 
         objos.writeObject(toSend);
         Log.d(TAG, "DATA SENT");
@@ -44,13 +44,15 @@ class BTio implements Closeable {
     Object readData() throws IOException {
         if (mBTSocket.isConnected()) {
 
-            try (final InputStream is = mBTSocket.getInputStream();
-                 final ObjectInputStream objis = new ObjectInputStream(is)) {
+            try {
+                ObjectInputStream objis = new ObjectInputStream(mBTSocket.getInputStream());
+
+                Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
                 return objis.readObject();
             } catch (ClassNotFoundException | IOException e) {
 
-                Log.e(TAG, "Data stream end unexpectedly");
+                Log.e(TAG, "Data stream end unexpectedly: " + e.getMessage());
                 e.printStackTrace();
 
                 return null;

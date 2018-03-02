@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
@@ -100,19 +101,37 @@ public class CreateMatchActivity extends AppCompatActivity {
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(newMemberIntent);
                 }
+            } else if (Event.Game.POKE.equals(action)) {
+                BTBundle btBundle = BTBundle.extractFrom(intent);
+                String msg = (String) btBundle.getMapData().get(String.class.getName());
+
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+
             } else if (Event.Game.MEMBER_READY.equals(action)) {
                  // Decode
-                    boolean isReady = (boolean) BTBundle.extractFrom(intent)
-                            .getMapData().get(boolean.class.getName());
-                    UUID uuid = (UUID) BTBundle.extractFrom(intent)
+                BTBundle btBundle = BTBundle.extractFrom(intent);
+
+                if (btBundle != null) {
+                    UUID uuid = (UUID) btBundle
                             .getMapData().get(UUID.class.getName());
+                    boolean isReady = (boolean) btBundle
+                            .getMapData().get(boolean.class.getName());
 
-                    Intent i = new Intent(action);
-                    i.putExtra(UUID.class.getName(), uuid);
-                    i.putExtra(boolean.class.getName(), isReady);
+                    // Update Ui
+                    // TODO
 
-                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(i);
+                    Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
+
+                    //I'm host, update all my client
+                    //Intent i = new Intent(action);
+                    //i.putExtra(UUID.class.getName(), uuid);
+                    //i.putExtra(boolean.class.getName(), isReady);
+
+                    /*LocalBroadcastManager.getInstance(CreateMatchActivity.this)
+                            .sendBroadcast(intent);*/
+                } else {
+                    Log.e(TAG, "BTBundle null!");
+                }
             }
         }
     };
@@ -144,6 +163,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         super.onStart();
 
         IntentFilter filter = new IntentFilter(Event.Network.CONN_ESTABLISHED);
+        filter.addAction(Event.Game.MEMBER_READY);
+        filter.addAction(Event.Game.POKE);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
     }
 

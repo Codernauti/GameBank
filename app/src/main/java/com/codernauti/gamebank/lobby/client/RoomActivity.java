@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
 
-import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
@@ -21,7 +20,6 @@ import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -98,27 +96,29 @@ public class RoomActivity extends AppCompatActivity {
 
     @OnClick(R.id.room_poke_fab)
     public void sendPoke() {
-        Intent intent = new Intent(Event.Game.POKE);
-        intent.putExtra(String.class.getName(), "GOOOO!!");
+        Intent intent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.POKE).append("GOOO!")
+        );
 
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intent);
 
-        Snackbar.make(getCurrentFocus(), R.string.poke_action, Snackbar.LENGTH_SHORT);
+        // Snackbar.make(, R.string.poke_action, Snackbar.LENGTH_SHORT);
     }
 
     @OnClick(R.id.member_set_status)
     public void toggleReadiness() {
+        isReady = !isReady;
 
         int icon = isReady ? R.drawable.ic_close_white_24dp : R.drawable.ic_add_white_24dp;
 
-        Intent intent = new Intent(Event.Game.MEMBER_READY);
-        intent.putExtra(boolean.class.toString(), isReady);
+        Intent intent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.MEMBER_READY).append(isReady)
+        );
 
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intent);
 
-        isReady = !isReady;
         status.setImageResource(icon);
     }
 }

@@ -18,22 +18,17 @@ public class BTBundle implements Serializable {
 
     private final static String BTBUNDLE_KEY = "BTBUNDLE";
 
-    private final String action;
-    private final HashMap<String, Serializable> data;
+    private final String mAction;
+    private final HashMap<String, Serializable> data = new HashMap<String, Serializable>();
 
     public BTBundle(String bluetoothAction) {
-        this(bluetoothAction, new HashMap<String, Serializable>());
+        mAction = bluetoothAction;
         append(GameBank.BT_ADDRESS);
-    }
-
-    private BTBundle(String bluetoothAction, HashMap<String, Serializable> data) {
-        this.action = bluetoothAction;
-        this.data = data;
     }
 
     @NonNull
     public String getBluetoothAction() {
-        return action;
+        return mAction;
     }
 
     @NonNull
@@ -51,7 +46,7 @@ public class BTBundle implements Serializable {
 
     @NonNull
     public Intent getIntent() {
-        Intent res = new Intent(action);
+        Intent res = new Intent(mAction);
         res.putExtra(BTBUNDLE_KEY, this);
 
         return res;
@@ -72,6 +67,13 @@ public class BTBundle implements Serializable {
     public BTBundle append(Serializable content) {
         data.put(content.getClass().getName(), content);
         return this;
+    }
+
+    public static Intent makeIntentFrom(BTBundle bundle) {
+        Intent intent = new Intent(bundle.mAction);
+        intent.putExtra(BTBUNDLE_KEY, bundle);
+
+        return intent;
     }
 
 }

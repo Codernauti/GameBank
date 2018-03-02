@@ -22,13 +22,7 @@ public class BTClientConnection extends BTConnection {
 
     private static final String TAG = "BTClientConnection";
 
-
-    // TODO: understand what is this fields
-    private static final UUID mHardcodedUUID =
-            UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-
     private final BluetoothDevice mServer;
-
     private UUID mHostUUID;
 
     BTClientConnection(@NonNull BluetoothDevice server,
@@ -44,7 +38,7 @@ public class BTClientConnection extends BTConnection {
             @Override
             public void run() {
                 try {
-                    BluetoothSocket socket = mServer.createRfcommSocketToServiceRecord(mHardcodedUUID);
+                    BluetoothSocket socket = mServer.createRfcommSocketToServiceRecord(MY_UUID);
                     socket.connect();
                     Log.d(TAG, "Connected with " + mServer.getName());
 
@@ -71,5 +65,9 @@ public class BTClientConnection extends BTConnection {
 
     void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
         connectToHost(rendezvous);
+    }
+
+    void sendToHost(@NonNull final BTBundle data) {
+        sendTo(data, mHostUUID);
     }
 }

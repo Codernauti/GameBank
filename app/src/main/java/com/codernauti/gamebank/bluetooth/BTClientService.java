@@ -41,7 +41,14 @@ public class BTClientService extends Service {
 
             Log.d(TAG, "Action received: " + action);
 
-            if (Event.Game.POKE.equals(action)) {
+            BTBundle btBundle = BTBundle.extractFrom(intent);
+            if (btBundle != null) {
+                mConnection.sendToHost(btBundle);
+            } else {
+                Log.e(TAG, "BTBundle null!");
+            }
+
+            /*if (Event.Game.POKE.equals(action)) {
                 mConnection.sendDataToHost(BTBundle.extractFrom(intent));
 
             } else if (Event.Game.MEMBER_READY.equals(action)) {
@@ -53,7 +60,7 @@ public class BTClientService extends Service {
 
                     mConnection.sendDataToHost(btBundle);
                 }
-            } /*else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
+            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
 
                 // Take the action and send it to the host
                 BTBundle bundle = new BTBundle(action)

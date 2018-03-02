@@ -26,6 +26,8 @@ abstract class BTConnection implements Closeable {
 
     private final static String TAG = "BTConnection";
 
+    static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+
     final LocalBroadcastManager mLocalBroadcastManager;
 
     final ExecutorService mExecutorService;
@@ -62,6 +64,8 @@ abstract class BTConnection implements Closeable {
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "StartListening \n\tThread: " + Thread.currentThread().getName());
+
                 boolean flag = true;
                 while (flag) {
 
@@ -92,7 +96,7 @@ abstract class BTConnection implements Closeable {
 
     void sendTo(@NonNull Serializable data, @NonNull UUID who) {
         try {
-            Log.d(TAG, "Sending data to " + who);
+            Log.d(TAG, "Sending event: " + ((BTBundle)data).getBluetoothAction() + " to " + who);
 
             mConnections.get(who).writeData(data);
 
