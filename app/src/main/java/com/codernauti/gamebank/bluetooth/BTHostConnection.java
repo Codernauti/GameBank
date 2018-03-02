@@ -71,10 +71,11 @@ public class BTHostConnection extends BTConnection {
                                     startListeningRunnable(client);
 
                                     // update Ui
-                                    Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
-
                                     String key = RoomPlayer.class.getName();
-                                    connection.putExtra(key, clientInfo.getMapData().get(key));
+                                    Intent connection = BTBundle.makeIntentFrom(
+                                            new BTBundle(Event.Network.CONN_ESTABLISHED).append(
+                                                    clientInfo.get(key))
+                                    );
 
                                     mLocalBroadcastManager.sendBroadcast(connection);
                                 }

@@ -78,13 +78,13 @@ public class CreateMatchActivity extends AppCompatActivity {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Network.CONN_ESTABLISHED.equals(action)) {
-                Bundle bundle = intent.getExtras();
+            BTBundle btBundle = BTBundle.extractFrom(intent);
 
-                if (bundle != null) {
+            if (btBundle != null) {
 
+                if (Event.Network.CONN_ESTABLISHED.equals(action)) {
                     // Decode data from intent
-                    RoomPlayer newPlayer = (RoomPlayer) bundle.get(RoomPlayer.class.getName());
+                    RoomPlayer newPlayer = (RoomPlayer) btBundle.get(RoomPlayer.class.getName());
                     Log.d(TAG, "Adding a new player into the list: " + newPlayer.getNickname());
 
                     // Update Game Logic
@@ -100,22 +100,15 @@ public class CreateMatchActivity extends AppCompatActivity {
 
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(newMemberIntent);
-                }
-            } else if (Event.Game.POKE.equals(action)) {
-                BTBundle btBundle = BTBundle.extractFrom(intent);
-                String msg = (String) btBundle.getMapData().get(String.class.getName());
 
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                } else if (Event.Game.POKE.equals(action)) {
+                    String msg = (String) btBundle.get(String.class.getName());
 
-            } else if (Event.Game.MEMBER_READY.equals(action)) {
-                 // Decode
-                BTBundle btBundle = BTBundle.extractFrom(intent);
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 
-                if (btBundle != null) {
-                    UUID uuid = (UUID) btBundle
-                            .getMapData().get(UUID.class.getName());
-                    boolean isReady = (boolean) btBundle
-                            .getMapData().get(boolean.class.getName());
+                } else if (Event.Game.MEMBER_READY.equals(action)) {
+                    UUID uuid = (UUID) btBundle.get(UUID.class.getName());
+                    boolean isReady = (boolean) btBundle.get(boolean.class.getName());
 
                     // Update Ui
                     // TODO
@@ -129,9 +122,9 @@ public class CreateMatchActivity extends AppCompatActivity {
 
                     /*LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(intent);*/
-                } else {
-                    Log.e(TAG, "BTBundle null!");
                 }
+            }  else {
+                Log.e(TAG, "BTBundle null!");
             }
         }
     };
