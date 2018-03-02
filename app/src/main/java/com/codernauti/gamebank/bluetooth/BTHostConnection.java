@@ -12,9 +12,6 @@ import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -70,8 +67,8 @@ public class BTHostConnection extends BTConnection {
 
                                     UUID client = (UUID) clientInfo.getMapData().get(UUID.class.getName());
 
-                                    addNewAcceptedConnection(client, btSocket);
-                                    startListeningData(client);
+                                    addConnection(client, btSocket);
+                                    startListeningRunnable(client);
 
                                     // update Ui
                                     Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);
@@ -100,7 +97,7 @@ public class BTHostConnection extends BTConnection {
                                             Log.d(TAG, "Connection accepted from " + client);
                                             BTio btio = new BTio(btSocket);
                                             mConnections.put(client, btio);
-                                            startListeningData(btio);
+                                            startListeningRunnable(btio);
 
                                             // update Ui
                                             Intent connection = new Intent(Event.Network.CONN_ESTABLISHED);

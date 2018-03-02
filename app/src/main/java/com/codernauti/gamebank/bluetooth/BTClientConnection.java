@@ -30,7 +30,6 @@ public class BTClientConnection extends BTConnection {
     private final BluetoothDevice mServer;
 
     private UUID mHostUUID;
-    private BTio mConnectionWithHost;   // FIXME: use super.mConnections
 
     BTClientConnection(@NonNull BluetoothDevice server,
                        @NonNull LocalBroadcastManager mLocalBroadcastManager) {
@@ -52,13 +51,10 @@ public class BTClientConnection extends BTConnection {
                     // Create connection with host
                     mHostUUID = UUID.randomUUID();
                     GameBank.setBtHostAddress(mHostUUID);   // DANGER global variable from one thread
-                    mConnectionWithHost = new BTio(socket);
 
-                    // Send rendezvous to server
-                    mConnectionWithHost.writeData(rendezvous);
-
-                    // Start listening for data
-                    BTClientConnection.super.startListeningData(mConnectionWithHost);
+                    addConnection(mHostUUID, socket);
+                    sendTo(rendezvous, mHostUUID);
+                    startListeningRunnable(mHostUUID);
 
                     Intent connectionCompleted = new Intent(Event.Network.CONN_ESTABLISHED);
                     mLocalBroadcastManager.sendBroadcast(connectionCompleted);
@@ -75,28 +71,5 @@ public class BTClientConnection extends BTConnection {
 
     void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
         connectToHost(rendezvous);
-    }
-
-    void sendDataToHost(BTBundle data) {
-        try {
-            mConnectionWithHost.writeData(data);
-        } catch (IOException e) {
-            Log.d(TAG, "Event: " + Event.Network.SEND_DATA_ERROR);
-
-            Intent error = new Intent(Event.Network.SEND_DATA_ERROR);
-            mLocalBroadcastManager.sendBroadcast(error);
-
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        super.close();
-
-        if (mConnectionWithHost != null) {
-            mConnectionWithHost.close();
-            mConnectionWithHost = null;
-        }
     }
 }
