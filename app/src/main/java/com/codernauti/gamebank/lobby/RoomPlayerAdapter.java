@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.util.PlayerProfile;
 
+import java.util.UUID;
+
 /**
  * Created by Eduard on 28-Feb-18.
  */
@@ -43,6 +45,15 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
         }
 
         return view;
+    }
+
+    public void updatePlayerState(UUID uuid, boolean isReady) {
+        for (int i = 0; i < getCount(); i++) {
+            if (uuid.equals(getItem(i).getId())) {
+                getItem(i).setReady(isReady);
+                notifyDataSetChanged();
+            }
+        }
     }
 
 }

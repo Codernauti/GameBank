@@ -25,6 +25,10 @@ public class RoomPlayer extends PlayerProfile {
         return isReady;
     }
 
+    public void setReady(boolean isReady) {
+        this.isReady = isReady;
+    }
+
     public BTClient getBTClient() {
         return new BTClient(getNickname(), getId().toString(), isReady);
     }

@@ -47,6 +47,7 @@ public class RoomActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
 
             if (Event.Game.MEMBER_JOINED.equals(action)) {
                 BTBundle btBundle = BTBundle.extractFrom(intent);

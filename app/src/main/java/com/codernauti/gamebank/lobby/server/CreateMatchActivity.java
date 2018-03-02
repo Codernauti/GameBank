@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
+import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
@@ -67,7 +68,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
 
     private BluetoothAdapter mBluetoothAdapter;
-    private BTClientAdapter mMemberAdapter;
+    private RoomPlayerAdapter mMemberAdapter;
 
     // FIXME: Game Logic field
     private ArrayList<RoomPlayer> mRoomPlayers = new ArrayList<>();
@@ -91,7 +92,7 @@ public class CreateMatchActivity extends AppCompatActivity {
                     mRoomPlayers.add(newPlayer);
 
                     // Update UI
-                    mMemberAdapter.add(newPlayer.getBTClient()); // TODO how about user pic?
+                    mMemberAdapter.add(newPlayer); // TODO how about user pic?
 
                     // Synchronize clients
                     Intent newMemberIntent = BTBundle.makeIntentFrom(
@@ -108,10 +109,11 @@ public class CreateMatchActivity extends AppCompatActivity {
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
                     UUID uuid = (UUID) btBundle.get(UUID.class.getName());
-                    boolean isReady = (boolean) btBundle.get(boolean.class.getName());
+                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
 
                     // Update Ui
                     // TODO
+                    mMemberAdapter.updatePlayerState(uuid, isReady);
 
                     Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
 
@@ -147,7 +149,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mMemberAdapter = new BTClientAdapter(this);
+        mMemberAdapter = new RoomPlayerAdapter(this);
         memberListJoined.setAdapter(mMemberAdapter);
     }
 

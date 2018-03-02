@@ -42,7 +42,7 @@ public class BTHostService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d(TAG, "Received action:" + action);
+            Log.d(TAG, "Received action: " + action);
 
             if (Event.Game.MEMBER_JOINED.equals(action)) {
 
@@ -56,7 +56,6 @@ public class BTHostService extends Service {
                 exceptions.add(address);
 
                 mConnections.sendMulticast(btBundle, exceptions);
-
             }
         }
     };
