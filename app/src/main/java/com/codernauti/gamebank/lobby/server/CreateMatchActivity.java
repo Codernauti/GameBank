@@ -94,9 +94,9 @@ public class CreateMatchActivity extends AppCompatActivity {
                     mMemberAdapter.add(newPlayer.getBTClient()); // TODO how about user pic?
 
                     // Synchronize clients
-                    Intent newMemberIntent = new Intent(Event.Game.MEMBER_JOINED);
-                    newMemberIntent.putExtra(mRoomPlayers.getClass().getName(),
-                            mRoomPlayers);
+                    Intent newMemberIntent = BTBundle.makeIntentFrom(
+                            new BTBundle(Event.Game.MEMBER_JOINED).append(mRoomPlayers)
+                    );
 
                     LocalBroadcastManager.getInstance(CreateMatchActivity.this)
                             .sendBroadcast(newMemberIntent);

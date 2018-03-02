@@ -53,8 +53,9 @@ public class RoomActivity extends AppCompatActivity {
                 ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
                         btBundle.getMapData().get(ArrayList.class.getName());
 
+                mMembersAdapter.clear();
                 mMembersAdapter.addAll(members);
-            } else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
+            } else if (Event.Game.MEMBER_READY.equals(action)) {
 
                 // Get the member that changed the status and update the UI
                 BTBundle update = BTBundle.extractFrom(intent);

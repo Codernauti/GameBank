@@ -47,50 +47,20 @@ public class BTHostService extends Service {
 
             if (Event.Game.MEMBER_JOINED.equals(action)) {
 
-                BTBundle btBundle = new BTBundle(Event.Game.MEMBER_JOINED);
-                String key = ArrayList.class.getName();
-                btBundle.getMapData().put(key, intent.getSerializableExtra(key));
+                mConnections.sendBroadcast(BTBundle.extractFrom(intent));
 
-                Log.e(TAG, "Not implemented yet");
-
-                /*try {
-                    mConnections.sendBroadcast(btBundle);
-                } catch (IOException e) {
-                    Toast.makeText(context, "Error to send: " + key, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }*/
             } else if (Event.Game.MEMBER_READY.equals(action)) {
+                BTBundle btBundle = BTBundle.extractFrom(intent);
 
-                boolean isReady = intent.getExtras().getBoolean(boolean.class.getName());
-
-                UUID address = (UUID) intent.getExtras().get(UUID.class.getName());
+                boolean isReady = (boolean) btBundle.get(boolean.class.getName());
+                UUID address = (UUID) btBundle.get(UUID.class.getName());
 
                 List<UUID> exceptions = new ArrayList<>();
                 exceptions.add(address);
 
-                try {
-                    mConnections.sendMulticast(EventFactory.newReadinessInfo(isReady), exceptions);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                mConnections.sendMulticast(EventFactory.newReadinessInfo(isReady), exceptions);
 
-            } /*else if (Event.Game.MEMBER_READY.equals(action) || Event.Game.MEMBER_NOT_READY.equals(action)) {
-
-                boolean isReady = Event.Game.MEMBER_READY.equals(action);
-                BTBundle btBundle = BTBundle.extractFrom(intent);
-
-                List<UUID> exceptions = new ArrayList<>();
-                exceptions.add((UUID)btBundle.getMapData().get(UUID.class.getName()));
-
-                BTBundle toSend = new BTBundle(action);
-                try {
-                    mConnections.sendMulticast(toSend, exceptions);
-                } catch (IOException e) {
-                    Toast.makeText(context, "Error to send: " + action, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-
-            }*/
+            }
         }
     };
 

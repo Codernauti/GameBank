@@ -109,13 +109,13 @@ abstract class BTConnection implements Closeable {
         }
     }
 
-    void sendBroadcast(@NonNull Serializable data) throws IOException {
+    void sendBroadcast(@NonNull Serializable data) {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
             sendTo(data, btc.getKey());
         }
     }
 
-    void sendMulticast(@NonNull Serializable data, @NonNull List<UUID> exceptions) throws IOException {
+    void sendMulticast(@NonNull Serializable data, @NonNull List<UUID> exceptions) {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
             if (!exceptions.contains(btc.getKey())) {
                 sendTo(data, btc.getKey());

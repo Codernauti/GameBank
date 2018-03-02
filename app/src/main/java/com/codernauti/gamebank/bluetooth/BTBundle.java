@@ -32,8 +32,14 @@ public class BTBundle implements Serializable {
     }
 
     @NonNull
+    @Deprecated
     public HashMap<String, Serializable> getMapData() {
         return data;
+    }
+
+    @Nullable
+    public Serializable get(String key) {
+        return data.get(key);
     }
 
     @NonNull
