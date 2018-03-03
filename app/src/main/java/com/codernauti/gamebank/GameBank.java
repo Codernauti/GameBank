@@ -12,7 +12,6 @@ import java.util.UUID;
 public class GameBank extends Application {
 
     public static final UUID BT_ADDRESS = UUID.randomUUID();
-    private static UUID mBtHostAddress;
 
     private GameLogic mGameLogic;
 
@@ -25,13 +24,5 @@ public class GameBank extends Application {
 
     public GameLogic getGameLogic() {
         return mGameLogic;
-    }
-
-    public static UUID getBtHostAddress() {
-        return mBtHostAddress;
-    }
-
-    public static void setBtHostAddress(UUID address) {
-        mBtHostAddress = address;
     }
 }

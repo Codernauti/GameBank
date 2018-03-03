@@ -61,7 +61,8 @@ public class BTClientService extends Service {
         super.onCreate();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         // TODO: get this data from shared preferences
-        playerInfo = new RoomPlayer("ClientNickname", GameBank.BT_ADDRESS, false);
+        playerInfo = new RoomPlayer(GameBank.BT_ADDRESS.toString(),
+                GameBank.BT_ADDRESS, false);
     }
 
     @Override
@@ -95,7 +96,9 @@ public class BTClientService extends Service {
 
         try {
             mConnection.connectAndListen(
-                    EventFactory.newInitInfo(playerInfo));
+                    new BTBundle(Event.Game.MEMBER_JOINED)
+                    .append(playerInfo)
+            );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");
             e.printStackTrace();

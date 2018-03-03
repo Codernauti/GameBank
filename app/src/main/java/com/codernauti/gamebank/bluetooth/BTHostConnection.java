@@ -12,6 +12,7 @@ import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -49,46 +50,74 @@ public class BTHostConnection extends BTConnection {
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
-                try {
-                    for (int i = 0; i < mAcceptedConnections; i++) {
 
+                for (int i = 0; i < mAcceptedConnections; i++) {
+                    try {
                         Log.d(TAG, "Waiting for a new connection...");
-                        final BluetoothSocket btSocket = mBtServerSocket.accept();
+                        final BluetoothSocket clientSocket = mBtServerSocket.accept();
 
                         // Read init information from client just connected
-                        try {
-                            ObjectInputStream inputStream = new ObjectInputStream(btSocket.getInputStream());
-                            Object received = inputStream.readObject();
+                        ObjectInputStream inputStream = new ObjectInputStream(
+                                clientSocket.getInputStream());
+                        BTBundle btBundle = (BTBundle) inputStream.readObject();
 
-                            if (received != null) {
-                                BTBundle clientInfo = (BTBundle) received;
+                        if (Event.Game.MEMBER_JOINED.equals(btBundle.getBluetoothAction())) {
 
-                                if (Event.Network.INIT_INFORMATION.equals(clientInfo.getBluetoothAction())) {
+                            RoomPlayer newPlayer = (RoomPlayer)
+                                    btBundle.get(RoomPlayer.class.getName());
 
-                                    UUID client = (UUID) clientInfo.get(UUID.class.getName());
+                            addConnection(newPlayer.getId(), clientSocket);
+                            startListeningRunnable(newPlayer.getId());
 
-                                    addConnection(client, btSocket);
+                            Intent intentJoin = btBundle.getIntent();
+                            mLocalBroadcastManager.sendBroadcast(intentJoin);
+                        }
+
+
+                       /* Intent intentConn = new Intent(Event.Network.CONN_ESTABLISHED);
+                        mLocalBroadcastManager.sendBroadcast(intentConn);*/
+
+                           /*
+                                if (Event.Game.MEMBER_JOINED.equals(btBundle.getBluetoothAction())) {
+                                    // who sent this packet
+                                    UUID clientUuid = btBundle.getUuid();
+
+                                    // update app network layer
+                                    addConnection(clientUuid, clientSocket);
+                                    startListeningRunnable(clientUuid);
+
+                                    // broadcast
+                                    Intent intent = BTBundle.makeIntentFrom(btBundle);
+                                    mLocalBroadcastManager.sendBroadcast(intent);
+                                }*/
+
+                                /*if (Event.Network.INIT_INFORMATION.equals(btBundle.getBluetoothAction())) {
+
+                                    UUID client = (UUID) btBundle.get(UUID.class.getName());
+
+                                    addConnection(client, clientSocket);
                                     startListeningRunnable(client);
 
                                     // update Ui
                                     String key = RoomPlayer.class.getName();
                                     Intent connection = BTBundle.makeIntentFrom(
-                                            new BTBundle(Event.Network.CONN_ESTABLISHED).append(
-                                                    clientInfo.get(key))
+                                            new BTBundle(Event.Game.MEMBER_JOINED).append(
+                                                    btBundle.get(key))
                                     );
 
                                     mLocalBroadcastManager.sendBroadcast(connection);
-                                }
-                            }
-                        } catch (IOException | ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                                }*/
+
+                        Log.d(TAG, "Ended waiting for new connections");
+
+                    } catch (IOException e) {
+                        Log.e(TAG, "Socket closed, connection accept abort.\nAutomatically retry.");
+                        i--;
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        Log.e(TAG, "Init data from client is not a UUID");
+                        e.printStackTrace();
                     }
-
-                    Log.d(TAG, "Ended waiting for new connections");
-                } catch (IOException e) {
-
-                    e.printStackTrace();
                 }
             }
         });

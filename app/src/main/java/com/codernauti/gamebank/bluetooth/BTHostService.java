@@ -12,10 +12,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.EventFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ public class BTHostService extends Service {
     private static final String CONNECTION_NAME = "Game Bank";
 
     public static final String ACCEPTED_CONNECTIONS = "accepted_connections";
+    public static final String RECEIVER_UUID = "receiver_uuid";
 
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
@@ -49,23 +48,38 @@ public class BTHostService extends Service {
 
                 if (Event.Game.MEMBER_JOINED.equals(action)) {
 
-                    mConnections.sendBroadcast(btBundle);
+                    UUID packetSender = btBundle.getUuid();
+                    List<UUID> exceptions = new ArrayList<>();
+                    exceptions.add(packetSender);
+
+                    Log.d(TAG, "Send Multicast. Exception: " + packetSender);
+                    mConnections.sendMulticast(btBundle, exceptions);
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
+
                     UUID address = btBundle.getUuid();
 
                     List<UUID> exceptions = new ArrayList<>();
                     exceptions.add(address);
 
                     // send to all nodes except to who create BTBundle
+                    Log.d(TAG, "Send Multicast. Exception: " + address);
                     mConnections.sendMulticast(btBundle, exceptions);
 
-                } else if (Event.Game.MEMBER_DISCONNECT.equals(action)) {
-
+                } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
+                    // TODO: TEST THIS
                     UUID clientDisconnected = btBundle.getUuid();
                     mConnections.removeConnection(clientDisconnected);
 
+                    Log.d(TAG, "Send Broadcast");
                     mConnections.sendBroadcast(btBundle);
+
+                } else if (Event.Game.CURRENT_STATE.equals(action)) {
+                    // TODO: TEST THIS
+                    UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
+
+                    Log.d(TAG, "Send to " + receiver);
+                    mConnections.sendTo(btBundle, receiver);
                 }
 
             }
@@ -98,7 +112,8 @@ public class BTHostService extends Service {
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Event.Game.MEMBER_JOINED);
                 filter.addAction(Event.Game.MEMBER_READY);
-                filter.addAction(Event.Game.MEMBER_DISCONNECT);
+                filter.addAction(Event.Game.MEMBER_DISCONNECTED);
+                filter.addAction(Event.Game.CURRENT_STATE);
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filter);
 

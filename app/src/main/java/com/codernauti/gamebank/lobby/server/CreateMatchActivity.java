@@ -26,9 +26,7 @@ import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 
 import java.util.ArrayList;
@@ -38,7 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class CreateMatchActivity extends AppCompatActivity {
+public class CreateMatchActivity extends AppCompatActivity implements GameLogic.Listener {
 
     private static final String TAG = "CreateMatchActivity";
 
@@ -71,66 +69,8 @@ public class CreateMatchActivity extends AppCompatActivity {
 
 
     private BluetoothAdapter mBluetoothAdapter;
-    private RoomPlayerAdapter mMemberAdapter;
+    private RoomPlayerAdapter mMembersAdapter;
     private GameLogic mGameLogic;
-
-    // FIXME: Game Logic field
-    private ArrayList<RoomPlayer> mRoomPlayers = new ArrayList<>();
-
-    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "Received action: " + action);
-
-            BTBundle btBundle = BTBundle.extractFrom(intent);
-
-            if (btBundle != null) {
-
-                if (Event.Network.CONN_ESTABLISHED.equals(action)) {
-                    // Decode data from intent
-                    RoomPlayer newPlayer = (RoomPlayer) btBundle.get(RoomPlayer.class.getName());
-                    Log.d(TAG, "Adding a new player into the list: " + newPlayer.getNickname());
-
-                    // Update Game Logic
-                    mRoomPlayers.add(newPlayer);
-
-                    // Update UI
-                    mMemberAdapter.add(newPlayer); // TODO how about user pic?
-
-                    // Synchronize clients
-                    Intent newMemberIntent = BTBundle.makeIntentFrom(
-                            new BTBundle(Event.Game.MEMBER_JOINED).append(mRoomPlayers)
-                    );
-
-                    LocalBroadcastManager.getInstance(CreateMatchActivity.this)
-                            .sendBroadcast(newMemberIntent);
-
-                } else if (Event.Game.POKE.equals(action)) {
-                    String msg = (String) btBundle.get(String.class.getName());
-
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-
-                } else if (Event.Game.MEMBER_READY.equals(action)) {
-                    UUID uuid = btBundle.getUuid();
-                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
-
-                    // Update Ui
-                    mMemberAdapter.updatePlayerState(new RoomPlayer("unknown", uuid, isReady));
-
-                    Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
-
-                } else if (Event.Game.MEMBER_DISCONNECT.equals(action)) {
-                    UUID uuid = btBundle.getUuid();
-                    mMemberAdapter.removePlayer(uuid);
-                }
-
-
-            }  else {
-                Log.e(TAG, "BTBundle null!");
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,28 +90,17 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mMemberAdapter = new RoomPlayerAdapter(this);
-        memberListJoined.setAdapter(mMemberAdapter);
+        mMembersAdapter = new RoomPlayerAdapter(this);
+        memberListJoined.setAdapter(mMembersAdapter);
 
         mGameLogic = ((GameBank)getApplication()).getGameLogic();
+        mGameLogic.setListener(this);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        IntentFilter filter = new IntentFilter(Event.Network.CONN_ESTABLISHED);
-        filter.addAction(Event.Game.MEMBER_READY);
-        filter.addAction(Event.Game.POKE);
-        filter.addAction(Event.Game.MEMBER_DISCONNECT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+    protected void onDestroy() {
+        super.onDestroy();
+        mGameLogic.removeListener();
     }
 
     @OnClick(R.id.open_lobby)
@@ -181,8 +110,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
 
-        // Game logic
-        mRoomPlayers.add(new RoomPlayer("HostName", UUID.randomUUID(), true));
+        mGameLogic.setIamHost();
 
         // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -203,7 +131,6 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         // TODO: stop discoverability
 
-        // TEST THIS
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);
     }
@@ -223,5 +150,26 @@ public class CreateMatchActivity extends AppCompatActivity {
             Intent intent = new Intent(this, DashboardActivity.class);
             startService(intent);
         }
+    }
+
+    // GameLogic callbacks
+
+    @Override
+    public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {
+        mMembersAdapter.clear();
+        mMembersAdapter.addAll(members);
+        Log.d(TAG, "Update all " + members.size() + " players.");
+    }
+
+    @Override
+    public void onPlayerChange(RoomPlayer player) {
+        mMembersAdapter.updatePlayerState(player);
+        Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
+    }
+
+    @Override
+    public void onPlayerRemove(RoomPlayer player) {
+        mMembersAdapter.removePlayer(player.getId());
+        Log.d(TAG, "Remove player: " + player.getId());
     }
 }

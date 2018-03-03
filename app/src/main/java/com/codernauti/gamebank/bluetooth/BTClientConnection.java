@@ -11,6 +11,7 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -32,21 +33,25 @@ public class BTClientConnection extends BTConnection {
         this.mServer = server;
     }
 
+
+    void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
+        connectToHost(rendezvous);
+    }
+
     private void connectToHost(@NonNull final BTBundle rendezvous) throws IOException {
 
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    BluetoothSocket socket = mServer.createRfcommSocketToServiceRecord(MY_UUID);
-                    socket.connect();
+                    BluetoothSocket hostSocket = mServer.createRfcommSocketToServiceRecord(MY_UUID);
+                    hostSocket.connect();
                     Log.d(TAG, "Connected with " + mServer.getName());
 
                     // Create connection with host
-                    mHostUUID = UUID.randomUUID();
-                    GameBank.setBtHostAddress(mHostUUID);   // DANGER global variable from one thread
+                    mHostUUID = UUID.randomUUID();  // Unique for each client device
 
-                    addConnection(mHostUUID, socket);
+                    addConnection(mHostUUID, hostSocket);
                     sendTo(rendezvous, mHostUUID);
                     startListeningRunnable(mHostUUID);
 
@@ -61,10 +66,6 @@ public class BTClientConnection extends BTConnection {
                 }
             }
         });
-    }
-
-    void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
-        connectToHost(rendezvous);
     }
 
     void sendToHost(@NonNull final BTBundle data) {

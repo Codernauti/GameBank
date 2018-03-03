@@ -91,7 +91,7 @@ abstract class BTConnection implements Closeable {
                         e.printStackTrace();
 
                         Intent intent = BTBundle.makeIntentFrom(
-                                new BTBundle(Event.Game.MEMBER_DISCONNECT)
+                                new BTBundle(Event.Game.MEMBER_DISCONNECTED)
                                         .append(btio.getUUID())
                         );
                         mLocalBroadcastManager.sendBroadcast(intent);

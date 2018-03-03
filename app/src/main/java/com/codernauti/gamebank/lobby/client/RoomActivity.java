@@ -99,11 +99,18 @@ public class RoomActivity extends AppCompatActivity implements GameLogic.Listene
     public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
+        Log.d(TAG, "Update all " + members.size() + " players.");
     }
 
     @Override
-    public void onPlayerStateChange(RoomPlayer player) {
+    public void onPlayerChange(RoomPlayer player) {
         mMembersAdapter.updatePlayerState(player);
         Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
+    }
+
+    @Override
+    public void onPlayerRemove(RoomPlayer player) {
+        mMembersAdapter.removePlayer(player.getId());
+        Log.d(TAG, "Remove player: " + player.getId());
     }
 }

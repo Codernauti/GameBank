@@ -106,9 +106,7 @@ public class LobbyActivity extends AppCompatActivity {
             Log.d(TAG, "Action received: " + action);
 
             if (Event.Network.CONN_ESTABLISHED.equals(action)) {
-                Log.d(TAG, "Connection established");
                 startActivity(new Intent(LobbyActivity.this, RoomActivity.class));
-
             }
         }
     };

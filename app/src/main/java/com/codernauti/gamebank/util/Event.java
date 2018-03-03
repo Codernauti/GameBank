@@ -13,11 +13,12 @@ public interface Event {
         String LEADERBOARD = "leaderboard";
         String LIST_TRANSACTIONS = "list_transactions";
 
-        // RoomActivity
-        String MEMBER_JOINED = "member_joined";
+        // RoomActivity TODO: maybe these go into a Lobby interface?
         String POKE = "poke";
+        String MEMBER_JOINED = "member_joined";
         String MEMBER_READY = "member_ready";
-        String MEMBER_DISCONNECT = "member_dsconnect";
+        String MEMBER_DISCONNECTED = "member_disconnected";
+        String CURRENT_STATE = "current_state";
     }
 
     interface Network {
