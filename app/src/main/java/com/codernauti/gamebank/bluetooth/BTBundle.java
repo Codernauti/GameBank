@@ -43,6 +43,7 @@ public class BTBundle implements Serializable {
         return data.get(key);
     }
 
+    @NonNull
     public UUID getUuid() {
         return (UUID) data.get(UUID.class.getName());
     }

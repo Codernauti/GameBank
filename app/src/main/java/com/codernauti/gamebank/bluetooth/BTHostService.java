@@ -44,18 +44,23 @@ public class BTHostService extends Service {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Game.MEMBER_JOINED.equals(action)) {
+            BTBundle btBundle = BTBundle.extractFrom(intent);
+            if (btBundle != null) {
 
-                mConnections.sendBroadcast(BTBundle.extractFrom(intent));
+                if (Event.Game.MEMBER_JOINED.equals(action)) {
 
-            } else if (Event.Game.MEMBER_READY.equals(action)) {
-                BTBundle btBundle = BTBundle.extractFrom(intent);
-                UUID address = (UUID) btBundle.get(UUID.class.getName());
+                    mConnections.sendBroadcast(btBundle);
 
-                List<UUID> exceptions = new ArrayList<>();
-                exceptions.add(address);
+                } else if (Event.Game.MEMBER_READY.equals(action)) {
+                    UUID address = btBundle.getUuid();
 
-                mConnections.sendMulticast(btBundle, exceptions);
+                    List<UUID> exceptions = new ArrayList<>();
+                    exceptions.add(address);
+
+                    // send to all nodes except to who create BTBundle
+                    mConnections.sendMulticast(btBundle, exceptions);
+                }
+
             }
         }
     };
