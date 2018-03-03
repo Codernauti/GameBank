@@ -9,6 +9,7 @@ import com.codernauti.gamebank.GameBank;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by dpolonio on 26/02/18.
@@ -40,6 +41,10 @@ public class BTBundle implements Serializable {
     @Nullable
     public Serializable get(String key) {
         return data.get(key);
+    }
+
+    public UUID getUuid() {
+        return (UUID) data.get(UUID.class.getName());
     }
 
     @NonNull

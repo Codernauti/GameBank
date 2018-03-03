@@ -18,6 +18,7 @@ import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.EventFactory;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by Eduard on 27-Feb-18.
@@ -42,7 +43,13 @@ public class BTClientService extends Service {
 
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
-                mConnection.sendToHost(btBundle);
+
+                if (btBundle.getUuid().equals(GameBank.BT_ADDRESS)) {
+                    mConnection.sendToHost(btBundle);
+                } else {
+                    Log.d(TAG, "BTBundle from other nodes, don't forward it.");
+                }
+
             } else {
                 Log.e(TAG, "BTBundle null!");
             }
