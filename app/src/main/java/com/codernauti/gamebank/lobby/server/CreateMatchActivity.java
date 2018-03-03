@@ -194,8 +194,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         cancelMatchButton.setEnabled(false);
         startMatchButton.setVisibility(View.INVISIBLE);
 
-        // TEST THIS
         // TODO: stop discoverability
+
+        // TEST THIS
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);
     }
