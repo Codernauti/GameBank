@@ -108,14 +108,20 @@ public class CreateMatchActivity extends AppCompatActivity {
                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
-                    UUID uuid = (UUID) btBundle.get(UUID.class.getName());
+                    UUID uuid = btBundle.getUuid();
                     boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
 
                     // Update Ui
                     mMemberAdapter.updatePlayerState(uuid, isReady);
 
                     Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
+
+                } else if (Event.Game.MEMBER_DISCONNECT.equals(action)) {
+                    UUID uuid = btBundle.getUuid();
+                    mMemberAdapter.removePlayer(uuid);
                 }
+
+
             }  else {
                 Log.e(TAG, "BTBundle null!");
             }
@@ -151,6 +157,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(Event.Network.CONN_ESTABLISHED);
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.POKE);
+        filter.addAction(Event.Game.MEMBER_DISCONNECT);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
     }
 

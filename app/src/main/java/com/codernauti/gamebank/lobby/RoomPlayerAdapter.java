@@ -56,4 +56,11 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
         }
     }
 
+    public void removePlayer(UUID playerToRemoveUuid) {
+        for (int i = 0; i < getCount(); i++) {
+            if (playerToRemoveUuid.equals(getItem(i).getId())) {
+                remove(getItem(i));
+            }
+        }
+    }
 }

@@ -59,6 +59,13 @@ public class BTHostService extends Service {
 
                     // send to all nodes except to who create BTBundle
                     mConnections.sendMulticast(btBundle, exceptions);
+
+                } else if (Event.Game.MEMBER_DISCONNECT.equals(action)) {
+
+                    UUID clientDisconnected = btBundle.getUuid();
+                    mConnections.removeConnection(clientDisconnected);
+
+                    mConnections.sendBroadcast(btBundle);
                 }
 
             }
@@ -88,11 +95,12 @@ public class BTHostService extends Service {
                 mConnections = new BTHostConnection(acceptedConn, mServerSocket,
                         LocalBroadcastManager.getInstance(this));
 
-                IntentFilter filters = new IntentFilter();
-                filters.addAction(Event.Game.MEMBER_JOINED);
-                filters.addAction(Event.Game.MEMBER_READY);
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Event.Game.MEMBER_JOINED);
+                filter.addAction(Event.Game.MEMBER_READY);
+                filter.addAction(Event.Game.MEMBER_DISCONNECT);
                 LocalBroadcastManager.getInstance(this)
-                        .registerReceiver(mFromUiReceiver, filters);
+                        .registerReceiver(mFromUiReceiver, filter);
 
                 mConnections.acceptConnections();
 
