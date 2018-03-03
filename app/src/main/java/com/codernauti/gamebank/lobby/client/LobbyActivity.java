@@ -106,7 +106,14 @@ public class LobbyActivity extends AppCompatActivity {
             Log.d(TAG, "Action received: " + action);
 
             if (Event.Network.CONN_ESTABLISHED.equals(action)) {
+
                 startActivity(new Intent(LobbyActivity.this, RoomActivity.class));
+
+            } else if (Event.Network.CONN_ERRONEOUS.equals(action)) {
+
+                Toast.makeText(context, "Impossible to connect to this device",
+                        Toast.LENGTH_SHORT).show();
+
             }
         }
     };
