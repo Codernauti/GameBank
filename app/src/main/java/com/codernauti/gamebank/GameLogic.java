@@ -60,17 +60,19 @@ public final class GameLogic {
                         mListener.onNewPlayerJoined(mPlayers);
                     }
 
-                    Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
-                            "Send players: " + mPlayers.size());
+                    if (mIamHost) {
+                        Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
+                                "Send players: " + mPlayers.size());
 
-                    // sync the new player (NB this break the layer separation
-                    // because GameLogic need to care about clients)
-                    Intent stateIntent = BTBundle.makeIntentFrom(
-                            new BTBundle(Event.Game.CURRENT_STATE)
-                                    .append(mPlayers)
-                    );
-                    stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                    mLocalBroadcastManager.sendBroadcast(stateIntent);
+                        // sync the new player (NB this break the layer separation
+                        // because GameLogic need to care about clients)
+                        Intent stateIntent = BTBundle.makeIntentFrom(
+                                new BTBundle(Event.Game.CURRENT_STATE)
+                                        .append(mPlayers)
+                        );
+                        stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
+                        mLocalBroadcastManager.sendBroadcast(stateIntent);
+                    }
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
 
