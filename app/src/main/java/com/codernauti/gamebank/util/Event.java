@@ -17,6 +17,7 @@ public interface Event {
         String MEMBER_JOINED = "member_joined";
         String POKE = "poke";
         String MEMBER_READY = "member_ready";
+        String MEMBER_DISCONNECT = "member_dsconnect";
     }
 
     interface Network {

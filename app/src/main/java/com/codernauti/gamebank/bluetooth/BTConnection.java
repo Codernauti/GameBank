@@ -44,10 +44,14 @@ abstract class BTConnection implements Closeable {
     void addConnection(UUID clientUuid, BluetoothSocket newSocket) {
         Log.d(TAG, "Connection accepted from " + clientUuid);
 
-        BTio btio = new BTio(newSocket);
+        BTio btio = new BTio(clientUuid, newSocket);
         mConnections.put(clientUuid, btio);
     }
 
+    void removeConnection(UUID clienUuid) {
+        Log.d(TAG, "Disconnect " + clienUuid);
+        mConnections.remove(clienUuid);
+    }
 
     void startListeningRunnable(@NonNull final UUID who) {
         BTio receiverConn = mConnections.get(who);
@@ -85,6 +89,13 @@ abstract class BTConnection implements Closeable {
 
                         Log.d(TAG, "Stopped receiving data");
                         e.printStackTrace();
+
+                        Intent intent = BTBundle.makeIntentFrom(
+                                new BTBundle(Event.Game.MEMBER_DISCONNECT)
+                                        .append(btio.getUUID())
+                        );
+                        mLocalBroadcastManager.sendBroadcast(intent);
+
                         flag = false;
                     }
                 }

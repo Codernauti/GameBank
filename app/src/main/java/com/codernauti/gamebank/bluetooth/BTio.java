@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Created by dpolonio on 23/02/18.
@@ -25,10 +26,12 @@ class BTio implements Closeable {
 
     private static final String TAG = "BTio";
 
-    private BluetoothSocket mBTSocket;
+    private final BluetoothSocket mBTSocket;
+    private final UUID mUuid;
 
-    BTio(BluetoothSocket socket) {
+    BTio(UUID uuid, BluetoothSocket socket) {
         mBTSocket = socket;
+        mUuid = uuid;
     }
 
     void writeData(@NonNull Serializable toSend) throws IOException {
@@ -50,7 +53,7 @@ class BTio implements Closeable {
                 Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
                 return objis.readObject();
-            } catch (ClassNotFoundException | IOException e) {
+            } catch (ClassNotFoundException e) {
 
                 Log.e(TAG, "Data stream end unexpectedly: " + e.getMessage());
                 e.printStackTrace();
@@ -65,5 +68,9 @@ class BTio implements Closeable {
     @Override
     public void close() throws IOException {
         mBTSocket.close();
+    }
+
+    public UUID getUUID(){
+        return mUuid;
     }
 }
