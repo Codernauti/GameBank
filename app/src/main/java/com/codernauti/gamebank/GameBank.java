@@ -1,6 +1,7 @@
 package com.codernauti.gamebank;
 
 import android.app.Application;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.UUID;
 
@@ -13,9 +14,17 @@ public class GameBank extends Application {
     public static final UUID BT_ADDRESS = UUID.randomUUID();
     private static UUID mBtHostAddress;
 
+    private GameLogic mGameLogic;
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        mGameLogic = new GameLogic(LocalBroadcastManager.getInstance(this));
+    }
+
+    public GameLogic getGameLogic() {
+        return mGameLogic;
     }
 
     public static UUID getBtHostAddress() {

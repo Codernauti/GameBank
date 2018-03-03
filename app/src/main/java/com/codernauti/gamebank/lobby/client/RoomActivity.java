@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ListView;
 
+import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.GameLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
@@ -31,7 +33,7 @@ import butterknife.OnClick;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomActivity extends AppCompatActivity {
+public class RoomActivity extends AppCompatActivity implements GameLogic.Listener {
 
     private static final String TAG = "RoomActivity";
 
@@ -42,38 +44,7 @@ public class RoomActivity extends AppCompatActivity {
 
 
     private RoomPlayerAdapter mMembersAdapter;
-    private boolean isReady;
-
-    private BroadcastReceiver mUpdateUiReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "Received action: " + action);
-
-            BTBundle btBundle = BTBundle.extractFrom(intent);
-            if (btBundle != null) {
-
-                if (Event.Game.MEMBER_JOINED.equals(action)) {
-
-                    ArrayList<RoomPlayer> members = (ArrayList<RoomPlayer>)
-                            btBundle.get(ArrayList.class.getName());
-
-                    mMembersAdapter.clear();
-                    mMembersAdapter.addAll(members);
-
-                } else if (Event.Game.MEMBER_READY.equals(action)) {
-
-                    UUID uuid = (UUID) btBundle.get(UUID.class.getName());
-                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
-
-                    // Update Ui
-                    mMembersAdapter.updatePlayerState(uuid, isReady);
-
-                    Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
-                }
-            }
-        }
-    };
+    private boolean isReady = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,25 +54,14 @@ public class RoomActivity extends AppCompatActivity {
 
         mMembersAdapter = new RoomPlayerAdapter(this);
         mMembersList.setAdapter(mMembersAdapter);
-        isReady = false;
+
+        ((GameBank)getApplication()).getGameLogic().setListener(this);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        IntentFilter filters = new IntentFilter(Event.Game.MEMBER_JOINED);
-        filters.addAction(Event.Game.MEMBER_READY);
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mUpdateUiReceiver, filters);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mUpdateUiReceiver);
+    protected void onDestroy() {
+        super.onDestroy();
+        ((GameBank)getApplication()).getGameLogic().removeListener();
     }
 
     @OnClick(R.id.room_poke_fab)
@@ -130,5 +90,20 @@ public class RoomActivity extends AppCompatActivity {
                 .sendBroadcast(intent);
 
         status.setImageResource(icon);
+    }
+
+
+    // GameLogic callbacks
+
+    @Override
+    public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {
+        mMembersAdapter.clear();
+        mMembersAdapter.addAll(members);
+    }
+
+    @Override
+    public void onPlayerStateChange(RoomPlayer player) {
+        mMembersAdapter.updatePlayerState(player);
+        Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
     }
 }

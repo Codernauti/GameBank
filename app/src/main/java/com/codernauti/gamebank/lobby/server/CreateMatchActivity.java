@@ -19,7 +19,10 @@ import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.GameLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
@@ -69,6 +72,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private RoomPlayerAdapter mMemberAdapter;
+    private GameLogic mGameLogic;
 
     // FIXME: Game Logic field
     private ArrayList<RoomPlayer> mRoomPlayers = new ArrayList<>();
@@ -112,7 +116,7 @@ public class CreateMatchActivity extends AppCompatActivity {
                     boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
 
                     // Update Ui
-                    mMemberAdapter.updatePlayerState(uuid, isReady);
+                    mMemberAdapter.updatePlayerState(new RoomPlayer("unknown", uuid, isReady));
 
                     Log.d(TAG, "Update ui of: " + uuid + "\nisReady? " + isReady);
                 }
@@ -142,6 +146,8 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         mMemberAdapter = new RoomPlayerAdapter(this);
         memberListJoined.setAdapter(mMemberAdapter);
+
+        mGameLogic = ((GameBank)getApplication()).getGameLogic();
     }
 
     @Override
@@ -175,6 +181,10 @@ public class CreateMatchActivity extends AppCompatActivity {
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
+
+        Intent intent = new Intent(this, BTHostService.class);
+        intent.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
+        startService(intent);
     }
 
     @OnClick(R.id.cancel_match)
@@ -183,6 +193,11 @@ public class CreateMatchActivity extends AppCompatActivity {
         openLobbyButton.setEnabled(true);
         cancelMatchButton.setEnabled(false);
         startMatchButton.setVisibility(View.INVISIBLE);
+
+        // TEST THIS
+        // TODO: stop discoverability
+        Intent intent = new Intent(this, BTHostService.class);
+        stopService(intent);
     }
 
     @OnClick(R.id.start_match)
@@ -196,8 +211,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         startMatchButton.setEnabled(false);
         startingMatchProgressBar.animate();
 
-        Intent intent = new Intent(this, BTHostService.class);
-        intent.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
-        startService(intent);
+        if (mGameLogic.canStartMatch()) {
+            Intent intent = new Intent(this, DashboardActivity.class);
+            startService(intent);
+        }
     }
 }

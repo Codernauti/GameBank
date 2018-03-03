@@ -47,10 +47,10 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
         return view;
     }
 
-    public void updatePlayerState(UUID uuid, boolean isReady) {
+    public void updatePlayerState(RoomPlayer player) {
         for (int i = 0; i < getCount(); i++) {
-            if (uuid.equals(getItem(i).getId())) {
-                getItem(i).setReady(isReady);
+            if (player.getId().equals(getItem(i).getId())) {
+                getItem(i).setReady(player.isReady());
                 notifyDataSetChanged();
             }
         }
