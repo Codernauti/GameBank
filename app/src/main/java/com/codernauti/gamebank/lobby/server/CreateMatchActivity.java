@@ -30,7 +30,6 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,6 +71,24 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
     private RoomPlayerAdapter mMembersAdapter;
     private GameLogic mGameLogic;
 
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
+
+            BTBundle btBundle = BTBundle.extractFrom(intent);
+            if (btBundle != null) {
+
+                if (Event.Game.POKE.equals(action)) {
+                    String msg = (String) btBundle.get(String.class.getName());
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +112,24 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
         mGameLogic = ((GameBank)getApplication()).getGameLogic();
         mGameLogic.setListener(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        IntentFilter filter = new IntentFilter(Event.Game.POKE);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(mReceiver, filter);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mReceiver);
     }
 
     @Override
