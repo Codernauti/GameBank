@@ -8,13 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.GameLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.TransModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TransactionsFragment extends Fragment {
+public class TransactionsFragment extends Fragment implements GameLogic.ListenerBank {
 
     private static final String TAG = "TransactionsFragment";
 
@@ -22,6 +24,7 @@ public class TransactionsFragment extends Fragment {
     RecyclerView mRecyclerView;
 
     private TransAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,24 +39,27 @@ public class TransactionsFragment extends Fragment {
         final ViewGroup root = (ViewGroup) inflater.inflate(R.layout.trans_fragment, container, false);
         ButterKnife.bind(this, root);
 
-        LinearLayoutManager layoutManager =
-                new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new TransAdapter();
-
         mRecyclerView.setAdapter(mAdapter);
+
+        ((GameBank) getActivity().getApplication()).getGameLogic().setListenerBank(this);
 
         return root;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onDestroy() {
+        super.onDestroy();
+        ((GameBank) getActivity().getApplication()).getGameLogic().setListenerBank(null);
+    }
 
-        TransModel newModel = new TransModel("Cicciolina", "Pierino", 50);
-        mAdapter.addTransaction(newModel);
+    // GameLogic callbacks
+    @Override
+    public void onNewTransaction(TransModel newTrans) {
+        mAdapter.addTransaction(newTrans);
+        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }
 }

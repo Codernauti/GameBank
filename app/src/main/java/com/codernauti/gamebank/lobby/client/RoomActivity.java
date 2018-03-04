@@ -34,7 +34,7 @@ import butterknife.OnClick;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomActivity extends AppCompatActivity implements GameLogic.Listener {
+public  class RoomActivity extends AppCompatActivity implements GameLogic.Listener {
 
     private static final String TAG = "RoomActivity";
 

@@ -77,11 +77,24 @@ public class BTHostService extends Service {
                     Log.d(TAG, "Send to " + receiver);
                     mConnections.sendTo(btBundle, receiver);
 
-                } else if (Event.Game.START_GAME.equals(action)
-                        || Event.Game.TRANSACTION.equals(action) ) { // TODO: generalize
+                } else if (Event.Game.START_GAME.equals(action)) {
 
+                    // NB only event emitted by Host device can be sent broadcast
                     Log.d(TAG, "Send Broadcast");
                     mConnections.sendBroadcast(btBundle);
+
+                } else if (Event.Game.TRANSACTION.equals(action)) {
+
+                    // NB event that can be emitted by all nodes
+                    // must be sent multicast
+                    // In case Activity emit EVENT -> no exception (broadcast)
+                    // In case Connection emit EVENT -> who emit is exception
+                    UUID packetSender = btBundle.getUuid();
+                    List<UUID> exceptions = new ArrayList<>();
+                    exceptions.add(packetSender);
+
+                    Log.d(TAG, "Send Multicast. Exception: " + packetSender);
+                    mConnections.sendMulticast(btBundle, exceptions);
 
                 }
             }

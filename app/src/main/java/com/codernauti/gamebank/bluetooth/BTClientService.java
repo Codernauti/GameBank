@@ -78,6 +78,8 @@ public class BTClientService extends Service {
                 IntentFilter filters = new IntentFilter();
                 filters.addAction(Event.Game.POKE);
                 filters.addAction(Event.Game.MEMBER_READY);
+
+                filters.addAction(Event.Game.TRANSACTION);
                 mLocalBroadcastManager.registerReceiver(mFromUiReceiver, filters);
 
                 connect();

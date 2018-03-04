@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -26,15 +27,19 @@ public final class GameLogic {
     private static final String TAG = "GameLogic";
 
     public interface Listener {
-
         void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
         void onPlayerChange(RoomPlayer player);
         void onPlayerRemove(RoomPlayer player);
     }
 
+    public interface ListenerBank {
+        void onNewTransaction(TransModel newTrans);
+    }
+
 
     private final LocalBroadcastManager mLocalBroadcastManager;
     private Listener mListener;
+    private ListenerBank mListenerBank;
 
     // Game logic fields
     // Lobby fields
@@ -43,6 +48,7 @@ public final class GameLogic {
 
     // Game fields
     private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
+    private ArrayList<TransModel> mTransactions = new ArrayList<>();
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -135,6 +141,16 @@ public final class GameLogic {
                     currentBalance += (Integer) btBundle.get(Integer.class.getName());
                     mPlayerAccounts.put(playerTransaction, currentBalance);
 
+                    TransModel newTrans = new TransModel(
+                            playerTransaction.toString(),
+                            "Bank",
+                            currentBalance);
+                    mTransactions.add(newTrans);
+
+                    if (mListenerBank != null) {
+                        mListenerBank.onNewTransaction(newTrans);
+                    }
+
                     Log.d(TAG, "Update account balance of " + playerTransaction + "\n" +
                                     "Total balance up to date: " + mPlayerAccounts.get(playerTransaction));
                 }
@@ -167,6 +183,14 @@ public final class GameLogic {
         mListener = listener;
 
         listener.onNewPlayerJoined(mPlayers);
+    }
+
+    public void setListenerBank(@Nullable ListenerBank listenerBank) {
+        if (listenerBank != null) {
+            Log.d(TAG, "Set listener: " + listenerBank.getClass());
+        }
+
+        mListenerBank = listenerBank;
     }
 
     /**

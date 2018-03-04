@@ -45,7 +45,7 @@ class TransAdapter extends RecyclerView.Adapter<TransAdapterViewHolder> {
 
     void addTransaction(TransModel trans){
         mTransactionsList.add(trans);
-        notifyDataSetChanged();
+        notifyItemInserted(mTransactionsList.size());
     }
 
 }
