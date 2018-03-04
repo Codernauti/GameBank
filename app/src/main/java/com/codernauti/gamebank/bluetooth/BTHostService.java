@@ -36,7 +36,6 @@ public class BTHostService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
 
-    // TODO: refactor this duplicated code
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -46,7 +45,26 @@ public class BTHostService extends Service {
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Game.MEMBER_JOINED.equals(action)) {
+                if (btBundle.isSentByMe()) {
+
+                    if (Event.Game.CURRENT_STATE.equals(action)) {
+
+                        UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
+                        Log.d(TAG, "Send to " + receiver);
+                        mConnections.sendTo(btBundle, receiver);
+
+                    } else {
+                        // START_GAME
+                        // TRANSACTION
+                        // MEMBER_DISCONNECTED
+
+                        Log.d(TAG, "Send Broadcast");
+                        mConnections.sendBroadcast(btBundle);
+                    }
+
+                } else {
+                    // MEMBER_JOINED
+                    // MEMBER_READY
 
                     UUID packetSender = btBundle.getUuid();
                     List<UUID> exceptions = new ArrayList<>();
@@ -54,34 +72,6 @@ public class BTHostService extends Service {
 
                     Log.d(TAG, "Send Multicast. Exception: " + packetSender);
                     mConnections.sendMulticast(btBundle, exceptions);
-
-                } else if (Event.Game.MEMBER_READY.equals(action)) {
-
-                    UUID address = btBundle.getUuid();
-                    List<UUID> exceptions = new ArrayList<>();
-                    exceptions.add(address);
-
-                    // send to all nodes except to who create BTBundle
-                    Log.d(TAG, "Send Multicast. Exception: " + address);
-                    mConnections.sendMulticast(btBundle, exceptions);
-
-                } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
-
-                    Log.d(TAG, "Send Broadcast");
-                    mConnections.sendBroadcast(btBundle);
-
-                } else if (Event.Game.CURRENT_STATE.equals(action)) {
-
-                    UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
-
-                    Log.d(TAG, "Send to " + receiver);
-                    mConnections.sendTo(btBundle, receiver);
-
-                } else if (Event.Game.START_GAME.equals(action)
-                        || Event.Game.TRANSACTION.equals(action) ) { // TODO: generalize
-
-                    Log.d(TAG, "Send Broadcast");
-                    mConnections.sendBroadcast(btBundle);
 
                 }
             }
