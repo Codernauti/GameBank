@@ -67,7 +67,7 @@ public class BTHostService extends Service {
                     mConnections.sendMulticast(btBundle, exceptions);
 
                 } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
-                    // TODO: TEST THIS
+
                     UUID clientDisconnected = btBundle.getUuid();
                     mConnections.removeConnection(clientDisconnected);
 
@@ -75,7 +75,7 @@ public class BTHostService extends Service {
                     mConnections.sendBroadcast(btBundle);
 
                 } else if (Event.Game.CURRENT_STATE.equals(action)) {
-                    // TODO: TEST THIS
+
                     UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
 
                     Log.d(TAG, "Send to " + receiver);
