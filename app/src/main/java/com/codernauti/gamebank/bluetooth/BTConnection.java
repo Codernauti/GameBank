@@ -41,17 +41,6 @@ abstract class BTConnection implements Closeable {
         this.mConnections = new ConcurrentHashMap<>();
     }
 
-    void addConnection(UUID clientUuid, BluetoothSocket newSocket) {
-        Log.d(TAG, "Connection accepted from " + clientUuid);
-
-        BTio btio = new BTio(clientUuid, newSocket);
-        mConnections.put(clientUuid, btio);
-    }
-
-    private void removeConnection(UUID clienUuid) {
-        Log.d(TAG, "Disconnect " + clienUuid);
-        mConnections.remove(clienUuid);
-    }
 
     void startListeningRunnable(@NonNull final UUID who) {
         BTio receiverConn = mConnections.get(who);
@@ -102,7 +91,35 @@ abstract class BTConnection implements Closeable {
         });
     }
 
+    private void removeConnection(UUID clienUuid) {
+        Log.d(TAG, "Disconnect " + clienUuid);
+        mConnections.remove(clienUuid);
+    }
+
+    void addConnection(UUID clientUuid, BluetoothSocket newSocket) {
+        Log.d(TAG, "Connection accepted from " + clientUuid);
+
+        BTio btio = new BTio(clientUuid, newSocket);
+        mConnections.put(clientUuid, btio);
+    }
+
     abstract void onStopReadingDataFrom(UUID who);
+
+    @Override
+    @CallSuper
+    public void close() {
+        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
+            try {
+                btc.getValue().close();
+            } catch (IOException e) {
+                Log.e(TAG, "Impossible to close socket: " +
+                        btc.getValue().toString() + "\n" + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        mExecutorService.shutdownNow();
+    }
+
 
     /* SEND METHODS */
 
@@ -135,18 +152,4 @@ abstract class BTConnection implements Closeable {
         }
     }
 
-    @Override
-    @CallSuper
-    public void close() {
-        for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
-            try {
-                btc.getValue().close();
-            } catch (IOException e) {
-                Log.e(TAG, "Impossible to close socket: " +
-                        btc.getValue().toString() + "\n" + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        mExecutorService.shutdownNow();
-    }
 }
