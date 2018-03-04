@@ -8,6 +8,7 @@ public interface Event {
 
     interface Game {
         String TRANSACTION = "transaction";
+
         String START_GAME = "start_game";
         String STOP_GAME = "stop_game";
         String LEADERBOARD = "leaderboard";

@@ -14,6 +14,7 @@ import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -36,8 +37,12 @@ public final class GameLogic {
     private Listener mListener;
 
     // Game logic fields
+    // Lobby fields
     private ArrayList<RoomPlayer> mPlayers = new ArrayList<>();
     private boolean mIamHost;
+
+    // Game fields
+    private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -116,6 +121,22 @@ public final class GameLogic {
                     if (mListener != null) {
                         mListener.onNewPlayerJoined(mPlayers);
                     }
+
+                } else if (Event.Game.START_GAME.equals(action)) {
+
+                    for (RoomPlayer player : mPlayers) {
+                        mPlayerAccounts.put(player.getId(), 0);
+                    }
+
+                } else if (Event.Game.TRANSACTION.equals(action)) {
+                    UUID playerTransaction = btBundle.getUuid();
+
+                    Integer currentBalance = mPlayerAccounts.get(playerTransaction);
+                    currentBalance += (Integer) btBundle.get(Integer.class.getName());
+                    mPlayerAccounts.put(playerTransaction, currentBalance);
+
+                    Log.d(TAG, "Update account balance of " + playerTransaction + "\n" +
+                                    "Total balance up to date: " + mPlayerAccounts.get(playerTransaction));
                 }
 
             }
@@ -131,6 +152,9 @@ public final class GameLogic {
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.MEMBER_DISCONNECTED);
         filter.addAction(Event.Game.CURRENT_STATE);
+        filter.addAction(Event.Game.START_GAME);
+
+        filter.addAction(Event.Game.TRANSACTION);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }

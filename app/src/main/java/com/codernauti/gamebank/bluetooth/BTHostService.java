@@ -77,7 +77,8 @@ public class BTHostService extends Service {
                     Log.d(TAG, "Send to " + receiver);
                     mConnections.sendTo(btBundle, receiver);
 
-                } else if (Event.Game.START_GAME.equals(action)) { // TODO: generalize
+                } else if (Event.Game.START_GAME.equals(action)
+                        || Event.Game.TRANSACTION.equals(action) ) { // TODO: generalize
 
                     Log.d(TAG, "Send Broadcast");
                     mConnections.sendBroadcast(btBundle);
@@ -116,6 +117,9 @@ public class BTHostService extends Service {
                 filter.addAction(Event.Game.MEMBER_DISCONNECTED);
                 filter.addAction(Event.Game.CURRENT_STATE);
                 filter.addAction(Event.Game.START_GAME);
+
+                filter.addAction(Event.Game.TRANSACTION);
+
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filter);
 
