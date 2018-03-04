@@ -48,12 +48,8 @@ public class BTBundle implements Serializable {
         return (UUID) data.get(UUID.class.getName());
     }
 
-    @NonNull
-    public Intent getIntent(@NonNull String eventType) {
-        Intent res = new Intent(eventType);
-        res.putExtra(BTBUNDLE_KEY, this);
-
-        return res;
+    public boolean isSentByMe() {
+        return getUuid().equals(GameBank.BT_ADDRESS);
     }
 
     @NonNull

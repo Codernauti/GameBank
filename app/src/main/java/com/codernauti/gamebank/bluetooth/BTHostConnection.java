@@ -94,6 +94,16 @@ public class BTHostConnection extends BTConnection {
     }
 
     @Override
+    void onStopReadingDataFrom(UUID who) {
+
+        Intent intent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.MEMBER_DISCONNECTED)
+                        .append(who)
+        );
+        mLocalBroadcastManager.sendBroadcast(intent);
+    }
+
+    @Override
     public void close() {
         super.close();
         try {

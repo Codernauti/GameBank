@@ -36,7 +36,7 @@ public class BTHostService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
 
-
+    // TODO: refactor this duplicated code
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -58,7 +58,6 @@ public class BTHostService extends Service {
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
 
                     UUID address = btBundle.getUuid();
-
                     List<UUID> exceptions = new ArrayList<>();
                     exceptions.add(address);
 
@@ -67,9 +66,6 @@ public class BTHostService extends Service {
                     mConnections.sendMulticast(btBundle, exceptions);
 
                 } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
-
-                    UUID clientDisconnected = btBundle.getUuid();
-                    mConnections.removeConnection(clientDisconnected);
 
                     Log.d(TAG, "Send Broadcast");
                     mConnections.sendBroadcast(btBundle);
@@ -80,8 +76,13 @@ public class BTHostService extends Service {
 
                     Log.d(TAG, "Send to " + receiver);
                     mConnections.sendTo(btBundle, receiver);
-                }
 
+                } else if (Event.Game.START_GAME.equals(action)) { // TODO: generalize
+
+                    Log.d(TAG, "Send Broadcast");
+                    mConnections.sendBroadcast(btBundle);
+
+                }
             }
         }
     };
@@ -114,6 +115,7 @@ public class BTHostService extends Service {
                 filter.addAction(Event.Game.MEMBER_READY);
                 filter.addAction(Event.Game.MEMBER_DISCONNECTED);
                 filter.addAction(Event.Game.CURRENT_STATE);
+                filter.addAction(Event.Game.START_GAME);
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filter);
 

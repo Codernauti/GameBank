@@ -70,6 +70,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
     private BluetoothAdapter mBluetoothAdapter;
     private RoomPlayerAdapter mMembersAdapter;
     private GameLogic mGameLogic;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -110,6 +111,8 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
         mMembersAdapter = new RoomPlayerAdapter(this);
         memberListJoined.setAdapter(mMembersAdapter);
 
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+
         mGameLogic = ((GameBank)getApplication()).getGameLogic();
         mGameLogic.setListener(this);
     }
@@ -119,17 +122,14 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
         super.onStart();
 
         IntentFilter filter = new IntentFilter(Event.Game.POKE);
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mReceiver, filter);
-
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mReceiver);
+        mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
 
     @Override
@@ -175,15 +175,24 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
         Log.d(TAG, "onMatchStart");
 
-        cancelMatchButton.setVisibility(View.INVISIBLE);
-        openLobbyButton.setVisibility(View.INVISIBLE);
-        startingMatchProgressBar.setVisibility(View.VISIBLE);
-        startMatchButton.setEnabled(false);
-        startingMatchProgressBar.animate();
+        if (mGameLogic.matchCanStart()) {
 
-        if (mGameLogic.canStartMatch()) {
+            cancelMatchButton.setVisibility(View.INVISIBLE);
+            openLobbyButton.setVisibility(View.INVISIBLE);
+            startingMatchProgressBar.setVisibility(View.VISIBLE);
+            startMatchButton.setEnabled(false);
+            startingMatchProgressBar.animate();
+
+            Intent startGame = BTBundle.makeIntentFrom(
+                    new BTBundle(Event.Game.START_GAME)
+            );
+            mLocalBroadcastManager.sendBroadcast(startGame);
+
             Intent intent = new Intent(this, DashboardActivity.class);
-            startService(intent);
+            startActivity(intent);
+
+        } else {
+            Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();
         }
     }
 

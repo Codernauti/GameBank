@@ -18,6 +18,7 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.GameLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
@@ -45,6 +46,20 @@ public class RoomActivity extends AppCompatActivity implements GameLogic.Listene
 
     private RoomPlayerAdapter mMembersAdapter;
     private boolean isReady = false;
+    private LocalBroadcastManager mLocalBroadcastManager;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
+
+            if (Event.Game.START_GAME.equals(action)) {
+                Intent startGame = new Intent(context, DashboardActivity.class);
+                startActivity(startGame);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,12 +70,20 @@ public class RoomActivity extends AppCompatActivity implements GameLogic.Listene
         mMembersAdapter = new RoomPlayerAdapter(this);
         mMembersList.setAdapter(mMembersAdapter);
 
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+
+        IntentFilter filter = new IntentFilter(Event.Game.START_GAME);
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
+
         ((GameBank)getApplication()).getGameLogic().setListener(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        mLocalBroadcastManager.unregisterReceiver(mReceiver);
+
         ((GameBank)getApplication()).getGameLogic().removeListener();
     }
 

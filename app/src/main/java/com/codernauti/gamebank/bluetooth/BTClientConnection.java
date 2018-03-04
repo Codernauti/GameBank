@@ -33,6 +33,10 @@ public class BTClientConnection extends BTConnection {
         this.mServer = server;
     }
 
+    @Override
+    void onStopReadingDataFrom(UUID who) {
+        // TODO: disconnect with server
+    }
 
     void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
         connectToHost(rendezvous);

@@ -48,7 +48,7 @@ abstract class BTConnection implements Closeable {
         mConnections.put(clientUuid, btio);
     }
 
-    void removeConnection(UUID clienUuid) {
+    private void removeConnection(UUID clienUuid) {
         Log.d(TAG, "Disconnect " + clienUuid);
         mConnections.remove(clienUuid);
     }
@@ -70,8 +70,8 @@ abstract class BTConnection implements Closeable {
             public void run() {
                 Log.d(TAG, "StartListening \n\tThread: " + Thread.currentThread().getName());
 
-                boolean flag = true;
-                while (flag) {
+                boolean isConnected = true;
+                while (isConnected) {
 
                     try {
                         Object tmp = btio.readData();
@@ -87,21 +87,22 @@ abstract class BTConnection implements Closeable {
 
                     } catch (IOException e) {
 
-                        Log.d(TAG, "Stopped receiving data");
+                        UUID clientDisconnected = btio.getUUID();
+
+                        Log.d(TAG, "Stopped receiving data from: " + clientDisconnected);
                         e.printStackTrace();
 
-                        Intent intent = BTBundle.makeIntentFrom(
-                                new BTBundle(Event.Game.MEMBER_DISCONNECTED)
-                                        .append(btio.getUUID())
-                        );
-                        mLocalBroadcastManager.sendBroadcast(intent);
+                        removeConnection(clientDisconnected);
+                        onStopReadingDataFrom(clientDisconnected);
 
-                        flag = false;
+                        isConnected = false;
                     }
                 }
             }
         });
     }
+
+    abstract void onStopReadingDataFrom(UUID who);
 
     /* SEND METHODS */
 

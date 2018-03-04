@@ -160,7 +160,7 @@ public final class GameLogic {
     public void setIamHost() {
         Log.d(TAG, "I am host!");
         mIamHost = true;
-        mPlayers.add(new RoomPlayer("HostNickname", GameBank.BT_ADDRESS, false));
+        mPlayers.add(new RoomPlayer("HostNickname", GameBank.BT_ADDRESS, true));
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
@@ -168,7 +168,7 @@ public final class GameLogic {
     }
 
 
-    public boolean canStartMatch() {
+    public boolean matchCanStart() {
         for (RoomPlayer player : mPlayers) {
             if (!player.isReady()) {
                 return false;

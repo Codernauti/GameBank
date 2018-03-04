@@ -15,10 +15,8 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.EventFactory;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Created by Eduard on 27-Feb-18.
@@ -44,10 +42,10 @@ public class BTClientService extends Service {
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (btBundle.getUuid().equals(GameBank.BT_ADDRESS)) {
+                if (btBundle.isSentByMe()) {
                     mConnection.sendToHost(btBundle);
                 } else {
-                    Log.d(TAG, "BTBundle from other nodes, don't forward it.");
+                    Log.e(TAG, "BTBundle from other nodes, don't forward it.");
                 }
 
             } else {
@@ -55,6 +53,7 @@ public class BTClientService extends Service {
             }
         }
     };
+
 
     @Override
     public void onCreate() {
