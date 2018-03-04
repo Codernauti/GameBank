@@ -12,11 +12,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:text="Your  Balance"
+        android:text="Your Balance"
 
-        app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintVertical_bias="0.2"
-
+        app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintHorizontal_bias="0.1"
 
         app:layout_constraintTop_toTopOf="parent"
@@ -29,17 +27,46 @@
         android:id="@+id/bank_account_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="34sp"
+        android:textSize="38sp"
 
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_account_balance_label"
-        app:layout_constraintBottom_toTopOf="@+id/bank_plus_5"
+        app:layout_constraintBottom_toTopOf="@+id/bank_line_separator"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
         tools:text="30.000"
+        />
+
+    <View
+        android:id="@+id/bank_line_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_account_balance"
+        app:layout_constraintBottom_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        />
+
+    <!-- 1 row -->
+
+    <Button
+        android:id="@+id/bank_plus_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 1"
+
+        app:layout_constraintTop_toBottomOf="@id/bank_line_separator"
+        app:layout_constraintBottom_toTopOf="@id/bank_minus_1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bank_plus_5"
         />
 
     <Button
@@ -48,12 +75,36 @@
         android:layout_height="wrap_content"
         android:text="+ 5"
 
-        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintTop_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_plus_1"
+        app:layout_constraintStart_toEndOf="@+id/bank_plus_1"
+        app:layout_constraintEnd_toStartOf="@+id/bank_plus_10"
+        />
 
-        app:layout_constraintTop_toBottomOf="@+id/bank_account_balance"
-        app:layout_constraintBottom_toTopOf="@+id/bank_minus_5"
-        app:layout_constraintStart_toStartOf="parent"
+    <Button
+        android:id="@+id/bank_plus_10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 10"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_plus_1"
+        app:layout_constraintStart_toEndOf="@+id/bank_plus_5"
         app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- 2 row -->
+
+    <Button
+        android:id="@+id/bank_minus_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="- 1"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_plus_1"
+        app:layout_constraintBottom_toTopOf="@+id/bank_total_trans_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bank_minus_5"
         />
 
     <Button
@@ -62,12 +113,68 @@
         android:layout_height="wrap_content"
         android:text="- 5"
 
-        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintTop_toTopOf="@+id/bank_minus_1"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_minus_1"
+        app:layout_constraintStart_toEndOf="@+id/bank_minus_1"
+        app:layout_constraintEnd_toStartOf="@+id/bank_minus_10"
+        />
 
-        app:layout_constraintTop_toBottomOf="@+id/bank_plus_5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+    <Button
+        android:id="@+id/bank_minus_10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="- 10"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_minus_1"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_minus_1"
+        app:layout_constraintStart_toEndOf="@+id/bank_minus_5"
         app:layout_constraintEnd_toEndOf="parent"
         />
+
+    <!-- Transaction operation row -->
+
+    <TextView
+        android:id="@+id/bank_total_trans_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textSize="18sp"
+        android:text="Transaction:"
+
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_minus_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bank_total_trans"
+        />
+
+    <TextView
+        android:id="@+id/bank_total_trans"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_total_trans_label"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_total_trans_label"
+        app:layout_constraintStart_toEndOf="@+id/bank_total_trans_label"
+        app:layout_constraintEnd_toStartOf="@+id/bank_sent_btn"
+
+        tools:text="100"
+        />
+
+    <Button
+        android:id="@+id/bank_sent_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SENT"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_total_trans_label"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_total_trans_label"
+        app:layout_constraintStart_toEndOf="@+id/bank_total_trans"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
 
 </android.support.constraint.ConstraintLayout>

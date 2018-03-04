@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +25,13 @@ public class BankFragment extends Fragment {
     @BindView(R.id.bank_account_balance)
     TextView mAccountBalanceText;
 
-    // TODO: move this to another Model class
-    private int mAccountBalance;
+    @BindView(R.id.bank_total_trans)
+    TextView mTransactionValueView;
+
     private LocalBroadcastManager mLocalBroadcastManager;
+    // TODO: move these to a Model class
+    private int mAccountBalance;
+    private int mTransactionValue;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,8 @@ public class BankFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final ViewGroup root = (ViewGroup) inflater.inflate(R.layout.bank_fragment, container, false);
+        final ViewGroup root = (ViewGroup) inflater
+                .inflate(R.layout.bank_fragment, container, false);
         ButterKnife.bind(this, root);
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
@@ -48,26 +54,41 @@ public class BankFragment extends Fragment {
 
     @OnClick(R.id.bank_plus_5)
     public void addFive() {
-        mAccountBalance += 5;
-        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
-
-        // TODO: send data to BTClientConnection
-        Intent transaction = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.TRANSACTION).append(5)
-        );
-        mLocalBroadcastManager.sendBroadcast(transaction);
+        mTransactionValue += 5;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
     }
 
     @OnClick(R.id.bank_minus_5)
     public void subtractFive() {
-        mAccountBalance -= 5;
+        mTransactionValue -= 5;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
+    @OnClick(R.id.bank_plus_1)
+    public void addOne() {
+        mTransactionValue += 1;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
+    @OnClick(R.id.bank_minus_1)
+    public void subtractOne() {
+        mTransactionValue -= 1;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
+    @OnClick(R.id.bank_sent_btn)
+    public void executeTransaction() {
+        Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
+
+        mAccountBalance += mTransactionValue;
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
         Intent transaction = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.TRANSACTION).append(-5)
+                new BTBundle(Event.Game.TRANSACTION).append(mTransactionValue)
         );
         mLocalBroadcastManager.sendBroadcast(transaction);
     }
+
 
 
 }
