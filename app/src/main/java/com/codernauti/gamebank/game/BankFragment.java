@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
@@ -82,6 +83,9 @@ public class BankFragment extends Fragment {
 
         mAccountBalance += mTransactionValue;
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+
+        mTransactionValue = 0;
+        mTransactionValueView.setText("0");
 
         Intent transaction = BTBundle.makeIntentFrom(
                 new BTBundle(Event.Game.TRANSACTION).append(mTransactionValue)
