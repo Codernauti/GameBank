@@ -46,49 +46,28 @@ public class BTHostService extends Service {
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Game.MEMBER_JOINED.equals(action)) {
+                if (btBundle.isSentByMe()) {
 
-                    UUID packetSender = btBundle.getUuid();
-                    List<UUID> exceptions = new ArrayList<>();
-                    exceptions.add(packetSender);
+                    if (Event.Game.CURRENT_STATE.equals(action)) {
 
-                    Log.d(TAG, "Send Multicast. Exception: " + packetSender);
-                    mConnections.sendMulticast(btBundle, exceptions);
+                        UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
+                        Log.d(TAG, "Send to " + receiver);
+                        mConnections.sendTo(btBundle, receiver);
 
-                } else if (Event.Game.MEMBER_READY.equals(action)) {
+                    } else {
+                        // START_GAME
+                        // TRANSACTION
+                        // MEMBER_DISCONNECTED
 
-                    UUID address = btBundle.getUuid();
-                    List<UUID> exceptions = new ArrayList<>();
-                    exceptions.add(address);
+                        Log.d(TAG, "Send Broadcast");
+                        mConnections.sendBroadcast(btBundle);
+                    }
 
-                    // send to all nodes except to who create BTBundle
-                    Log.d(TAG, "Send Multicast. Exception: " + address);
-                    mConnections.sendMulticast(btBundle, exceptions);
+                } else {
+                    // MEMBER_JOINED
+                    // MEMBER_READY
+                    // TRANSACTION
 
-                } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
-
-                    Log.d(TAG, "Send Broadcast");
-                    mConnections.sendBroadcast(btBundle);
-
-                } else if (Event.Game.CURRENT_STATE.equals(action)) {
-
-                    UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
-
-                    Log.d(TAG, "Send to " + receiver);
-                    mConnections.sendTo(btBundle, receiver);
-
-                } else if (Event.Game.START_GAME.equals(action)) {
-
-                    // NB only event emitted by Host device can be sent broadcast
-                    Log.d(TAG, "Send Broadcast");
-                    mConnections.sendBroadcast(btBundle);
-
-                } else if (Event.Game.TRANSACTION.equals(action)) {
-
-                    // NB event that can be emitted by all nodes
-                    // must be sent multicast
-                    // In case Activity emit EVENT -> no exception (broadcast)
-                    // In case Connection emit EVENT -> who emit is exception
                     UUID packetSender = btBundle.getUuid();
                     List<UUID> exceptions = new ArrayList<>();
                     exceptions.add(packetSender);
