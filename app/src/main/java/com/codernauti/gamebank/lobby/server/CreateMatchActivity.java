@@ -20,9 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.GameLogic;
+import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
@@ -35,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class CreateMatchActivity extends AppCompatActivity implements GameLogic.Listener {
+public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.Listener {
 
     private static final String TAG = "CreateMatchActivity";
 
@@ -69,7 +68,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
     private BluetoothAdapter mBluetoothAdapter;
     private RoomPlayerAdapter mMembersAdapter;
-    private GameLogic mGameLogic;
+    private RoomLogic mRoomLogic;
     private LocalBroadcastManager mLocalBroadcastManager;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -113,8 +112,8 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-        mGameLogic = ((GameBank)getApplication()).getGameLogic();
-        mGameLogic.setListener(this);
+        mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
+        mRoomLogic.setListener(this);
     }
 
     @Override
@@ -135,7 +134,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mGameLogic.removeListener();
+        mRoomLogic.removeListener();
     }
 
     @OnClick(R.id.open_lobby)
@@ -145,7 +144,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
 
-        mGameLogic.setIamHost();
+        mRoomLogic.setIamHost();
 
         // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -175,7 +174,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
         Log.d(TAG, "onMatchStart");
 
-        if (mGameLogic.matchCanStart()) {
+        if (mRoomLogic.matchCanStart()) {
 
             cancelMatchButton.setVisibility(View.INVISIBLE);
             openLobbyButton.setVisibility(View.INVISIBLE);
@@ -188,15 +187,12 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
             );
             mLocalBroadcastManager.sendBroadcast(startGame);
 
-            Intent intent = new Intent(this, DashboardActivity.class);
-            startActivity(intent);
-
         } else {
             Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // GameLogic callbacks
+    // RoomLogic callbacks
 
     @Override
     public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {

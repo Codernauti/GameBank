@@ -8,15 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.codernauti.gamebank.BankLogic;
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.GameLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.TransModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TransactionsFragment extends Fragment implements GameLogic.ListenerBank {
+public class TransactionsFragment extends Fragment implements BankLogic.ListenerBank {
 
     private static final String TAG = "TransactionsFragment";
 
@@ -45,7 +45,7 @@ public class TransactionsFragment extends Fragment implements GameLogic.Listener
         mAdapter = new TransAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
-        ((GameBank) getActivity().getApplication()).getGameLogic().setListenerBank(this);
+        ((GameBank) getActivity().getApplication()).getBankLogic().setListener(this);
 
         return root;
     }
@@ -53,10 +53,10 @@ public class TransactionsFragment extends Fragment implements GameLogic.Listener
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ((GameBank) getActivity().getApplication()).getGameLogic().setListenerBank(null);
+        ((GameBank) getActivity().getApplication()).getBankLogic().setListener(null);
     }
 
-    // GameLogic callbacks
+    // RoomLogic callbacks
     @Override
     public void onNewTransaction(TransModel newTrans) {
         mAdapter.addTransaction(newTrans);

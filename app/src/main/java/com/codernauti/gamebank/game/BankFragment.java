@@ -84,13 +84,13 @@ public class BankFragment extends Fragment {
         mAccountBalance += mTransactionValue;
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-        mTransactionValue = 0;
-        mTransactionValueView.setText("0");
-
         Intent transaction = BTBundle.makeIntentFrom(
                 new BTBundle(Event.Game.TRANSACTION).append(mTransactionValue)
         );
         mLocalBroadcastManager.sendBroadcast(transaction);
+
+        mTransactionValue = 0;
+        mTransactionValueView.setText("0");
     }
 
 

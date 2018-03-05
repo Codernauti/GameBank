@@ -7,15 +7,13 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.ListView;
 
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.GameLogic;
+import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.game.DashboardActivity;
@@ -24,7 +22,6 @@ import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,7 +31,7 @@ import butterknife.OnClick;
  * Created by Eduard on 28-Feb-18.
  */
 
-public  class RoomActivity extends AppCompatActivity implements GameLogic.Listener {
+public  class RoomActivity extends AppCompatActivity implements RoomLogic.Listener {
 
     private static final String TAG = "RoomActivity";
 
@@ -48,18 +45,6 @@ public  class RoomActivity extends AppCompatActivity implements GameLogic.Listen
     private boolean isReady = false;
     private LocalBroadcastManager mLocalBroadcastManager;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "Received action: " + action);
-
-            if (Event.Game.START_GAME.equals(action)) {
-                Intent startGame = new Intent(context, DashboardActivity.class);
-                startActivity(startGame);
-            }
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,19 +57,13 @@ public  class RoomActivity extends AppCompatActivity implements GameLogic.Listen
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-        IntentFilter filter = new IntentFilter(Event.Game.START_GAME);
-        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
-
-        ((GameBank)getApplication()).getGameLogic().setListener(this);
+        ((GameBank)getApplication()).getRoomLogic().setListener(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        mLocalBroadcastManager.unregisterReceiver(mReceiver);
-
-        ((GameBank)getApplication()).getGameLogic().removeListener();
+        ((GameBank)getApplication()).getRoomLogic().removeListener();
     }
 
     @OnClick(R.id.room_poke_fab)
@@ -93,8 +72,7 @@ public  class RoomActivity extends AppCompatActivity implements GameLogic.Listen
                 new BTBundle(Event.Game.POKE).append("GOOO!")
         );
 
-        LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(intent);
+        mLocalBroadcastManager.sendBroadcast(intent);
 
         // Snackbar.make(, R.string.poke_action, Snackbar.LENGTH_SHORT);
     }
@@ -109,14 +87,13 @@ public  class RoomActivity extends AppCompatActivity implements GameLogic.Listen
                 new BTBundle(Event.Game.MEMBER_READY).append(isReady)
         );
 
-        LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(intent);
+        mLocalBroadcastManager.sendBroadcast(intent);
 
         status.setImageResource(icon);
     }
 
 
-    // GameLogic callbacks
+    // RoomLogic callbacks
 
     @Override
     public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {
