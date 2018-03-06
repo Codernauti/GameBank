@@ -25,4 +25,6 @@
     <string name="start_lobby">Cerca giocatori</string>
     <string name="load_match">Carica una partita</string>
     <string name="settings">Impostazioni</string>
+    <string name="profile">Profilo</string>
+    <string name="username">Nickname giocatore</string>
 </resources>
