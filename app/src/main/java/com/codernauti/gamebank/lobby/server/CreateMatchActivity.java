@@ -39,7 +39,7 @@ public class CreateMatchActivity extends AppCompatActivity implements GameLogic.
 
     private static final String TAG = "CreateMatchActivity";
 
-    @BindView(R.id.toolbar)
+    @BindView(R.id.create_match_toolbar)
     Toolbar toolbar;
 
     @BindView(R.id.members_number)

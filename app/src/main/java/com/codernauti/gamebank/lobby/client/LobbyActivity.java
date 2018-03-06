@@ -49,7 +49,7 @@ public class LobbyActivity extends AppCompatActivity {
     @BindView(R.id.list)
     ListView devicesList;
 
-    @BindView(R.id.toolbar)
+    @BindView(R.id.lobby_toolbar)
     Toolbar toolbar;
 
     @BindView(R.id.swiperefresh)
@@ -125,6 +125,7 @@ public class LobbyActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {

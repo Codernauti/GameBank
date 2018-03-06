@@ -28,7 +28,11 @@
         <activity
             android:name=".lobby.client.LobbyActivity"
             android:label="@string/title_activity_lobby"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.codernauti.gamebank.MainActivity" />
+        </activity>
         <activity
             android:name=".lobby.server.CreateMatchActivity"
             android:label="@string/title_activity_create_match"
