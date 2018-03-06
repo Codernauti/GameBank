@@ -11,9 +11,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.TransModel;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.util.Event;
+
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,10 +88,20 @@ public class BankFragment extends Fragment {
         mAccountBalance += mTransactionValue;
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-        Intent transaction = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.TRANSACTION).append(mTransactionValue)
+        TransModel transaction;
+        if (mTransactionValue < 0) {
+            transaction = new TransModel(
+                    GameBank.BT_ADDRESS.toString(), "Bank", Math.abs(mTransactionValue));
+        } else {
+            transaction = new TransModel(
+                    "Bank", GameBank.BT_ADDRESS.toString(), mTransactionValue);
+        }
+
+        Intent transIntent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.TRANSACTION)
+                        .append(transaction)
         );
-        mLocalBroadcastManager.sendBroadcast(transaction);
+        mLocalBroadcastManager.sendBroadcast(transIntent);
 
         mTransactionValue = 0;
         mTransactionValueView.setText("0");

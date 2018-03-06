@@ -42,7 +42,7 @@ public class TransactionsFragment extends Fragment implements BankLogic.Listener
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new TransAdapter();
+        mAdapter = new TransAdapter(GameBank.BT_ADDRESS);
         mRecyclerView.setAdapter(mAdapter);
 
         ((GameBank) getActivity().getApplication()).getBankLogic().setListener(this);

@@ -1,6 +1,7 @@
 package com.codernauti.gamebank.game;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +12,16 @@ import com.codernauti.gamebank.TransModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
+    private String mMyUUID;
     private List<TransModel> mTransactionsList = new ArrayList<>();
+
+    TransAdapter(@NonNull UUID myUUID) {
+        mMyUUID = myUUID.toString();
+    }
 
     @Override
         public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -28,13 +35,21 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(TransactionViewHolder transactionViewHolder, int position) {
+    public void onBindViewHolder(TransactionViewHolder viewHolder, int position) {
 
-        transactionViewHolder.userFromTextView.setText(
+        TransModel transaction = mTransactionsList.get(position);
+
+        if (mMyUUID.equals(transaction.getToUser())) {
+            viewHolder.positiveArrow();
+        } else {
+            viewHolder.negativeArrow();
+        }
+
+        viewHolder.userFromTextView.setText(
                 mTransactionsList.get(position).getFromUser());
-        transactionViewHolder.userToTextView.setText(
+        viewHolder.userToTextView.setText(
                 mTransactionsList.get(position).getToUser());
-        transactionViewHolder.cashTextView.setText(
+        viewHolder.cashTextView.setText(
                 String.valueOf(mTransactionsList.get(position).getCash()));
     }
 

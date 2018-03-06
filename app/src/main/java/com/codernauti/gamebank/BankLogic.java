@@ -43,29 +43,47 @@ public class BankLogic {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Log.d(TAG, "Received action " + action);
 
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
                 if (Event.Game.TRANSACTION.equals(action)) {
-                    UUID playerTransaction = btBundle.getUuid();
 
-                    Integer currentBalance = mPlayerAccounts.get(playerTransaction);
-                    currentBalance += (Integer) btBundle.get(Integer.class.getName());
-                    mPlayerAccounts.put(playerTransaction, currentBalance);
+                    TransModel transaction = (TransModel) btBundle.get(
+                            TransModel.class.getName());
 
-                    TransModel newTrans = new TransModel(
-                            playerTransaction.toString(),
-                            "Bank",
-                            currentBalance);
-                    mTransactions.add(newTrans);
+                    if (transaction != null) {
 
-                    if (mListenerBank != null) {
-                        mListenerBank.onNewTransaction(newTrans);
+                        if (!transaction.getFromUser().equals("Bank")) {
+                            UUID fromUser = UUID.fromString(transaction.getFromUser());
+
+                            Integer fromUserBalance = mPlayerAccounts.get(fromUser);
+                            mPlayerAccounts.put(fromUser, fromUserBalance - transaction.getCash());
+
+                        }
+
+                        if (!transaction.getToUser().equals("Bank")) {
+                            UUID toUser = UUID.fromString(transaction.getToUser());
+
+                            Integer toUserBalance = mPlayerAccounts.get(toUser);
+                            mPlayerAccounts.put(toUser, toUserBalance + transaction.getCash());
+
+                        }
+
+                        mTransactions.add(transaction);
+
+                        if (mListenerBank != null) {
+                            mListenerBank.onNewTransaction(transaction);
+                        }
+
+                        Log.d(TAG, /*"Transaction from " + fromUser +
+                                " to " + toUser + "\n" +*/
+                                "Quantity: " + transaction.getCash());
+
+                    } else {
+                        Log.e(TAG, "Sent a transaction empty!");
                     }
-
-                    Log.d(TAG, "Update account balance of " + playerTransaction + "\n" +
-                            "Total balance up to date: " + mPlayerAccounts.get(playerTransaction));
                 }
             }
         }
