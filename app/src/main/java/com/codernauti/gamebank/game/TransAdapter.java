@@ -12,30 +12,30 @@ import com.codernauti.gamebank.TransModel;
 import java.util.ArrayList;
 import java.util.List;
 
-class TransAdapter extends RecyclerView.Adapter<TransAdapterViewHolder> {
+class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
     private List<TransModel> mTransactionsList = new ArrayList<>();
 
-    TransAdapter() {
-    }
-
     @Override
-        public TransAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
         Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.trans_list_row;
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
-        return new TransAdapterViewHolder(view);
+        return new TransactionViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TransAdapterViewHolder transAdapterViewHolder, int position) {
+    public void onBindViewHolder(TransactionViewHolder transactionViewHolder, int position) {
 
-        transAdapterViewHolder.userFromTextView.setText(mTransactionsList.get(position).getFromUser());
-        transAdapterViewHolder.userToTextView.setText(mTransactionsList.get(position).getToUser());
-        transAdapterViewHolder.cashTextView.setText(String.valueOf(mTransactionsList.get(position).getCash()));
+        transactionViewHolder.userFromTextView.setText(
+                mTransactionsList.get(position).getFromUser());
+        transactionViewHolder.userToTextView.setText(
+                mTransactionsList.get(position).getToUser());
+        transactionViewHolder.cashTextView.setText(
+                String.valueOf(mTransactionsList.get(position).getCash()));
     }
 
     @Override
