@@ -27,5 +27,6 @@
     <string name="settings">Settings</string>
     <string name="profile">Profile</string>
     <string name="username">Player username</string>
+    <string name="title_activity_edit_text">EditText</string>
 
 </resources>
