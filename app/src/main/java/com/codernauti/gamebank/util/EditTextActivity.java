@@ -1,9 +1,11 @@
 package com.codernauti.gamebank.util;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
@@ -13,9 +15,10 @@ import butterknife.ButterKnife;
 
 public class EditTextActivity extends AppCompatActivity {
 
-    private static final String TOOLBAR_TITLE = "toolbar_name";
-    private static final String EDIT_FIELD_NAME = "edit_field_name";
-    private static final String DESCRIPTION = "description";
+    public static final String TOOLBAR_TITLE = "toolbar_name";
+    public static final String EDIT_FIELD_NAME = "edit_field_name";
+    public static final String DESCRIPTION = "description";
+    private static final String TAG = "EditTextActivity";
 
     @BindView(R.id.edit_toolbar)
     Toolbar mToolbar;
@@ -36,14 +39,25 @@ public class EditTextActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (savedInstanceState != null) {
-            String title = savedInstanceState.getString(TOOLBAR_TITLE);
-            String editFieldName = savedInstanceState.getString(EDIT_FIELD_NAME);
-            String description = savedInstanceState.getString(DESCRIPTION);
+        Log.d(TAG, "onCreate EditTextActivity");
+
+        Intent data = getIntent();
+
+        if (data != null) {
+
+            Bundle config = data.getExtras();
+
+            String title = config.getString(TOOLBAR_TITLE);
+            String editFieldName = config.getString(EDIT_FIELD_NAME);
+            String description = config.getString(DESCRIPTION);
+
+            Log.d(TAG, "Data passed: toolbar name: " + title + " editfield: " + editFieldName + " description: " + description);
 
             getSupportActionBar().setTitle(title);
             mInput.setHint(editFieldName);
             mDescription.setText(description);
+        } else {
+            Log.d(TAG, "Intent data is null");
         }
     }
 

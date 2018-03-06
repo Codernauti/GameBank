@@ -27,4 +27,6 @@
     <string name="settings">Impostazioni</string>
     <string name="profile">Profilo</string>
     <string name="username">Nickname giocatore</string>
+    <string name="title_activity_edit_text">ModificaTesto</string>
+    <string name="edit_username">Modifica nickname</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.codernauti.gamebank;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.codernauti.gamebank.util.PrefKey;
+import com.codernauti.gamebank.util.EditTextActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,9 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
     @BindView(R.id.settings_toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.settings_nickname_input)
-    TextInputEditText mNicknameInput;
-
+  
     @BindView(R.id.settings_save_btn)
     ImageButton mSaveButton;
 
@@ -37,14 +37,14 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @OnClick(R.id.change_name_button)
+    public void onChangeNameClickedButton() {
 
-    @OnClick(R.id.settings_save_btn)
-    public void saveInputs() {
-        String nickname = mNicknameInput.getText().toString();
+        Intent intent = new Intent(this, EditTextActivity.class);
+        intent.putExtra(EditTextActivity.TOOLBAR_TITLE, "Change player name");
+        intent.putExtra(EditTextActivity.EDIT_FIELD_NAME, "Player name");
+        intent.putExtra(EditTextActivity.DESCRIPTION, "Bla bla bla bla");
 
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putString(PrefKey.NICKNAME, nickname)
-                .apply();
+        startActivity(intent);
     }
 }
