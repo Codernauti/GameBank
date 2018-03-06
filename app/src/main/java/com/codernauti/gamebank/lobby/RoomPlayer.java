@@ -2,7 +2,6 @@ package com.codernauti.gamebank.lobby;
 
 import android.support.annotation.NonNull;
 
-import com.codernauti.gamebank.bluetooth.BTClient;
 import com.codernauti.gamebank.util.PlayerProfile;
 
 import java.util.UUID;
@@ -29,7 +28,4 @@ public class RoomPlayer extends PlayerProfile {
         this.isReady = isReady;
     }
 
-    public BTClient getBTClient() {
-        return new BTClient(getNickname(), getId().toString(), isReady);
-    }
 }
