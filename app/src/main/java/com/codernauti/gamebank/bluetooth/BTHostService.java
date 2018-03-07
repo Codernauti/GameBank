@@ -36,7 +36,7 @@ public class BTHostService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
 
-    // TODO: refactor this duplicated code
+
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
