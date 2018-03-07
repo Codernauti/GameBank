@@ -62,7 +62,7 @@ public class GameBank extends Application {
                 .registerReceiver(mReceiver, filter);
     }
 
-    public void initGameLogic() {
+    public void initRoomLogic() {
         String nickname = SharePrefUtil.getStringPreference(
                 this, PrefKey.NICKNAME);
 

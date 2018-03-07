@@ -112,6 +112,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
+        ((GameBank)getApplication()).initRoomLogic();
         mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
         mRoomLogic.setListener(this);
     }

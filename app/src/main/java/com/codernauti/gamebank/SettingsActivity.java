@@ -2,22 +2,12 @@ package com.codernauti.gamebank;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
 
 import com.codernauti.gamebank.util.PrefKey;
-import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.util.EditTextActivity;
-import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 
@@ -71,6 +61,9 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putString(EditTextActivity.TOOLBAR_TITLE, getString(R.string.username));
         bundle.putString(EditTextActivity.EDIT_FIELD_NAME, getString(R.string.edit_username));
         bundle.putString(EditTextActivity.DESCRIPTION, getString(R.string.set_username_description));
+
+        String prevNickname = SharePrefUtil.getStringPreference(this, PrefKey.NICKNAME);
+        bundle.putString(EditTextActivity.PREVIOUS_VALUE, prevNickname);
 
         intent.putExtras(bundle);
 

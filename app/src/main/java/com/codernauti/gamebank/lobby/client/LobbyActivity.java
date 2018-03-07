@@ -22,17 +22,12 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.bluetooth.BTClientConnection;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
-import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.server.CreateMatchActivity;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -146,6 +141,8 @@ public class LobbyActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        ((GameBank) getApplication()).initRoomLogic();
     }
 
     @Override

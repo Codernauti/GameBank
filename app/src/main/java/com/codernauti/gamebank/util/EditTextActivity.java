@@ -1,10 +1,8 @@
 package com.codernauti.gamebank.util;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,6 +23,7 @@ public class EditTextActivity extends AppCompatActivity {
     public static final String TOOLBAR_TITLE = "toolbar_name";
     public static final String EDIT_FIELD_NAME = "edit_field_name";
     public static final String DESCRIPTION = "description";
+    public static final String PREVIOUS_VALUE = "nickname";
 
     public static final String TEXT_RESULT = "text_result";
 
@@ -58,12 +57,15 @@ public class EditTextActivity extends AppCompatActivity {
             String title = config.getString(TOOLBAR_TITLE);
             String editFieldName = config.getString(EDIT_FIELD_NAME);
             String description = config.getString(DESCRIPTION);
+            String previousValue = config.getString(PREVIOUS_VALUE);
 
             Log.d(TAG, "Data passed: toolbar name: " + title + " editfield: " + editFieldName + " description: " + description);
 
             getSupportActionBar().setTitle(title);
             mInput.setHint(editFieldName);
+            mInput.setText(previousValue);
             mDescription.setText(description);
+
         } else {
             Log.d(TAG, "Intent data is null");
         }
