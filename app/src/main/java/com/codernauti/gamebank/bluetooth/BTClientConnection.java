@@ -33,11 +33,6 @@ public class BTClientConnection extends BTConnection {
         this.mServer = server;
     }
 
-    @Override
-    void onStopReadingDataFrom(UUID who) {
-        // TODO: disconnect with server
-    }
-
     void connectAndListen(@NonNull final BTBundle rendezvous) throws IOException {
         connectToHost(rendezvous);
     }
@@ -74,5 +69,14 @@ public class BTClientConnection extends BTConnection {
 
     void sendToHost(@NonNull final BTBundle data) {
         sendTo(data, mHostUUID);
+    }
+
+    @Override
+    void onStopReadingDataFrom(UUID who) {
+        Intent intent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.HOST_DISCONNECTED)
+                        .append(who)
+        );
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 }

@@ -12,7 +12,6 @@ import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -26,6 +25,8 @@ public class BTHostConnection extends BTConnection {
 
     private final int mAcceptedConnections;
     private final BluetoothServerSocket mBtServerSocket;
+
+    private volatile boolean mServerSocketOpen;
 
 
     BTHostConnection(int acceptedConnections,
@@ -46,12 +47,13 @@ public class BTHostConnection extends BTConnection {
     void acceptConnections() {
 
         Log.d(TAG, "Accepting connections");
+        mServerSocketOpen = true;
 
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
 
-                for (int i = 0; i < mAcceptedConnections; i++) {
+                for (int i = 0; i < mAcceptedConnections && mServerSocketOpen; i++) {
                     try {
                         Log.d(TAG, "Waiting for a new connection...");
                         final BluetoothSocket clientSocket = mBtServerSocket.accept();
@@ -95,7 +97,6 @@ public class BTHostConnection extends BTConnection {
 
     @Override
     void onStopReadingDataFrom(UUID who) {
-
         Intent intent = BTBundle.makeIntentFrom(
                 new BTBundle(Event.Game.MEMBER_DISCONNECTED)
                         .append(who)
@@ -106,8 +107,13 @@ public class BTHostConnection extends BTConnection {
     @Override
     public void close() {
         super.close();
+        closeServerSocket();
+    }
+
+    void closeServerSocket() {
         try {
             mBtServerSocket.close();
+            mServerSocketOpen = false;
         } catch (IOException e) {
             Log.e(TAG, "Impossible to close server socket: " +
                     mBtServerSocket.toString() + "\n" + e.getMessage());

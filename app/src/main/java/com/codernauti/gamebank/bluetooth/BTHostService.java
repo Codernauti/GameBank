@@ -54,8 +54,11 @@ public class BTHostService extends Service {
                         Log.d(TAG, "Send to " + receiver);
                         mConnections.sendTo(btBundle, receiver);
 
+                    } else if (Event.Game.START_GAME.equals(action)) {
+
+                        mConnections.closeServerSocket();
+
                     } else {
-                        // START_GAME
                         // TRANSACTION
                         // MEMBER_DISCONNECTED
 

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTHostService;
@@ -29,9 +30,13 @@ public final class RoomLogic {
     private static final String TAG = "RoomLogic";
 
     public interface Listener {
-        void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
         void onPlayerChange(RoomPlayer player);
         void onPlayerRemove(RoomPlayer player);
+        void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
+    }
+
+    public interface ClientListener extends Listener {
+        void onHostDisconnect();
     }
 
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -124,6 +129,14 @@ public final class RoomLogic {
                         mListener.onNewPlayerJoined(mPlayers);
                     }
 
+                } else if (!mIamHost && Event.Game.HOST_DISCONNECTED.equals(action)) {
+
+                    Log.d(TAG, "(only client) Disconnected from host");
+
+                    if (mListener != null) {
+                        ((ClientListener) mListener).onHostDisconnect();
+                    }
+
                 }
 
             }
@@ -140,6 +153,7 @@ public final class RoomLogic {
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.MEMBER_DISCONNECTED);
         filter.addAction(Event.Game.CURRENT_STATE);
+        filter.addAction(Event.Game.HOST_DISCONNECTED);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }

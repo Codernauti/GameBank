@@ -20,6 +20,7 @@ public interface Event {
         String MEMBER_READY = "member_ready";
         String MEMBER_DISCONNECTED = "member_disconnected";
         String CURRENT_STATE = "current_state";
+        String HOST_DISCONNECTED = "host_disconnected";
     }
 
     interface Network {

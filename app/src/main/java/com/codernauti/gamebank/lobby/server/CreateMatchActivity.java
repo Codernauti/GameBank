@@ -27,6 +27,7 @@ import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
+import com.codernauti.gamebank.lobby.client.RoomActivity;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;

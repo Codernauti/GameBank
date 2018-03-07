@@ -2,15 +2,18 @@ package com.codernauti.gamebank.lobby.client;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
@@ -31,7 +34,7 @@ import butterknife.OnClick;
  * Created by Eduard on 28-Feb-18.
  */
 
-public  class RoomActivity extends AppCompatActivity implements RoomLogic.Listener {
+public class RoomActivity extends AppCompatActivity implements RoomLogic.ClientListener {
 
     private static final String TAG = "RoomActivity";
 
@@ -100,6 +103,26 @@ public  class RoomActivity extends AppCompatActivity implements RoomLogic.Listen
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " players.");
+    }
+
+    @Override
+    public void onHostDisconnect() {
+        Log.d(TAG, "onHostDisconnect");
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("AB")
+                .setMessage("GNEHU")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        RoomActivity.this.finish();
+                    }
+                })
+                .create();
+
+        alertDialog.show();
     }
 
     @Override
