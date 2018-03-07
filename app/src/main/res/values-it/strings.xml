@@ -29,4 +29,5 @@
     <string name="username">Nickname giocatore</string>
     <string name="title_activity_edit_text">ModificaTesto</string>
     <string name="edit_username">Modifica nickname</string>
+    <string name="warning_edit_input">L\'input non può essere vuoto!</string>
 </resources>

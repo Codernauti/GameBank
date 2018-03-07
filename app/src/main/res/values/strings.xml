@@ -29,5 +29,6 @@
     <string name="username">Player username</string>
     <string name="title_activity_edit_text">EditText</string>
     <string name="edit_username">Edit username</string>
+    <string name="warning_edit_input">Input cannot be empty!</string>
 
 </resources>
