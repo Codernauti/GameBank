@@ -18,6 +18,7 @@ import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 
 import butterknife.BindView;
@@ -54,19 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
             String newNickname = data.getExtras().getString(EditTextActivity.TEXT_RESULT);
             Log.d(TAG, "From EditTextActivity: " + newNickname);
 
-            PlayerProfile pp = GameBank.getPlayerProfile();
-
-            if (pp != null) {
-
-                Log.d(TAG, "PlayerProfile already existing. Updating the old one");
-                
-                pp.setNickname(newNickname);
-            } else {
-
-                Log.d(TAG, "No PlayerProfile. Setting a new one");
-                
-                GameBank.setPlayerProfile(new PlayerProfile(newNickname));
-            }
+            SharePrefUtil.saveStringPreference(this, PrefKey.NICKNAME, newNickname);
 
         } else if (resultCode == RESULT_CANCELED) {
             Log.d(TAG, "Result Canceled");

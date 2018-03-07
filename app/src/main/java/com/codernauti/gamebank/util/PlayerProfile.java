@@ -15,13 +15,6 @@ public class PlayerProfile implements Serializable {
     private final UUID mId;
     // TODO profile picture
 
-    public PlayerProfile(@NonNull String nickname) {
-        this(
-            nickname,
-            UUID.randomUUID()
-        );
-    }
-
     public PlayerProfile(@NonNull String nickname,
                          @NonNull UUID id) {
         this.mNickname = nickname;

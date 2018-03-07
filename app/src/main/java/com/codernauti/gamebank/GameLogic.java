@@ -40,6 +40,7 @@ public final class GameLogic {
     // Lobby fields
     private ArrayList<RoomPlayer> mPlayers = new ArrayList<>();
     private boolean mIamHost;
+    private final String mNickname;
 
     // Game fields
     private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
@@ -144,7 +145,8 @@ public final class GameLogic {
     };
 
 
-    GameLogic(LocalBroadcastManager broadcastManager) {
+    GameLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
+        mNickname = hostNickname;
         mLocalBroadcastManager = broadcastManager;
 
         IntentFilter filter = new IntentFilter();
@@ -184,7 +186,7 @@ public final class GameLogic {
     public void setIamHost() {
         Log.d(TAG, "I am host!");
         mIamHost = true;
-        mPlayers.add(new RoomPlayer("HostNickname", GameBank.BT_ADDRESS, true));
+        mPlayers.add(new RoomPlayer(mNickname, GameBank.BT_ADDRESS, true));
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
