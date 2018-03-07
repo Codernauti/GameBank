@@ -63,8 +63,7 @@ public class GameBank extends Application {
     }
 
     public void initRoomLogic() {
-        String nickname = SharePrefUtil.getStringPreference(
-                this, PrefKey.NICKNAME);
+        String nickname = SharePrefUtil.getNicknamePreference(this);
 
         mRoomLogic = new RoomLogic(
                 LocalBroadcastManager.getInstance(this), nickname);

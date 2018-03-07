@@ -16,6 +16,7 @@ import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,9 +97,12 @@ public final class RoomLogic {
 
                     UUID playerDisconnected = btBundle.getUuid();
 
-                    for (RoomPlayer player : mPlayers) {
+                    Iterator<RoomPlayer> iterator = mPlayers.iterator();
+                    while (iterator.hasNext()) {
+                        RoomPlayer player = iterator.next();
+
                         if (player.getId().equals(playerDisconnected)) {
-                            mPlayers.remove(player);
+                            iterator.remove();
 
                             if (mListener != null) {
                                 mListener.onPlayerRemove(player);

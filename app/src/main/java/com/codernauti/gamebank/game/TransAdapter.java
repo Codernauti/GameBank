@@ -16,11 +16,11 @@ import java.util.UUID;
 
 class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
-    private String mMyUUID;
+    private UUID mMyUUID;
     private List<TransModel> mTransactionsList = new ArrayList<>();
 
     TransAdapter(@NonNull UUID myUUID) {
-        mMyUUID = myUUID.toString();
+        mMyUUID = myUUID;
     }
 
     @Override
@@ -39,18 +39,15 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
         TransModel transaction = mTransactionsList.get(position);
 
-        if (mMyUUID.equals(transaction.getToUser())) {
+        /*if (mMyUUID.equals(transaction.getToUUID())) {
             viewHolder.positiveArrow();
         } else {
             viewHolder.negativeArrow();
-        }
+        }*/
 
-        viewHolder.userFromTextView.setText(
-                mTransactionsList.get(position).getFromUser());
-        viewHolder.userToTextView.setText(
-                mTransactionsList.get(position).getToUser());
-        viewHolder.cashTextView.setText(
-                String.valueOf(mTransactionsList.get(position).getCash()));
+        viewHolder.userFromTextView.setText(transaction.getFromUser());
+        viewHolder.userToTextView.setText(transaction.getToUser());
+        viewHolder.cashTextView.setText(String.valueOf(transaction.getCash()));
     }
 
     @Override

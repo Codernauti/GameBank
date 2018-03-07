@@ -5,13 +5,20 @@ import java.util.UUID;
 
 public class TransModel implements Serializable {
 
-    private String fromUser;
-    private String toUser;
-    private int cash;
+    private final String fromUser;
+    private final String toUser;
 
-    public TransModel(String fromU, String toU, int cash) {
+    private final UUID fromUUID;
+    private final UUID toUUID;
+
+    private final int cash;
+
+    public TransModel(String fromU, String toU, UUID fromUUID, UUID toUUID, int cash) {
         this.fromUser = fromU;
         this.toUser = toU;
+
+        this.fromUUID = fromUUID;
+        this.toUUID = toUUID;
         this.cash = cash;
     }
 
@@ -25,6 +32,14 @@ public class TransModel implements Serializable {
 
     public int getCash() {
         return cash;
+    }
+
+    public UUID getToUUID() {
+        return toUUID;
+    }
+
+    public UUID getFromUUID() {
+        return fromUUID;
     }
 
 }

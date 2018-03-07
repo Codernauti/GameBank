@@ -16,6 +16,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.TransModel;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ public class BankFragment extends Fragment {
     // TODO: move these to a Model class
     private int mAccountBalance;
     private int mTransactionValue;
+    private String mNickname;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,8 @@ public class BankFragment extends Fragment {
         ButterKnife.bind(this, root);
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+
+        mNickname = SharePrefUtil.getNicknamePreference(getContext());
 
         return root;
     }
@@ -83,28 +87,38 @@ public class BankFragment extends Fragment {
 
     @OnClick(R.id.bank_sent_btn)
     public void executeTransaction() {
-        Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
 
-        mAccountBalance += mTransactionValue;
-        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+        if (mTransactionValue != 0) {
 
-        TransModel transaction;
-        if (mTransactionValue < 0) {
-            transaction = new TransModel(
-                    GameBank.BT_ADDRESS.toString(), "Bank", Math.abs(mTransactionValue));
+            Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
+
+            mAccountBalance += mTransactionValue;
+            mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+
+            TransModel transaction;
+            UUID bankUUID = UUID.randomUUID();
+            UUID myUUUID = GameBank.BT_ADDRESS;
+
+            if (mTransactionValue < 0) {
+                transaction = new TransModel(
+                        mNickname, "Bank", myUUUID, bankUUID, Math.abs(mTransactionValue));
+            } else {
+                transaction = new TransModel(
+                        "Bank", mNickname, bankUUID, myUUUID, mTransactionValue);
+            }
+
+            Intent transIntent = BTBundle.makeIntentFrom(
+                    new BTBundle(Event.Game.TRANSACTION)
+                            .append(transaction)
+            );
+            mLocalBroadcastManager.sendBroadcast(transIntent);
+
+            mTransactionValue = 0;
+            mTransactionValueView.setText("0");
+
         } else {
-            transaction = new TransModel(
-                    "Bank", GameBank.BT_ADDRESS.toString(), mTransactionValue);
+            Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
         }
-
-        Intent transIntent = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.TRANSACTION)
-                        .append(transaction)
-        );
-        mLocalBroadcastManager.sendBroadcast(transIntent);
-
-        mTransactionValue = 0;
-        mTransactionValueView.setText("0");
     }
 
 

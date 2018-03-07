@@ -55,21 +55,22 @@ public class BankLogic {
 
                     if (transaction != null) {
 
-                        if (!transaction.getFromUser().equals("Bank")) {
-                            UUID fromUser = UUID.fromString(transaction.getFromUser());
+                        UUID fromUser = transaction.getFromUUID();
+                        UUID toUser = transaction.getToUUID();
 
-                            Integer fromUserBalance = mPlayerAccounts.get(fromUser);
+
+                        if (mPlayerAccounts.containsKey(fromUser)) {
+
+                            int fromUserBalance = mPlayerAccounts.get(fromUser);
                             mPlayerAccounts.put(fromUser, fromUserBalance - transaction.getCash());
-
                         }
 
-                        if (!transaction.getToUser().equals("Bank")) {
-                            UUID toUser = UUID.fromString(transaction.getToUser());
+                        if (mPlayerAccounts.containsKey(toUser)) {
 
-                            Integer toUserBalance = mPlayerAccounts.get(toUser);
+                            int toUserBalance = mPlayerAccounts.get(toUser);
                             mPlayerAccounts.put(toUser, toUserBalance + transaction.getCash());
-
                         }
+
 
                         mTransactions.add(transaction);
 
