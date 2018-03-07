@@ -36,6 +36,7 @@ public class BTHostService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private BTHostConnection mConnections;
 
+    // TODO: refactor this duplicated code
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -65,6 +66,7 @@ public class BTHostService extends Service {
                 } else {
                     // MEMBER_JOINED
                     // MEMBER_READY
+                    // TRANSACTION
 
                     UUID packetSender = btBundle.getUuid();
                     List<UUID> exceptions = new ArrayList<>();

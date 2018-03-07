@@ -28,7 +28,7 @@
         android:layout_marginStart="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintLeft_toRightOf="@+id/user_icon"
+        app:layout_constraintLeft_toRightOf="@+id/trans_row_icon"
         app:layout_constraintStart_toEndOf="@+id/status_icon"
         tools:text="@string/predefined_lobby_name" />
 

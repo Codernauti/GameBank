@@ -1,13 +1,13 @@
 package com.codernauti.gamebank;
 
-public class TransModel {
+import java.io.Serializable;
+import java.util.UUID;
+
+public class TransModel implements Serializable {
 
     private String fromUser;
     private String toUser;
     private int cash;
-
-    public TransModel() {
-    }
 
     public TransModel(String fromU, String toU, int cash) {
         this.fromUser = fromU;

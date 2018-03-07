@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -15,23 +16,22 @@ import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
  * Created by Eduard on 03-Mar-18.
  */
 
-public final class GameLogic {
+public final class RoomLogic {
 
-    private static final String TAG = "GameLogic";
+    private static final String TAG = "RoomLogic";
 
     public interface Listener {
-
         void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
         void onPlayerChange(RoomPlayer player);
         void onPlayerRemove(RoomPlayer player);
     }
-
 
     private final LocalBroadcastManager mLocalBroadcastManager;
     private Listener mListener;
@@ -41,9 +41,6 @@ public final class GameLogic {
     private ArrayList<RoomPlayer> mPlayers = new ArrayList<>();
     private boolean mIamHost;
     private final String mNickname;
-
-    // Game fields
-    private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -71,7 +68,7 @@ public final class GameLogic {
                                 "Send players: " + mPlayers.size());
 
                         // sync the new player (NB this break the layer separation
-                        // because GameLogic need to care about clients)
+                        // because RoomLogic need to care about clients)
                         Intent stateIntent = BTBundle.makeIntentFrom(
                                 new BTBundle(Event.Game.CURRENT_STATE)
                                         .append(mPlayers)
@@ -111,7 +108,7 @@ public final class GameLogic {
 
                 } else if (!mIamHost && Event.Game.CURRENT_STATE.equals(action)) {
                     // (NB this break the layer separation
-                    // because GameLogic need to care about host and client)
+                    // because RoomLogic need to care about host and client)
                     Log.d(TAG, "(only client) Synchronize state with host");
 
                     ArrayList<RoomPlayer> hostRoomPlayers = (ArrayList<RoomPlayer>)
@@ -123,21 +120,6 @@ public final class GameLogic {
                         mListener.onNewPlayerJoined(mPlayers);
                     }
 
-                } else if (Event.Game.START_GAME.equals(action)) {
-
-                    for (RoomPlayer player : mPlayers) {
-                        mPlayerAccounts.put(player.getId(), 0);
-                    }
-
-                } else if (Event.Game.TRANSACTION.equals(action)) {
-                    UUID playerTransaction = btBundle.getUuid();
-
-                    Integer currentBalance = mPlayerAccounts.get(playerTransaction);
-                    currentBalance += (Integer) btBundle.get(Integer.class.getName());
-                    mPlayerAccounts.put(playerTransaction, currentBalance);
-
-                    Log.d(TAG, "Update account balance of " + playerTransaction + "\n" +
-                                    "Total balance up to date: " + mPlayerAccounts.get(playerTransaction));
                 }
 
             }
@@ -145,7 +127,7 @@ public final class GameLogic {
     };
 
 
-    GameLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
+    RoomLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
         mNickname = hostNickname;
         mLocalBroadcastManager = broadcastManager;
 
@@ -154,9 +136,6 @@ public final class GameLogic {
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.MEMBER_DISCONNECTED);
         filter.addAction(Event.Game.CURRENT_STATE);
-        filter.addAction(Event.Game.START_GAME);
-
-        filter.addAction(Event.Game.TRANSACTION);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
@@ -204,5 +183,14 @@ public final class GameLogic {
         return true;
     }
 
+    List<UUID> getMembersUUID() {
+        ArrayList<UUID> result = new ArrayList<>();
+
+        for (RoomPlayer player : mPlayers) {
+            result.add(player.getId());
+        }
+
+        return result;
+    }
 
 }
