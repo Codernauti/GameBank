@@ -62,7 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
         bundle.putString(EditTextActivity.EDIT_FIELD_NAME, getString(R.string.edit_username));
         bundle.putString(EditTextActivity.DESCRIPTION, getString(R.string.set_username_description));
 
-        String prevNickname = SharePrefUtil.getStringPreference(this, PrefKey.NICKNAME);
+        String prevNickname = SharePrefUtil.getNicknamePreference(this);
         bundle.putString(EditTextActivity.PREVIOUS_VALUE, prevNickname);
 
         intent.putExtras(bundle);

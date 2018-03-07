@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class SharePrefUtil {
 
-    private static final String DEFAULT_VALUE = "default";
+    public static final String DEFAULT_STRING_VALUE = "default";
 
 
     public static void saveStringPreference(Context context, String key, String data) {
@@ -25,7 +25,19 @@ public class SharePrefUtil {
 
     public static String getStringPreference(Context context, String key){
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(key, DEFAULT_VALUE);
+                .getString(key, DEFAULT_STRING_VALUE);
+    }
+
+    public static String getNicknamePreference(Context context) {
+        String nick = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PrefKey.NICKNAME, DEFAULT_STRING_VALUE);
+
+        if (nick.equals(DEFAULT_STRING_VALUE)) {
+            // TODO: select a random nickname
+            nick = "Fragolino";
+        }
+
+        return nick;
     }
 
 }

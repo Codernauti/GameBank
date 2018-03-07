@@ -15,6 +15,8 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.PrefKey;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.IOException;
 
@@ -31,7 +33,6 @@ public class BTClientService extends Service {
 
     private LocalBroadcastManager mLocalBroadcastManager;
     private BTClientConnection mConnection;
-    private RoomPlayer playerInfo;
 
     private BroadcastReceiver mFromUiReceiver = new BroadcastReceiver() {
         @Override
@@ -59,9 +60,6 @@ public class BTClientService extends Service {
     public void onCreate() {
         super.onCreate();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
-        // TODO: get this data from shared preferences
-        playerInfo = new RoomPlayer(GameBank.BT_ADDRESS.toString(),
-                GameBank.BT_ADDRESS, false);
     }
 
     @Override
@@ -95,10 +93,13 @@ public class BTClientService extends Service {
     private void connect() {
         Log.d(TAG, "Connection requested to ClientConnection");
 
+        String nickname = SharePrefUtil.getNicknamePreference(this);
+        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, false);
+
         try {
             mConnection.connectAndListen(
                     new BTBundle(Event.Game.MEMBER_JOINED)
-                    .append(playerInfo)
+                    .append(me)
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");
