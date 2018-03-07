@@ -30,4 +30,6 @@
     <string name="title_activity_edit_text">ModificaTesto</string>
     <string name="edit_username">Modifica nickname</string>
     <string name="warning_edit_input">L\'input non può essere vuoto!</string>
+    <string name="set_username_description">Puoi scegliere un username su GameBank. Questo sarà l\'username che gli altri giocatori vedranno. Puoi usare a-z, 0-9 e underscore. La lunghezza massima del nickname è di 15 caratteri.</string>
+
 </resources>

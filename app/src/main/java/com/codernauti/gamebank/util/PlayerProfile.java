@@ -11,9 +11,16 @@ import java.util.UUID;
 
 public class PlayerProfile implements Serializable {
 
-    private final String mNickname;
+    private String mNickname;
     private final UUID mId;
     // TODO profile picture
+
+    public PlayerProfile(@NonNull String nickname) {
+        this(
+            nickname,
+            UUID.randomUUID()
+        );
+    }
 
     public PlayerProfile(@NonNull String nickname,
                          @NonNull UUID id) {
@@ -29,5 +36,9 @@ public class PlayerProfile implements Serializable {
     @NonNull
     public String getNickname() {
         return mNickname;
+    }
+
+    public void setNickname(@NonNull String newNickname) {
+        this.mNickname = newNickname;
     }
 }

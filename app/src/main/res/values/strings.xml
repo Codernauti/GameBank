@@ -30,5 +30,6 @@
     <string name="title_activity_edit_text">EditText</string>
     <string name="edit_username">Edit username</string>
     <string name="warning_edit_input">Input cannot be empty!</string>
+    <string name="set_username_description">You can choose a username on GameBank. This is the username the other players will see. Characters from a-z, 0-9 and underscores are allowed. The username can be long up to 15 characters.</string>
 
 </resources>

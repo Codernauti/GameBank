@@ -34,5 +34,6 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     compile 'de.hdodenhof:circleimageview:2.2.0'
+    compile 'com.zhihu.android:matisse:0.4.3'
 
 }
