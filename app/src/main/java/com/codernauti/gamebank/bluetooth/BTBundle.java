@@ -20,35 +20,40 @@ public class BTBundle implements Serializable {
     private final static String BTBUNDLE_KEY = "BTBUNDLE";
 
     private final String mAction;
-    private final HashMap<String, Serializable> data = new HashMap<String, Serializable>();
+    private final HashMap<String, Serializable> mData;
 
-    public BTBundle(String bluetoothAction) {
+    public BTBundle(@NonNull String bluetoothAction, @NonNull HashMap<String, Serializable> data) {
         mAction = bluetoothAction;
+        mData = data;
         append(GameBank.BT_ADDRESS);
     }
 
+    public BTBundle(String bluetoothAction) {
+        this(bluetoothAction, new HashMap<String, Serializable>());
+    }
+
     @NonNull
-    public String getBluetoothAction() {
+    String getBluetoothAction() {
         return mAction;
     }
 
     @NonNull
     @Deprecated
     public HashMap<String, Serializable> getMapData() {
-        return data;
+        return mData;
     }
 
     @Nullable
     public Serializable get(String key) {
-        return data.get(key);
+        return mData.get(key);
     }
 
     @NonNull
     public UUID getUuid() {
-        return (UUID) data.get(UUID.class.getName());
+        return (UUID) mData.get(UUID.class.getName());
     }
 
-    public boolean isSentByMe() {
+    boolean isSentByMe() {
         return getUuid().equals(GameBank.BT_ADDRESS);
     }
 
@@ -72,11 +77,13 @@ public class BTBundle implements Serializable {
         return null;
     }
 
+    @NonNull
     public BTBundle append(Serializable content) {
-        data.put(content.getClass().getName(), content);
+        mData.put(content.getClass().getName(), content);
         return this;
     }
 
+    @NonNull
     public static Intent makeIntentFrom(BTBundle bundle) {
         Intent intent = new Intent(bundle.mAction);
         intent.putExtra(BTBUNDLE_KEY, bundle);
