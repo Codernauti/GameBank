@@ -45,12 +45,6 @@
                 android:value="com.codernauti.gamebank.pairing.client.LobbyActivity" />
         </activity>
         <activity android:name=".pairing.client.RoomActivity" />
-
-        <!-- Services -->
-        <service android:name=".bluetooth.BTClientService" />
-        <service android:name=".bluetooth.BTHostService" />
-        <service android:name=".util.JoinService" />
-
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"
@@ -62,7 +56,14 @@
         </activity>
         <activity
             android:name=".util.EditTextActivity"
-            android:label="@string/title_activity_edit_text"></activity>
+            android:label="@string/title_activity_edit_text" />
+
+        <!-- Services -->
+        <service android:name=".bluetooth.BTClientService" />
+        <service android:name=".bluetooth.BTHostService" />
+        <service android:name=".util.JoinService" />
+        <service android:name=".util.SyncStateService" />
+
     </application>
 
 </manifest>

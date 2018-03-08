@@ -40,11 +40,12 @@ public class GameBank extends Application {
                 mBankLogic = new BankLogic(
                         LocalBroadcastManager.getInstance(context),
                         membersUUID);
+
+                Intent startGameAct = new Intent(context, DashboardActivity.class);
+                startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(startGameAct);
             }
 
-            Intent startGameAct = new Intent(context, DashboardActivity.class);
-            startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startGameAct);
         }
     };
 

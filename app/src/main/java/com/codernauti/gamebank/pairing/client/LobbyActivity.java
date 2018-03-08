@@ -28,6 +28,7 @@ import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
+import com.codernauti.gamebank.util.SyncStateService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,9 +37,9 @@ import butterknife.OnItemClick;
 
 public class LobbyActivity extends AppCompatActivity {
 
+    private final static String TAG = "LobbyActivity";
 
     private final static String BT_STATE_CHANGED = "android.bluetooth.adapter.action.STATE_CHANGED";
-    private final static String TAG = "LobbyActivity";
     private final static int REQUEST_ACCESS_COARSE_LOCATION = 1;
 
     @BindView(R.id.list)
@@ -145,12 +146,25 @@ public class LobbyActivity extends AppCompatActivity {
         ((GameBank) getApplication()).initRoomLogic();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void restartBTDiscovery() {
 
-        requestPermission();
+        if (mBluetoothAdapter.isEnabled()) {
+
+            // Start BT discovery
+            if (mBluetoothAdapter.isDiscovering()) {
+                Log.d(TAG, "Stopping previous BT discovery");
+                swipeRefreshLayout.setRefreshing(false);
+                mBluetoothAdapter.cancelDiscovery();
+            }
+
+            Log.d(TAG, "Starting BT discovery");
+            mAdapter.clear();
+
+            swipeRefreshLayout.setRefreshing(true);
+            mBluetoothAdapter.startDiscovery();
+        }
     }
+
 
     @Override
     protected void onStop() {
@@ -166,6 +180,7 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        requestPermission();
 
         // Registering BT state change
         IntentFilter btChangeStateFilter = new IntentFilter(BT_STATE_CHANGED);
@@ -179,13 +194,43 @@ public class LobbyActivity extends AppCompatActivity {
         incomingTransmissionFilter.addAction(Event.Network.CONN_ESTABLISHED);
         incomingTransmissionFilter.addAction(Event.Network.CONN_ERRONEOUS);
 
-        // Registering broadcasts
         registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
         registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
 
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void requestPermission() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            final String[] permissions = {
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            };
+
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "Permission not granted, asking for it");
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        permissions,
+                        REQUEST_ACCESS_COARSE_LOCATION);
+            } else {
+
+                Log.d(TAG, "Permission granted, going forward");
+
+                BTStateChange.enableBTIfDisabled(this);
+                restartBTDiscovery();
+            }
+        } else {
+            BTStateChange.enableBTIfDisabled(this);
+            restartBTDiscovery();
+        }
     }
 
     @Override
@@ -239,62 +284,16 @@ public class LobbyActivity extends AppCompatActivity {
 
     @OnItemClick(R.id.list)
     void onItemClick(final int position) {
+        Log.d(TAG, "Start CLIENT connection");
 
         mBluetoothAdapter.cancelDiscovery();
         BluetoothDevice selectedHost = mAdapter.getItem(position);
 
+        Intent syncIntent = new Intent(this, SyncStateService.class);
+        startService(syncIntent);
+
         Intent intent = new Intent(this, BTClientService.class);
         intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
         startService(intent);
-    }
-
-    private void requestPermission() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final String[] permissions = {
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED) {
-
-                Log.d(TAG, "Permission not granted, asking for it");
-
-                ActivityCompat.requestPermissions(
-                        this,
-                        permissions,
-                        REQUEST_ACCESS_COARSE_LOCATION);
-            } else {
-
-                Log.d(TAG, "Permission granted, going forward");
-
-                BTStateChange.enableBTIfDisabled(this);
-                restartBTDiscovery();
-            }
-        } else {
-            BTStateChange.enableBTIfDisabled(this);
-            restartBTDiscovery();
-        }
-    }
-
-    private void restartBTDiscovery() {
-
-        if (mBluetoothAdapter.isEnabled()) {
-
-            // Start BT discovery
-            if (mBluetoothAdapter.isDiscovering()) {
-                Log.d(TAG, "Stopping previous BT discovery");
-                swipeRefreshLayout.setRefreshing(false);
-                mBluetoothAdapter.cancelDiscovery();
-            }
-
-            Log.d(TAG, "Starting BT discovery");
-            mAdapter.clear();
-
-            swipeRefreshLayout.setRefreshing(true);
-            mBluetoothAdapter.startDiscovery();
-        }
     }
 }

@@ -1,7 +1,10 @@
 package com.codernauti.gamebank.pairing.client;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +21,7 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.SyncStateService;
 
 import java.util.ArrayList;
 
@@ -29,7 +33,7 @@ import butterknife.OnClick;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomActivity extends AppCompatActivity implements RoomLogic.ClientListener {
+public class RoomActivity extends AppCompatActivity implements RoomLogic.Listener {
 
     private static final String TAG = "RoomActivity";
 
@@ -43,6 +47,33 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.ClientL
     private boolean isReady = false;
     private LocalBroadcastManager mLocalBroadcastManager;
 
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
+
+            if (Event.Game.HOST_DISCONNECTED.equals(action)) {
+                Log.d(TAG, "onHostDisconnect");
+
+                AlertDialog alertDialog = new AlertDialog.Builder(context)
+                        .setTitle(R.string.host_disconnected_title)
+                        .setMessage(R.string.host_disconnected_message)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                RoomActivity.this.finish();
+                            }
+                        })
+                        .create();
+
+                alertDialog.show();
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,12 +86,17 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.ClientL
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Event.Game.HOST_DISCONNECTED);
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
+
         ((GameBank)getApplication()).getRoomLogic().setListener(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
     }
 
@@ -98,26 +134,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.ClientL
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " players.");
-    }
-
-    @Override
-    public void onHostDisconnect() {
-        Log.d(TAG, "onHostDisconnect");
-
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("AB")
-                .setMessage("GNEHU")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        RoomActivity.this.finish();
-                    }
-                })
-                .create();
-
-        alertDialog.show();
     }
 
     @Override

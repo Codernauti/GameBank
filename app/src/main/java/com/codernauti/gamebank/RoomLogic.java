@@ -32,10 +32,6 @@ public final class RoomLogic {
         void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
     }
 
-    public interface ClientListener extends Listener {
-        void onHostDisconnect();
-    }
-
     private final LocalBroadcastManager mLocalBroadcastManager;
     private Listener mListener;
 
@@ -98,28 +94,6 @@ public final class RoomLogic {
                         }
                     }
 
-                } else if (!mIamHost && Event.Game.CURRENT_STATE.equals(action)) {
-                    // (NB this break the layer separation
-                    // because RoomLogic need to care about host and client)
-                    Log.d(TAG, "(only client) Synchronize state with host");
-
-                    ArrayList<RoomPlayer> hostRoomPlayers = (ArrayList<RoomPlayer>)
-                            btBundle.get(ArrayList.class.getName());
-
-                    mPlayers.addAll(hostRoomPlayers);
-
-                    if (mListener != null) {
-                        mListener.onNewPlayerJoined(mPlayers);
-                    }
-
-                } else if (!mIamHost && Event.Game.HOST_DISCONNECTED.equals(action)) {
-
-                    Log.d(TAG, "(only client) Disconnected from host");
-
-                    if (mListener != null) {
-                        ((ClientListener) mListener).onHostDisconnect();
-                    }
-
                 }
 
             }
@@ -135,8 +109,6 @@ public final class RoomLogic {
         filter.addAction(Event.Game.MEMBER_JOINED);
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.MEMBER_DISCONNECTED);
-        filter.addAction(Event.Game.CURRENT_STATE);
-        filter.addAction(Event.Game.HOST_DISCONNECTED);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
@@ -196,6 +168,14 @@ public final class RoomLogic {
 
     public ArrayList<RoomPlayer> getRoomPlayers() {
         return mPlayers;
+    }
+
+    public void syncState(ArrayList<RoomPlayer> hostRoomPlayers) {
+        mPlayers.addAll(hostRoomPlayers);
+
+        if (mListener != null) {
+            mListener.onNewPlayerJoined(mPlayers);
+        }
     }
 
 }

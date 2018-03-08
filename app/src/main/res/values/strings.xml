@@ -34,5 +34,7 @@
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
     <string name="warning">Warning</string>
+    <string name="host_disconnected_title">Host disconnected</string>
+    <string name="host_disconnected_message">Stop to cry, you cannot do anything to it. Your host friend is not a real friend.</string>
 
 </resources>

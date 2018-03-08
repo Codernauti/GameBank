@@ -30,9 +30,10 @@ public class JoinService extends Service {
     private final BroadcastReceiver mFromBTHostConnection = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
 
             final BTBundle bundle = BTBundle.extractFrom(intent);
-            final String action = intent.getAction();
 
             if (bundle != null) {
 
@@ -46,8 +47,6 @@ public class JoinService extends Service {
                     Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
                             "Send players: " + mPlayers.size());
 
-                    // sync the new player (NB this break the layer separation
-                    // because RoomLogic need to care about clients)
                     Intent stateIntent = BTBundle.makeIntentFrom(
                             new BTBundle(Event.Game.CURRENT_STATE)
                                     .append(mPlayers)
@@ -62,6 +61,7 @@ public class JoinService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.Game.MEMBER_JOINED);

@@ -34,7 +34,7 @@ public class DashboardActivity extends AppCompatActivity {
     Toolbar myToolbar;
 
     private DashboardPagerAdapter mAdapter;
-    private Context mContext;
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -45,8 +45,8 @@ public class DashboardActivity extends AppCompatActivity {
                 Log.d(TAG, "onHostDisconnect");
 
                 new AlertDialog.Builder(context)
-                        .setTitle("Host disconnected")
-                        .setMessage("Stop to cry, you cannot do anything to it. Your host friend is not a real friend.")
+                        .setTitle(R.string.host_disconnected_title)
+                        .setMessage(R.string.host_disconnected_message)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
@@ -69,11 +69,10 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.dashboard_activity);
         ButterKnife.bind(this);
 
-        mContext = getApplicationContext();
-
         setSupportActionBar(myToolbar);
 
-        mAdapter = new DashboardPagerAdapter(getSupportFragmentManager(), mContext);
+        mAdapter = new DashboardPagerAdapter(getSupportFragmentManager(),
+                getApplicationContext());
         mViewPager.setAdapter(mAdapter);
 
         setupTopTabber();

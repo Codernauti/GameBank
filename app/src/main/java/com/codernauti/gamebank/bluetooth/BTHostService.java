@@ -56,7 +56,9 @@ public class BTHostService extends Service {
 
                     } else if (Event.Game.START_GAME.equals(action)) {
 
+                        Log.d(TAG, "Close server connection.\nSend Broadcast");
                         mConnections.closeServerSocket();
+                        mConnections.sendBroadcast(btBundle);
 
                     } else {
                         // TRANSACTION
