@@ -4,6 +4,8 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.Random;
+
 /**
  * Created by Eduard on 07-Mar-18.
  */
@@ -33,8 +35,18 @@ public class SharePrefUtil {
                 .getString(PrefKey.NICKNAME, DEFAULT_STRING_VALUE);
 
         if (nick.equals(DEFAULT_STRING_VALUE)) {
-            // TODO: select a random nickname
-            nick = "Fragolino";
+
+            String[] default_nicknames = {
+                    "HonestPlayer",
+                    "MasterOfBurglars",
+                    "BluetoothLover",
+                    "PokerOfMoney",
+                    "MoneyGrabber"
+            };
+
+            Random random = new Random();
+            nick = default_nicknames[random.nextInt(default_nicknames.length-1)];
+            saveStringPreference(context, PrefKey.NICKNAME, nick);
         }
 
         return nick;

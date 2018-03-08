@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.EditTextActivity;
@@ -24,6 +25,9 @@ public class SettingsActivity extends AppCompatActivity {
     @BindView(R.id.settings_toolbar)
     Toolbar toolbar;
 
+    @BindView(R.id.current_username)
+    TextView mCurrentUsername;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +37,12 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mCurrentUsername.setText(SharePrefUtil.getNicknamePreference(this));
     }
 
 
@@ -46,6 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
             Log.d(TAG, "From EditTextActivity: " + newNickname);
 
             SharePrefUtil.saveStringPreference(this, PrefKey.NICKNAME, newNickname);
+            mCurrentUsername.setText(newNickname);
 
         } else if (resultCode == RESULT_CANCELED) {
             Log.d(TAG, "Result Canceled");
