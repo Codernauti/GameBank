@@ -35,5 +35,6 @@ dependencies {
 
     compile 'de.hdodenhof:circleimageview:2.2.0'
     compile 'com.zhihu.android:matisse:0.4.3'
+    compile 'com.luolc:emoji-rain:0.1.1'
 
 }

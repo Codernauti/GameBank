@@ -19,11 +19,28 @@
             android:layout_height="54dp"
             android:background="@color/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-             />
+            />
 
 
     </android.support.design.widget.AppBarLayout>
 
+    <com.luolc.emojirain.EmojiRainLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/group_emoji_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:dropDuration="2400"
+        app:dropFrequency="500"
+        app:duration="7200"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        app:per="10"
+        tools:context="com.luolc.emojirain.sample.MainActivity">
+
+    </com.luolc.emojirain.EmojiRainLayout>
 
     <ImageView
         android:id="@+id/main_app_logo"
