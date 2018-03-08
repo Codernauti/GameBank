@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.lobby;
+package com.codernauti.gamebank.pairing;
 
 import android.support.annotation.NonNull;
 

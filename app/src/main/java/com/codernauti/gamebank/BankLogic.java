@@ -1,6 +1,5 @@
 package com.codernauti.gamebank;
 
-import android.app.LocalActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.lobby.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;

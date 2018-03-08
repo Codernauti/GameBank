@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.lobby;
+package com.codernauti.gamebank.pairing;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.util.PlayerProfile;
 
 import java.util.UUID;
 

@@ -5,18 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.lobby.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -67,20 +64,6 @@ public final class RoomLogic {
 
                     if (mListener != null) {
                         mListener.onNewPlayerJoined(mPlayers);
-                    }
-
-                    if (mIamHost) {
-                        Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
-                                "Send players: " + mPlayers.size());
-
-                        // sync the new player (NB this break the layer separation
-                        // because RoomLogic need to care about clients)
-                        Intent stateIntent = BTBundle.makeIntentFrom(
-                                new BTBundle(Event.Game.CURRENT_STATE)
-                                        .append(mPlayers)
-                        );
-                        stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                        mLocalBroadcastManager.sendBroadcast(stateIntent);
                     }
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
@@ -209,6 +192,10 @@ public final class RoomLogic {
         }
 
         return result;
+    }
+
+    public ArrayList<RoomPlayer> getRoomPlayers() {
+        return mPlayers;
     }
 
 }

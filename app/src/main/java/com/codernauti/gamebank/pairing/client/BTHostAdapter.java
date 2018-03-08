@@ -1,21 +1,17 @@
-package com.codernauti.gamebank.lobby.client;
+package com.codernauti.gamebank.pairing.client;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.codernauti.gamebank.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by dpolonio on 19/02/18.

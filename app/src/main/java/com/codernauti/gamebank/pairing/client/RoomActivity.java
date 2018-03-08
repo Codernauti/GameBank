@@ -1,10 +1,7 @@
-package com.codernauti.gamebank.lobby.client;
+package com.codernauti.gamebank.pairing.client;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -13,15 +10,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.game.DashboardActivity;
-import com.codernauti.gamebank.lobby.RoomPlayer;
-import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
+import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;

@@ -28,7 +28,7 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".lobby.client.LobbyActivity"
+            android:name=".pairing.client.LobbyActivity"
             android:label="@string/title_activity_lobby"
             android:theme="@style/AppTheme">
             <meta-data
@@ -36,19 +36,20 @@
                 android:value="com.codernauti.gamebank.MainActivity" />
         </activity>
         <activity
-            android:name=".lobby.server.CreateMatchActivity"
+            android:name=".pairing.server.CreateMatchActivity"
             android:label="@string/title_activity_create_match"
-            android:parentActivityName=".lobby.client.LobbyActivity"
+            android:parentActivityName=".pairing.client.LobbyActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.codernauti.gamebank.lobby.client.LobbyActivity" />
+                android:value="com.codernauti.gamebank.pairing.client.LobbyActivity" />
         </activity>
-        <activity android:name=".lobby.client.RoomActivity" />
+        <activity android:name=".pairing.client.RoomActivity" />
 
         <!-- Services -->
         <service android:name=".bluetooth.BTClientService" />
         <service android:name=".bluetooth.BTHostService" />
+        <service android:name=".util.JoinService" />
 
         <activity
             android:name=".SettingsActivity"

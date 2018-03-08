@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="adjectives">
+        <item>Great</item>
+        <item>Small</item>
+        <item>Angry</item>
+        <item>Smart</item>
+        <item>Little</item>
+        <item>Big</item>
+        <item>Fast</item>
+        <item>Slow</item>
+    </string-array>
+    <string-array name="names">
+        <item>Burglar</item>
+        <item>Phone</item>
+        <item>Dog</item>
+        <item>Smurf</item>
+        <item>Cat</item>
+        <item>Human</item>
+        <item>Shark</item>
+        <item>Turtle</item>
+        <item>Car</item>
+        <item>Snail</item>
+    </string-array>
+</resources>

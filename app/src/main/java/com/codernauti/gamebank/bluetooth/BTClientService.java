@@ -13,9 +13,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.lobby.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.IOException;

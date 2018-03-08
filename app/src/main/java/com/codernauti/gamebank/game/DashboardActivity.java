@@ -17,6 +17,7 @@ import android.util.Log;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.JoinService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -87,6 +88,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mReceiver);
+
+        stopService(new Intent(this, JoinService.class));
     }
 
     private void setupTopTabber() {

@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.lobby.server;
+package com.codernauti.gamebank.pairing.server;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -25,12 +25,12 @@ import android.widget.Toast;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.lobby.RoomPlayer;
-import com.codernauti.gamebank.lobby.RoomPlayerAdapter;
-import com.codernauti.gamebank.lobby.client.RoomActivity;
+import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
+import com.codernauti.gamebank.util.JoinService;
 
 import java.util.ArrayList;
 
@@ -156,9 +156,13 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
 
-        Intent intent = new Intent(this, BTHostService.class);
-        intent.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
-        startService(intent);
+        Intent hostService = new Intent(this, BTHostService.class);
+        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
+
+        Intent joinService = new Intent(this, JoinService.class);
+
+        startService(hostService);
+        startService(joinService);
     }
 
     @OnClick(R.id.cancel_match)
