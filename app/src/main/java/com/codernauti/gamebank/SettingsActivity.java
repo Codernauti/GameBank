@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.codernauti.gamebank.util.NicknameGenerator;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -79,6 +80,19 @@ public class SettingsActivity extends AppCompatActivity {
         intent.putExtras(bundle);
 
         startActivityForResult(intent, NICKNAME_RESULT);
+    }
+
+    @OnClick(R.id.random_username_button)
+    public void onRandomUsernameClickedButton() {
+
+        String randomNick = new NicknameGenerator(this).getRandomNameWithoutPreferences();
+
+        SharePrefUtil.saveStringPreference(
+                this,
+                PrefKey.NICKNAME,
+                randomNick);
+
+        mCurrentUsername.setText(randomNick);
     }
 
     @OnClick(R.id.settings_change_image_button)

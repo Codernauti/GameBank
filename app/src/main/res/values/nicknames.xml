@@ -11,6 +11,15 @@
         <item>Slow</item>
         <item>Lovely</item>
         <item>Hateful</item>
+        <item>Beautiful</item>
+        <item>Old-fashioned</item>
+        <item>Magnificent</item>
+        <item>Adorable</item>
+        <item>Orange</item>
+        <item>Clever</item>
+        <item>Calm</item>
+        <item>Brave</item>
+        <item>Gentle</item>
     </string-array>
     <string-array name="names">
         <item>Burglar</item>
@@ -24,5 +33,7 @@
         <item>Car</item>
         <item>Snail</item>
         <item>Gamer</item>
+        <item>Man</item>
+        <item>Alien</item>
     </string-array>
 </resources>
