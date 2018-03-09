@@ -55,7 +55,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
             if (Event.Network.HOST_DISCONNECTED.equals(action)) {
                 Log.d(TAG, "onHostDisconnect");
 
-                AlertDialog alertDialog = new AlertDialog.Builder(context)
+                AlertDialog alertDialog = new AlertDialog.Builder(RoomActivity.this)
                         .setTitle(R.string.host_disconnected_title)
                         .setMessage(R.string.host_disconnected_message)
                         .setIcon(android.R.drawable.ic_dialog_alert)

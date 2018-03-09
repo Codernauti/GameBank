@@ -15,6 +15,12 @@ public class RoomPlayer extends PlayerProfile {
 
     private boolean isReady;
 
+    public RoomPlayer(@NonNull String nickname, @NonNull UUID id,
+                      @NonNull String picture, boolean isReady) {
+        super(nickname, id, picture);
+        this.isReady = isReady;
+    }
+
     public RoomPlayer(@NonNull String nickname, @NonNull UUID id, boolean isReady) {
         super(nickname, id);
 

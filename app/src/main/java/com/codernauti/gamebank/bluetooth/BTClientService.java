@@ -17,6 +17,7 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.File;
@@ -96,7 +97,9 @@ public class BTClientService extends Service {
         Log.d(TAG, "Connection requested to ClientConnection");
 
         String nickname = SharePrefUtil.getNicknamePreference(this);
-        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, false);
+        String filename = SharePrefUtil.getStringPreference(this, PrefKey.PROFILE_PICTURE);
+
+        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, filename, false);
 
         try {
             mConnection.connectAndListen(

@@ -109,11 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 // FIXME: debug code
-                /*String filename = "pictures/m_6.jpg";
-                String path = Environment.getExternalStorageDirectory() + "/" + filename;
-                File pictureFile = new File(path);
-
-                Bitmap bitmap = BitmapFactory.decodeFile(path);
+                /*Bitmap bitmap = BitmapFactory.decodeFile(path);
                 ((ImageView) findViewById(R.id.main_app_logo)).setImageBitmap(bitmap);*/
 
             } else {

@@ -3,6 +3,7 @@ package com.codernauti.gamebank;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,11 +15,18 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.NicknameGenerator;
+import com.codernauti.gamebank.util.PlayerProfile;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -58,7 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         Glide.with(this)
-                .load(SharePrefUtil
+                .load(Environment.getExternalStorageDirectory() + "/" + SharePrefUtil
                         .getStringPreference(
                                 this,
                                 PrefKey.PROFILE_PICTURE))
@@ -135,14 +143,35 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onSelect(int resultCode, @NotNull ArrayList<String> imageList) {
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
+
+                    File pickedUpFile = new File(imageList.get(0));
+                    String fileName = pickedUpFile.getName();
+
                     SharePrefUtil.saveStringPreference(
                             SettingsActivity.this,
                             PrefKey.PROFILE_PICTURE,
-                            imageList.get(0));
+                            fileName);
+
+                    try(final FileInputStream is = new FileInputStream(pickedUpFile);
+                        final OutputStream os = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + fileName);
+                        ) {
+
+                        // Transfer bytes from in to out
+                        byte[] buf = new byte[1024];
+                        int len;
+                        while ((len = is.read(buf)) > 0) {
+                            os.write(buf, 0, len);
+                        }
+
+                        Log.d(TAG, "Copy completed in :" + Environment.getExternalStorageDirectory() + "/" + fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                     Glide.with(SettingsActivity.this)
-                            .load(imageList.get(0))
+                            .load(Environment.getExternalStorageDirectory() + "/" + fileName)
                             .into(mProfilePicture);
+
                 } else {
                     Toast.makeText(SettingsActivity.this, "failed to pick image", Toast.LENGTH_SHORT).show();
                 }
