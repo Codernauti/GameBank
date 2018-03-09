@@ -1,6 +1,7 @@
 package com.codernauti.gamebank;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +12,10 @@ import com.codernauti.gamebank.util.NicknameGenerator;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
+import com.zhihu.matisse.filter.Filter;
 
 
 import butterknife.BindView;
@@ -20,6 +25,7 @@ import butterknife.OnClick;
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SettingsActivity";
+    private static final int REQUEST_CODE_CHOOSE = 42;
 
     private static final int NICKNAME_RESULT = 10;
 
@@ -102,18 +108,15 @@ public class SettingsActivity extends AppCompatActivity {
 
         // TODO Before using this, we need permissions and glide support!
 
-        /*
-         Matisse.from(MainActivity.this)
-        .choose(MimeType.allOf())
-        .countable(true)
-        .maxSelectable(9)
-        .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
-        .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
-        .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-        .thumbnailScale(0.85f)
-        .imageEngine(new GlideEngine())
-        .forResult(REQUEST_CODE_CHOOSE);
-        */
+        Matisse.from(this)
+                .choose(MimeType.allOf())
+                .countable(false)
+                .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_image_picker))
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                .imageEngine(new GlideEngine())
+                .forResult(REQUEST_CODE_CHOOSE);
     }
 
 }
