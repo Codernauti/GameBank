@@ -1,26 +1,35 @@
 package com.codernauti.gamebank;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.NicknameGenerator;
 import com.codernauti.gamebank.util.PrefKey;
-import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
-import com.zhihu.matisse.Matisse;
-import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.engine.impl.GlideEngine;
-import com.zhihu.matisse.filter.Filter;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.net.URI;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
+import pyxis.uzuki.live.naraeimagepicker.NaraeImagePicker;
+import pyxis.uzuki.live.naraeimagepicker.impl.OnPickResultListener;
+import pyxis.uzuki.live.naraeimagepicker.item.PickerSettingItem;
+import pyxis.uzuki.live.naraeimagepicker.item.enumeration.ViewMode;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -35,6 +44,9 @@ public class SettingsActivity extends AppCompatActivity {
     @BindView(R.id.current_username)
     TextView mCurrentUsername;
 
+    @BindView(R.id.settings_image)
+    CircleImageView mProfilePicture;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +56,14 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        Glide.with(this)
+                .load(SharePrefUtil
+                        .getStringPreference(
+                                this,
+                                PrefKey.PROFILE_PICTURE))
+                .into(mProfilePicture);
+
     }
 
     @Override
@@ -106,17 +126,28 @@ public class SettingsActivity extends AppCompatActivity {
 
         Log.e(TAG, "Change profile picture still work in progress");
 
-        // TODO Before using this, we need permissions and glide support!
+        PickerSettingItem item = new PickerSettingItem();
+        item.setPickLimit(1);
+        item.setViewMode(ViewMode.FolderView);
+        item.setEnableUpInParentView(true);
 
-        Matisse.from(this)
-                .choose(MimeType.allOf())
-                .countable(false)
-                .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_image_picker))
-                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                .thumbnailScale(0.85f)
-                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                .imageEngine(new GlideEngine())
-                .forResult(REQUEST_CODE_CHOOSE);
+        NaraeImagePicker.instance.start(this, item, new OnPickResultListener() {
+            @Override
+            public void onSelect(int resultCode, @NotNull ArrayList<String> imageList) {
+                if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
+                    SharePrefUtil.saveStringPreference(
+                            SettingsActivity.this,
+                            PrefKey.PROFILE_PICTURE,
+                            imageList.get(0));
+
+                    Glide.with(SettingsActivity.this)
+                            .load(imageList.get(0))
+                            .into(mProfilePicture);
+                } else {
+                    Toast.makeText(SettingsActivity.this, "failed to pick image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 }

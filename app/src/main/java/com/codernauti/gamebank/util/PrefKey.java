@@ -7,5 +7,6 @@ package com.codernauti.gamebank.util;
 public interface PrefKey {
 
     String NICKNAME = "Nickname";
+    String PROFILE_PICTURE = "ProfilePicture";
 
 }
