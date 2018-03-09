@@ -20,6 +20,7 @@ import android.widget.ImageView;
 
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.pairing.client.LobbyActivity;
+import com.codernauti.gamebank.util.PermissionManager;
 import com.luolc.emojirain.EmojiRainLayout;
 
 import java.io.File;
@@ -34,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final int REQUEST_RW_EXTERNAL_STORAGE = 10;
+    private static final String[] mPermissions = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @BindView(R.id.main_activity_toolbar)
     Toolbar toolbar;
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         mEmojiRainLayout.setPer(3);
         mEmojiRainLayout.setDuration(Integer.MAX_VALUE);
 
-        requestPermission();
+        PermissionManager.requestPermission(this, mPermissions, REQUEST_RW_EXTERNAL_STORAGE);
     }
 
     @Override
@@ -114,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 Log.d(TAG, "User doesn't accept permissions");
-                requestPermission();
+                PermissionManager.requestPermission(this, mPermissions, REQUEST_RW_EXTERNAL_STORAGE);
                /* mPermissionDialog = new AlertDialog.Builder(this)
                         .setTitle(R.string.dialog_coarse_permission_title)
                         .setMessage(R.string.dialog_coarse_permission_description)
@@ -152,31 +157,5 @@ public class MainActivity extends AppCompatActivity {
     void onSettingsClickButton() {
 
         startActivity(new Intent(this, SettingsActivity.class));
-    }
-
-    private void requestPermission() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            final String[] permissions = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            };
-
-
-            if (needPermissions(this, permissions)) {
-                ActivityCompat.requestPermissions(this, permissions, REQUEST_RW_EXTERNAL_STORAGE);
-            }
-        }
-    }
-
-    private static boolean needPermissions(@NonNull Context context,
-                                          @NonNull String... permissions) {
-        for (String permission : permissions) {
-            if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 }

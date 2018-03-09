@@ -45,7 +45,7 @@ public class NicknameGenerator {
 
         res
                 .append(getRandomName())
-                .append(r.nextInt(9999));
+                .append(r.nextInt(99));
 
         return res.toString();
     }
