@@ -97,7 +97,7 @@ public class BTClientService extends Service {
 
         try {
             mConnection.connectAndListen(
-                    new BTBundle(Event.Game.MEMBER_JOINED)
+                    new BTBundle(Event.Network.MEMBER_CONNECTED)
                     .append(me)
             );
         } catch (IOException e) {

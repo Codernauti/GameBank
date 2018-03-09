@@ -196,7 +196,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
             startingMatchProgressBar.animate();
 
             Intent startGame = BTBundle.makeIntentFrom(
-                    new BTBundle(Event.Game.START_GAME)
+                    new BTBundle(Event.Network.START)
             );
             mLocalBroadcastManager.sendBroadcast(startGame);
 

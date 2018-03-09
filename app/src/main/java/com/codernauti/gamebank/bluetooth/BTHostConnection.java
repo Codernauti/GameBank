@@ -63,7 +63,7 @@ public class BTHostConnection extends BTConnection {
                                 clientSocket.getInputStream());
                         BTBundle btBundle = (BTBundle) inputStream.readObject();
 
-                        if (Event.Game.MEMBER_JOINED.equals(btBundle.getBluetoothAction())) {
+                        if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
 
                             RoomPlayer newPlayer = (RoomPlayer)
                                     btBundle.get(RoomPlayer.class.getName());
@@ -98,7 +98,7 @@ public class BTHostConnection extends BTConnection {
     @Override
     void onStopReadingDataFrom(UUID who) {
         Intent intent = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.MEMBER_DISCONNECTED)
+                new BTBundle(Event.Network.MEMBER_DISCONNECTED)
                         .append(who)
         );
         mLocalBroadcastManager.sendBroadcast(intent);

@@ -21,7 +21,6 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.SyncStateService;
 
 import java.util.ArrayList;
 
@@ -53,7 +52,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Game.HOST_DISCONNECTED.equals(action)) {
+            if (Event.Network.HOST_DISCONNECTED.equals(action)) {
                 Log.d(TAG, "onHostDisconnect");
 
                 AlertDialog alertDialog = new AlertDialog.Builder(context)
@@ -87,7 +86,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Game.HOST_DISCONNECTED);
+        filter.addAction(Event.Network.HOST_DISCONNECTED);
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
 
         ((GameBank)getApplication()).getRoomLogic().setListener(this);

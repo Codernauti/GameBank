@@ -9,7 +9,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 
@@ -53,7 +52,7 @@ public final class RoomLogic {
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Game.MEMBER_JOINED.equals(action)) {
+                if (Event.Network.MEMBER_CONNECTED.equals(action)) {
 
                     RoomPlayer newPlayer = (RoomPlayer) btBundle.get(RoomPlayer.class.getName());
                     mPlayers.add(newPlayer);
@@ -77,7 +76,7 @@ public final class RoomLogic {
                         }
                     }
 
-                } else if (Event.Game.MEMBER_DISCONNECTED.equals(action)) {
+                } else if (Event.Network.MEMBER_DISCONNECTED.equals(action)) {
 
                     UUID playerDisconnected = btBundle.getUuid();
 
@@ -106,9 +105,9 @@ public final class RoomLogic {
         mLocalBroadcastManager = broadcastManager;
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Game.MEMBER_JOINED);
+        filter.addAction(Event.Network.MEMBER_CONNECTED);
         filter.addAction(Event.Game.MEMBER_READY);
-        filter.addAction(Event.Game.MEMBER_DISCONNECTED);
+        filter.addAction(Event.Network.MEMBER_DISCONNECTED);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }

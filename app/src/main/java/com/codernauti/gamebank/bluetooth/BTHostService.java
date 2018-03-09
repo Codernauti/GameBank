@@ -48,13 +48,13 @@ public class BTHostService extends Service {
 
                 if (btBundle.isSentByMe()) {
 
-                    if (Event.Game.CURRENT_STATE.equals(action)) {
+                    if (Event.Network.CURRENT_STATE.equals(action)) {
 
                         UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
                         Log.d(TAG, "Send to " + receiver);
                         mConnections.sendTo(btBundle, receiver);
 
-                    } else if (Event.Game.START_GAME.equals(action)) {
+                    } else if (Event.Network.START.equals(action)) {
 
                         Log.d(TAG, "Close server connection.\nSend Broadcast");
                         mConnections.closeServerSocket();
@@ -69,7 +69,7 @@ public class BTHostService extends Service {
                     }
 
                 } else {
-                    // MEMBER_JOINED
+                    // MEMBER_CONNECTED
                     // MEMBER_READY
                     // TRANSACTION
 
@@ -109,11 +109,11 @@ public class BTHostService extends Service {
                         LocalBroadcastManager.getInstance(this));
 
                 IntentFilter filter = new IntentFilter();
-                filter.addAction(Event.Game.MEMBER_JOINED);
+                filter.addAction(Event.Network.MEMBER_CONNECTED);
                 filter.addAction(Event.Game.MEMBER_READY);
-                filter.addAction(Event.Game.MEMBER_DISCONNECTED);
-                filter.addAction(Event.Game.CURRENT_STATE);
-                filter.addAction(Event.Game.START_GAME);
+                filter.addAction(Event.Network.MEMBER_DISCONNECTED);
+                filter.addAction(Event.Network.CURRENT_STATE);
+                filter.addAction(Event.Network.START);
 
                 filter.addAction(Event.Game.TRANSACTION);
 

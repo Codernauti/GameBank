@@ -34,7 +34,7 @@ public class GameBank extends Application {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Game.START_GAME.equals(action)) {
+            if (Event.Network.START.equals(action)) {
 
                 List<UUID> membersUUID = mRoomLogic.getMembersUUID();
                 mBankLogic = new BankLogic(
@@ -53,7 +53,7 @@ public class GameBank extends Application {
     public void onCreate() {
         super.onCreate();
 
-        IntentFilter filter = new IntentFilter(Event.Game.START_GAME);
+        IntentFilter filter = new IntentFilter(Event.Network.START);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mReceiver, filter);
     }
