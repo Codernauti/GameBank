@@ -31,5 +31,10 @@
     <string name="edit_username">Modifica nickname</string>
     <string name="warning_edit_input">L\'input non può essere vuoto!</string>
     <string name="set_username_description">Puoi scegliere un username su GameBank. Questo sarà l\'username che gli altri giocatori vedranno. Puoi usare a-z, 0-9 e underscore. La lunghezza massima del nickname è di 15 caratteri.</string>
+    <string name="close">Chiudi</string>
+    <string name="cancel">Anulla</string>
+    <string name="warning">Attenzione</string>
+    <string name="host_disconnected_title">Host disconnesso</string>
+    <string name="host_disconnected_message">Basta piangere, non ci puoi fare nulla. Il tuo host non è un vero amico.</string>
 
 </resources>

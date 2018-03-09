@@ -9,6 +9,8 @@
         <item>Big</item>
         <item>Fast</item>
         <item>Slow</item>
+        <item>Lovely</item>
+        <item>Hateful</item>
     </string-array>
     <string-array name="names">
         <item>Burglar</item>
@@ -21,5 +23,6 @@
         <item>Turtle</item>
         <item>Car</item>
         <item>Snail</item>
+        <item>Gamer</item>
     </string-array>
 </resources>
