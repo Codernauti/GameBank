@@ -33,7 +33,7 @@ public class SyncStateService extends Service {
             final BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Game.CURRENT_STATE.equals(action)) {
+                if (Event.Network.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
 
                     final ArrayList<RoomPlayer> hostRoomPlayers = (ArrayList<RoomPlayer>)
@@ -53,7 +53,7 @@ public class SyncStateService extends Service {
         Log.d(TAG, "onStartCommand");
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Game.CURRENT_STATE);
+        filter.addAction(Event.Network.CURRENT_STATE);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mFromBTClientConnection, filter);

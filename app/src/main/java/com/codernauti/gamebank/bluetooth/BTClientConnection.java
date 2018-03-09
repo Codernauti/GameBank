@@ -7,11 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.util.Event;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -74,7 +72,7 @@ public class BTClientConnection extends BTConnection {
     @Override
     void onStopReadingDataFrom(UUID who) {
         Intent intent = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Game.HOST_DISCONNECTED)
+                new BTBundle(Event.Network.HOST_DISCONNECTED)
                         .append(who)
         );
         mLocalBroadcastManager.sendBroadcast(intent);
