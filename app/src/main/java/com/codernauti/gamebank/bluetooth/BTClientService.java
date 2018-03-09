@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,6 +19,7 @@ import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -98,7 +101,7 @@ public class BTClientService extends Service {
         try {
             mConnection.connectAndListen(
                     new BTBundle(Event.Network.MEMBER_CONNECTED)
-                    .append(me)
+                            .append(me)
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");

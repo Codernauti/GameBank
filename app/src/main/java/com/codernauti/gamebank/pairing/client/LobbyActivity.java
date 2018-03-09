@@ -180,7 +180,6 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        requestPermission();
 
         // Registering BT state change
         IntentFilter btChangeStateFilter = new IntentFilter(BT_STATE_CHANGED);
@@ -200,6 +199,12 @@ public class LobbyActivity extends AppCompatActivity {
                 .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
 
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        requestPermission();
     }
 
     private void requestPermission() {

@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.util;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
@@ -13,7 +14,14 @@ public class PlayerProfile implements Serializable {
 
     private String mNickname;
     private final UUID mId;
-    // TODO profile picture
+    private Uri mPicture;
+
+    public PlayerProfile(@NonNull String nickname,
+                         @NonNull UUID id, @NonNull Uri picture) {
+        this.mNickname = nickname;
+        this.mId = id;
+        this.mPicture = picture;
+    }
 
     public PlayerProfile(@NonNull String nickname,
                          @NonNull UUID id) {
@@ -33,5 +41,9 @@ public class PlayerProfile implements Serializable {
 
     public void setNickname(@NonNull String newNickname) {
         this.mNickname = newNickname;
+    }
+
+    public Uri getUriPicture() {
+        return mPicture;
     }
 }
