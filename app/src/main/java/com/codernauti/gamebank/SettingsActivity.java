@@ -42,7 +42,6 @@ import pyxis.uzuki.live.naraeimagepicker.item.enumeration.ViewMode;
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SettingsActivity";
-    private static final int REQUEST_CODE_CHOOSE = 42;
 
     private static final int NICKNAME_RESULT = 10;
 
@@ -66,7 +65,7 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         Glide.with(this)
-                .load(Environment.getExternalStorageDirectory() + "/" + SharePrefUtil
+                .load(getFilesDir() + "/" + SharePrefUtil
                         .getStringPreference(
                                 this,
                                 PrefKey.PROFILE_PICTURE))
@@ -153,7 +152,7 @@ public class SettingsActivity extends AppCompatActivity {
                             fileName);
 
                     try(final FileInputStream is = new FileInputStream(pickedUpFile);
-                        final OutputStream os = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + fileName);
+                        final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
                         ) {
 
                         // Transfer bytes from in to out
@@ -163,13 +162,13 @@ public class SettingsActivity extends AppCompatActivity {
                             os.write(buf, 0, len);
                         }
 
-                        Log.d(TAG, "Copy completed in :" + Environment.getExternalStorageDirectory() + "/" + fileName);
+                        Log.d(TAG, "Copy completed");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                     Glide.with(SettingsActivity.this)
-                            .load(Environment.getExternalStorageDirectory() + "/" + fileName)
+                            .load(getFilesDir() + "/" + fileName)
                             .into(mProfilePicture);
 
                 } else {
