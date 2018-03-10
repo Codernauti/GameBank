@@ -64,12 +64,23 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        Glide.with(this)
-                .load(getFilesDir() + "/" + SharePrefUtil
-                        .getStringPreference(
-                                this,
-                                PrefKey.PROFILE_PICTURE))
-                .into(mProfilePicture);
+        final String fileName = SharePrefUtil
+                .getStringPreference(
+                        this,
+                        PrefKey.PROFILE_PICTURE);
+
+        if (fileName.equals(SharePrefUtil.DEFAULT_STRING_VALUE)) {
+            // Load standard profile pic
+            Glide.with(this)
+                    .load(R.drawable.default_profile_pic)
+                    .into(mProfilePicture);
+        } else {
+            // Load user picture
+            Glide.with(this)
+                    .load(getFilesDir() + "/" + fileName)
+                    .into(mProfilePicture);
+        }
+
 
     }
 
@@ -131,9 +142,7 @@ public class SettingsActivity extends AppCompatActivity {
     @OnClick(R.id.settings_change_image_button)
     public void onChangeProfilePictureClickedButton() {
 
-        Log.e(TAG, "Change profile picture still work in progress");
-
-        PickerSettingItem item = new PickerSettingItem();
+        final PickerSettingItem item = new PickerSettingItem();
         item.setPickLimit(1);
         item.setViewMode(ViewMode.FolderView);
         item.setEnableUpInParentView(true);
@@ -143,33 +152,48 @@ public class SettingsActivity extends AppCompatActivity {
             public void onSelect(int resultCode, @NotNull ArrayList<String> imageList) {
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
 
-                    File pickedUpFile = new File(imageList.get(0));
-                    String fileName = pickedUpFile.getName();
+                    final File previousFile = new File(SharePrefUtil
+                            .getStringPreference(
+                                    SettingsActivity.this,
+                                    PrefKey.PROFILE_PICTURE));
+                    final File pickedUpFile = new File(imageList.get(0));
 
-                    SharePrefUtil.saveStringPreference(
-                            SettingsActivity.this,
-                            PrefKey.PROFILE_PICTURE,
-                            fileName);
+                    if (!previousFile.getName().equals(pickedUpFile.getName())) {
 
-                    try(final FileInputStream is = new FileInputStream(pickedUpFile);
-                        final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
-                        ) {
+                        Log.d(TAG, "Profile picture changed, updating it");
 
-                        // Transfer bytes from in to out
-                        byte[] buf = new byte[1024];
-                        int len;
-                        while ((len = is.read(buf)) > 0) {
-                            os.write(buf, 0, len);
+                        if (deleteFile(previousFile.getName())) {
+                            Log.d(TAG, "Previous profile picture successfully deleted");
                         }
 
-                        Log.d(TAG, "Copy completed");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        final String fileName = pickedUpFile.getName();
+
+                        SharePrefUtil.saveStringPreference(
+                                SettingsActivity.this,
+                                PrefKey.PROFILE_PICTURE,
+                                fileName);
+
+                        try(final FileInputStream is = new FileInputStream(pickedUpFile);
+                            final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
+                        ) {
+
+                            // Transfer bytes from in to out
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = is.read(buf)) > 0) {
+                                os.write(buf, 0, len);
+                            }
+
+                            Log.d(TAG, "Copy completed");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Glide.with(SettingsActivity.this)
+                                .load(getFilesDir() + "/" + fileName)
+                                .into(mProfilePicture);
                     }
 
-                    Glide.with(SettingsActivity.this)
-                            .load(getFilesDir() + "/" + fileName)
-                            .into(mProfilePicture);
 
                 } else {
                     Toast.makeText(SettingsActivity.this, "failed to pick image", Toast.LENGTH_SHORT).show();
