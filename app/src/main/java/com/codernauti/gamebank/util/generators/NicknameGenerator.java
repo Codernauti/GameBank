@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.util;
+package com.codernauti.gamebank.util.generators;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -13,7 +13,7 @@ import java.util.Random;
  * Created by dpolonio on 09/03/18.
  */
 
-public class NicknameGenerator {
+public class NicknameGenerator implements RandomContentGenerator {
 
     private final static String TAG = "NicknameGenerator";
 
@@ -28,7 +28,7 @@ public class NicknameGenerator {
     }
 
     @NonNull
-    public String getRandomName() {
+    private String getRandomName() {
         StringBuilder res = new StringBuilder();
 
         res
@@ -39,7 +39,7 @@ public class NicknameGenerator {
     }
 
     @NonNull
-    public String getRandomNameWithNumber() {
+    private String getRandomNameWithNumber() {
 
         StringBuilder res = new StringBuilder();
 
@@ -51,7 +51,8 @@ public class NicknameGenerator {
     }
 
     @NonNull
-    public String getRandomNameWithoutPreferences() {
+    @Override
+    public String generateRandomContent() {
 
         if (r.nextInt() % 2 == 0) {
             return getRandomName();

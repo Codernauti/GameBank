@@ -1,21 +1,16 @@
 package com.codernauti.gamebank;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
 import com.codernauti.gamebank.util.EditTextActivity;
-import com.codernauti.gamebank.util.NicknameGenerator;
-import com.codernauti.gamebank.util.PlayerProfile;
+import com.codernauti.gamebank.util.generators.NicknameGenerator;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
@@ -23,11 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -64,16 +56,16 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        final String fileName = SharePrefUtil
-                .getStringPreference(
-                        this,
-                        PrefKey.PROFILE_PICTURE);
+        final String fileName = SharePrefUtil.getProfilePicturePreference(this);
 
-        if (fileName.equals(SharePrefUtil.DEFAULT_STRING_VALUE)) {
+        if (fileName == null) {
             // Load standard profile pic
             Glide.with(this)
-                    .load(R.drawable.default_profile_pic)
+                    .load(R.drawable.default_profile_pic_1)
                     .into(mProfilePicture);
+
+            Log.e(TAG, "Something went wrong coping a default picture into storage");
+
         } else {
             // Load user picture
             Glide.with(this)
@@ -129,7 +121,7 @@ public class SettingsActivity extends AppCompatActivity {
     @OnClick(R.id.random_username_button)
     public void onRandomUsernameClickedButton() {
 
-        String randomNick = new NicknameGenerator(this).getRandomNameWithoutPreferences();
+        String randomNick = new NicknameGenerator(this).generateRandomContent();
 
         SharePrefUtil.saveStringPreference(
                 this,
@@ -152,10 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onSelect(int resultCode, @NotNull ArrayList<String> imageList) {
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
 
-                    final File previousFile = new File(SharePrefUtil
-                            .getStringPreference(
-                                    SettingsActivity.this,
-                                    PrefKey.PROFILE_PICTURE));
+                    final File previousFile = new File(SharePrefUtil.getProfilePicturePreference(SettingsActivity.this));
                     final File pickedUpFile = new File(imageList.get(0));
 
                     if (!previousFile.getName().equals(pickedUpFile.getName())) {
