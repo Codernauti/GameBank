@@ -21,8 +21,9 @@ import java.util.UUID;
 
 public class PlayerProfile implements Serializable {
 
-    private String mNickname;
+    private final String mNickname;
     private final UUID mId;
+    private String mImageName;
 
     //private final ImageProxy mImage;
 
@@ -32,14 +33,13 @@ public class PlayerProfile implements Serializable {
 
         this.mNickname = nickname;
         this.mId = id;
-        //mImage = new ImageProxy(imageName);
+        mImageName = imageName;
     }
 
     public PlayerProfile(@NonNull String nickname,
                          @NonNull UUID id) {
         this.mNickname = nickname;
         this.mId = id;
-        //mImage = new ImageProxy();
     }
 
     @NonNull
@@ -52,13 +52,9 @@ public class PlayerProfile implements Serializable {
         return mNickname;
     }
 
-    public void setNickname(@NonNull String newNickname) {
-        this.mNickname = newNickname;
+    public String getImageName() {
+        return mImageName;
     }
-
-    /*public void getImageName() {
-        mImage.getImageName();
-    }*/
 }
 
 class ImageProxy implements Serializable {

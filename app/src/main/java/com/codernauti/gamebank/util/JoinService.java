@@ -64,16 +64,19 @@ public class JoinService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.Network.MEMBER_CONNECTED);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mFromBTHostConnection, filter);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(mFromBTHostConnection, filter);
 
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mFromBTHostConnection);
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mFromBTHostConnection);
+        super.onDestroy();
     }
 
     @Nullable

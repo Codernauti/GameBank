@@ -99,7 +99,7 @@ public class BTClientService extends Service {
         String nickname = SharePrefUtil.getNicknamePreference(this);
         String filename = SharePrefUtil.getStringPreference(this, PrefKey.PROFILE_PICTURE);
 
-        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, false);
+        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, filename, false);
         File picture = new File(getFilesDir() + "/" + filename);
 
 

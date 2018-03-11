@@ -63,10 +63,12 @@ public class SyncStateService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Log.d(TAG, "onDestroy");
 
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mFromBTClientConnection);
+
+        super.onDestroy();
     }
 
 

@@ -49,7 +49,7 @@ class BTio implements Closeable {
         Log.d(TAG, "Sending file\n\tThread: " + Thread.currentThread().getName());
 
         OutputStream socketOs = mBTSocket.getOutputStream();
-        //BufferedOutputStream socketBos = new BufferedOutputStream(socketOs);
+        BufferedOutputStream socketBos = new BufferedOutputStream(socketOs);
         DataOutputStream dataOutputStream = new DataOutputStream(socketOs);
 
         // Read file from storage
@@ -57,25 +57,20 @@ class BTio implements Closeable {
 
         int bytesCount = (int) file.length();
         Log.d(TAG, "Bytes to send: " + bytesCount);
-        byte[] buffer = new byte[bytesCount];
 
 
         // send length
         dataOutputStream.writeInt(bytesCount);
 
         // send image file
+        byte[] buffer = new byte[bytesCount];
         int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) > 0) {
             Log.d(TAG, "Send bytes: " + bytesRead);
-            socketOs.write(buffer);
+            socketBos.write(buffer);
         }
 
-        /*int bytesRead;
-        while((bytesRead = inputStream.read(buffer, 0, bytesCount)) != -1)
-        {
-            socketOs.write(buffer, 0, bytesRead);
-        }*/
-
+        socketBos.flush();
         inputStream.close();
 
         Log.d(TAG, "FILE SENT");

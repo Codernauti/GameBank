@@ -105,7 +105,9 @@ public class BTHostService extends Service {
                                 CONNECTION_NAME,
                                 BTConnection.MY_UUID);
 
-                mConnections = new BTHostConnection(acceptedConn, mServerSocket,
+                mConnections = new BTHostConnection(acceptedConn,
+                        getFilesDir().toString(),
+                        mServerSocket,
                         LocalBroadcastManager.getInstance(this));
 
                 IntentFilter filter = new IntentFilter();

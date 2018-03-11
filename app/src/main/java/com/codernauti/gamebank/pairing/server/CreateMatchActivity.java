@@ -31,6 +31,7 @@ import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.util.JoinService;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.ArrayList;
 
@@ -149,7 +150,8 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
 
-        mRoomLogic.setIamHost();
+        String pictureName = SharePrefUtil.getProfilePicturePreference(this);
+        mRoomLogic.setIamHost(pictureName);
 
         // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -158,10 +160,9 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         Intent hostService = new Intent(this, BTHostService.class);
         hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
+        startService(hostService);
 
         Intent joinService = new Intent(this, JoinService.class);
-
-        startService(hostService);
         startService(joinService);
     }
 
@@ -177,6 +178,11 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
     private void closeRoom() {
         // TODO: stop discoverability
+
+        mRoomLogic.clear();
+
+        Intent joinService = new Intent(this, JoinService.class);
+        stopService(joinService);
 
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);

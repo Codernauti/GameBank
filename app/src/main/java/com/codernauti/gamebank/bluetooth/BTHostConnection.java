@@ -34,14 +34,17 @@ public class BTHostConnection extends BTConnection {
 
     private final int mAcceptedConnections;
     private final BluetoothServerSocket mBtServerSocket;
+    private final String mPicturePath;
 
     private volatile boolean mServerSocketOpen;
 
 
-    BTHostConnection(int acceptedConnections,
+    BTHostConnection(int acceptedConnections, @NonNull String picturePath,
                      @NonNull BluetoothServerSocket btServerSocket,
                      @NonNull LocalBroadcastManager localBroadcastManager) {
         super(localBroadcastManager, Executors.newCachedThreadPool());
+
+        mPicturePath = picturePath;
 
         if (acceptedConnections > 0 && acceptedConnections < 8) {
 
@@ -73,39 +76,6 @@ public class BTHostConnection extends BTConnection {
                                 clientSocket.getInputStream());
                         BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
 
-                        // TEST
-                        Log.d(TAG, "Test phase");
-                        DataInputStream dataInputStream = new DataInputStream(
-                                clientSocket.getInputStream());
-                        InputStream fileInputStream = clientSocket.getInputStream();
-
-                        int bytesCount = dataInputStream.readInt();
-                        Log.d(TAG, "Bytes count: " + bytesCount);
-
-                        // Write file into storage
-                        File newFile = new File(
-                                Environment.getExternalStorageDirectory() + "/myName.JPG");
-
-                        BufferedOutputStream fileOutputStream = new BufferedOutputStream(
-                                new FileOutputStream(newFile));
-
-                        byte[] buffer = new byte[bytesCount];
-                        int totalBytesRead = fileInputStream.read(buffer);
-                        fileOutputStream.write(buffer);
-
-                        /*while (totalBytesRead < bytesCount) {
-                            Log.d(TAG, "totalBytesRead: " + totalBytesRead);
-                            int bytesRead = fileInputStream.read(buffer, totalBytesRead, bytesCount);
-                            fileOutputStream.write(buffer, totalBytesRead, bytesCount);
-                            totalBytesRead += bytesRead;
-                        }*/
-
-                        Log.d(TAG, "Read bytes: " + totalBytesRead);
-
-                        fileOutputStream.close();
-                        // TEST STOP
-
-
                         Log.d(TAG, "Read rendezvous");
 
                         if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
@@ -113,6 +83,10 @@ public class BTHostConnection extends BTConnection {
                                     btBundle.get(RoomPlayer.class.getName());
 
                             Log.d(TAG, "Member connected: " + newPlayer.getId());
+
+                            // TEST
+                            readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
+                            // TEST STOP
 
 
                             addConnection(newPlayer.getId(), clientSocket);
@@ -140,6 +114,34 @@ public class BTHostConnection extends BTConnection {
                 }
             }
         });
+    }
+
+    private void readPicture(InputStream fileInputStream, String pictureName) throws IOException {
+        Log.d(TAG, "Test phase");
+        DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+
+        int bytesCount = dataInputStream.readInt();
+        Log.d(TAG, "Bytes count: " + bytesCount);
+
+
+        // Write file into internal storage
+        File newFile = new File(mPicturePath, pictureName);
+        FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        int totBytesRead = 0;
+        while (totBytesRead < bytesCount) {
+            bytesRead = fileInputStream.read(buffer, 0, buffer.length);
+            totBytesRead += bytesRead;
+            fileOutputStream.write(buffer, 0, bytesRead);
+
+            Log.d(TAG, "Read bytes: " + bytesRead);
+        }
+        Log.d(TAG, "Total read bytes: " + totBytesRead);
+
+        fileOutputStream.close();
     }
 
     @Override

@@ -37,7 +37,6 @@ public final class RoomLogic {
     // Game logic fields
     // Lobby fields
     private ArrayList<RoomPlayer> mPlayers = new ArrayList<>();
-    private boolean mIamHost;
     private final String mNickname;
 
 
@@ -134,10 +133,9 @@ public final class RoomLogic {
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
 
-    public void setIamHost() {
+    public void setIamHost(String pictureName) {
         Log.d(TAG, "I am host!");
-        mIamHost = true;
-        mPlayers.add(new RoomPlayer(mNickname, GameBank.BT_ADDRESS, true));
+        mPlayers.add(new RoomPlayer(mNickname, GameBank.BT_ADDRESS, pictureName, true));
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
@@ -171,6 +169,14 @@ public final class RoomLogic {
 
     public void syncState(ArrayList<RoomPlayer> hostRoomPlayers) {
         mPlayers.addAll(hostRoomPlayers);
+
+        if (mListener != null) {
+            mListener.onNewPlayerJoined(mPlayers);
+        }
+    }
+
+    public void clear() {
+        mPlayers.clear();
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
