@@ -1,20 +1,19 @@
 package com.codernauti.gamebank.bluetooth;
 
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -41,7 +40,45 @@ class BTio implements Closeable {
         Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
 
         objos.writeObject(toSend);
+
         Log.d(TAG, "DATA SENT");
+    }
+
+    void writeFile(File file) throws IOException {
+
+        Log.d(TAG, "Sending file\n\tThread: " + Thread.currentThread().getName());
+
+        OutputStream socketOs = mBTSocket.getOutputStream();
+        //BufferedOutputStream socketBos = new BufferedOutputStream(socketOs);
+        DataOutputStream dataOutputStream = new DataOutputStream(socketOs);
+
+        // Read file from storage
+        FileInputStream inputStream = new FileInputStream(file);
+
+        int bytesCount = (int) file.length();
+        Log.d(TAG, "Bytes to send: " + bytesCount);
+        byte[] buffer = new byte[bytesCount];
+
+
+        // send length
+        dataOutputStream.writeInt(bytesCount);
+
+        // send image file
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) > 0) {
+            Log.d(TAG, "Send bytes: " + bytesRead);
+            socketOs.write(buffer);
+        }
+
+        /*int bytesRead;
+        while((bytesRead = inputStream.read(buffer, 0, bytesCount)) != -1)
+        {
+            socketOs.write(buffer, 0, bytesRead);
+        }*/
+
+        inputStream.close();
+
+        Log.d(TAG, "FILE SENT");
     }
 
     Object readData() throws IOException {
@@ -73,4 +110,5 @@ class BTio implements Closeable {
     public UUID getUUID(){
         return mUuid;
     }
+
 }

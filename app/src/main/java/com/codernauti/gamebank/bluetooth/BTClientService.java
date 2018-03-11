@@ -99,12 +99,15 @@ public class BTClientService extends Service {
         String nickname = SharePrefUtil.getNicknamePreference(this);
         String filename = SharePrefUtil.getStringPreference(this, PrefKey.PROFILE_PICTURE);
 
-        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, filename, false);
+        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, false);
+        File picture = new File(getFilesDir() + "/" + filename);
+
 
         try {
             mConnection.connectAndListen(
                     new BTBundle(Event.Network.MEMBER_CONNECTED)
                             .append(me)
+                            .append(picture)
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");

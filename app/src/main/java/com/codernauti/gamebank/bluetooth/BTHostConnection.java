@@ -3,6 +3,7 @@ package com.codernauti.gamebank.bluetooth;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -10,8 +11,16 @@ import android.util.Log;
 import com.codernauti.gamebank.pairing.RoomPlayer;
 import com.codernauti.gamebank.util.Event;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -57,16 +66,54 @@ public class BTHostConnection extends BTConnection {
                     try {
                         Log.d(TAG, "Waiting for a new connection...");
                         final BluetoothSocket clientSocket = mBtServerSocket.accept();
+                        Log.d(TAG, "New connection!");
 
                         // Read init information from client just connected
-                        ObjectInputStream inputStream = new ObjectInputStream(
+                        ObjectInputStream bundleInputStream = new ObjectInputStream(
                                 clientSocket.getInputStream());
-                        BTBundle btBundle = (BTBundle) inputStream.readObject();
+                        BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
+
+                        // TEST
+                        Log.d(TAG, "Test phase");
+                        DataInputStream dataInputStream = new DataInputStream(
+                                clientSocket.getInputStream());
+                        InputStream fileInputStream = clientSocket.getInputStream();
+
+                        int bytesCount = dataInputStream.readInt();
+                        Log.d(TAG, "Bytes count: " + bytesCount);
+
+                        // Write file into storage
+                        File newFile = new File(
+                                Environment.getExternalStorageDirectory() + "/myName.JPG");
+
+                        BufferedOutputStream fileOutputStream = new BufferedOutputStream(
+                                new FileOutputStream(newFile));
+
+                        byte[] buffer = new byte[bytesCount];
+                        int totalBytesRead = fileInputStream.read(buffer);
+                        fileOutputStream.write(buffer);
+
+                        /*while (totalBytesRead < bytesCount) {
+                            Log.d(TAG, "totalBytesRead: " + totalBytesRead);
+                            int bytesRead = fileInputStream.read(buffer, totalBytesRead, bytesCount);
+                            fileOutputStream.write(buffer, totalBytesRead, bytesCount);
+                            totalBytesRead += bytesRead;
+                        }*/
+
+                        Log.d(TAG, "Read bytes: " + totalBytesRead);
+
+                        fileOutputStream.close();
+                        // TEST STOP
+
+
+                        Log.d(TAG, "Read rendezvous");
 
                         if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
-
                             RoomPlayer newPlayer = (RoomPlayer)
                                     btBundle.get(RoomPlayer.class.getName());
+
+                            Log.d(TAG, "Member connected: " + newPlayer.getId());
+
 
                             addConnection(newPlayer.getId(), clientSocket);
                             startListeningRunnable(newPlayer.getId());
