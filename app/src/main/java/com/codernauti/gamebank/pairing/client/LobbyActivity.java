@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -24,11 +23,8 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
 import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
-import com.codernauti.gamebank.util.SyncStateService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -257,6 +253,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         Intent intent = new Intent(this, CreateMatchActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 
@@ -268,6 +265,7 @@ public class LobbyActivity extends AppCompatActivity {
         BluetoothDevice selectedHost = mAdapter.getItem(position);
 
         Intent startLobby = new Intent(this, RoomActivity.class);
+        startLobby.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startLobby.putExtra(RoomActivity.HOST_SELECTED_KEY, selectedHost);
         startActivity(startLobby);
     }

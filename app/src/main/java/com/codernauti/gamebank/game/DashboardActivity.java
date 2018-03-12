@@ -16,9 +16,10 @@ import android.util.Log;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
-import com.codernauti.gamebank.pairing.client.LobbyActivity;
+import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.JoinService;
+import com.codernauti.gamebank.util.SyncStateService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,7 +91,9 @@ public class DashboardActivity extends AppCompatActivity {
                 .unregisterReceiver(mReceiver);
 
         stopService(new Intent(this, BTClientService.class));
+        stopService(new Intent(this, BTHostService.class));
         stopService(new Intent(this, JoinService.class));
+        stopService(new Intent(this, SyncStateService.class));
     }
 
     @Override
@@ -109,8 +112,9 @@ public class DashboardActivity extends AppCompatActivity {
                         dialog.dismiss();
 
                         // Not the idea solution imo
-                        DashboardActivity.this.startActivity(new Intent(DashboardActivity.this, LobbyActivity.class));
-                        DashboardActivity.this.finish();
+                        /*DashboardActivity.this.startActivity(new Intent(DashboardActivity.this, LobbyActivity.class));
+                        DashboardActivity.this.finish();*/
+                        DashboardActivity.super.onBackPressed();
 
                     }
                 })

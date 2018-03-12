@@ -17,12 +17,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.SyncStateService;
 
@@ -69,6 +69,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
+                                closeServices();
                                 RoomActivity.this.finish();
                             }
                         })
@@ -84,6 +85,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
 
                 Toast.makeText(context, "Impossible to connect to this device",
                         Toast.LENGTH_SHORT).show();
+                closeServices();
                 finish();
             }
         }
@@ -130,12 +132,14 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         super.onDestroy();
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
+    }
 
-        Intent syncServiceIntent = new Intent(this, SyncStateService.class);
-        stopService(syncServiceIntent);
+    @Override
+    public void onBackPressed() {
 
-        Intent clientServiceIntent = new Intent(this, BTClientService.class);
-        stopService(clientServiceIntent);
+        closeServices();
+
+        super.onBackPressed();
     }
 
     @OnClick(R.id.room_poke_fab)
@@ -145,8 +149,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         );
 
         mLocalBroadcastManager.sendBroadcast(intent);
-
-        // Snackbar.make(, R.string.poke_action, Snackbar.LENGTH_SHORT);
     }
 
     @OnClick(R.id.member_set_status)
@@ -184,5 +186,13 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     public void onPlayerRemove(RoomPlayerProfile player) {
         mMembersAdapter.removePlayer(player.getId());
         Log.d(TAG, "Remove player: " + player.getId());
+    }
+
+    private void closeServices() {
+        Intent syncServiceIntent = new Intent(this, SyncStateService.class);
+        stopService(syncServiceIntent);
+
+        Intent clientServiceIntent = new Intent(this, BTClientService.class);
+        stopService(clientServiceIntent);
     }
 }
