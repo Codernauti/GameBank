@@ -254,7 +254,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         Intent intent = new Intent(this, CreateMatchActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
@@ -266,7 +266,7 @@ public class LobbyActivity extends AppCompatActivity {
         BluetoothDevice selectedHost = mAdapter.getItem(position);
 
         Intent startLobby = new Intent(this, RoomActivity.class);
-        startLobby.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startLobby.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startLobby.putExtra(RoomActivity.HOST_SELECTED_KEY, selectedHost);
         startActivity(startLobby);
     }

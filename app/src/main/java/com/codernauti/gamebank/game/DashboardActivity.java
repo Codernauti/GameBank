@@ -18,6 +18,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
+import com.codernauti.gamebank.lobby.LobbyActivity;
 import com.codernauti.gamebank.stateMonitors.JoinService;
 import com.codernauti.gamebank.stateMonitors.SyncStateService;
 
@@ -50,11 +51,12 @@ public class DashboardActivity extends AppCompatActivity {
                         .setTitle(R.string.host_disconnected_title)
                         .setMessage(R.string.host_disconnected_message)
                         .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                DashboardActivity.this.finish();
+                                returnToLobby();
                             }
                         })
                         .create()
@@ -109,8 +111,7 @@ public class DashboardActivity extends AppCompatActivity {
                         Log.d(TAG, "User closed the match");
                         dialog.dismiss();
 
-                        DashboardActivity.super.onBackPressed();
-
+                        returnToLobby();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -131,5 +132,12 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Show HomePage first
         mViewPager.setCurrentItem(DashboardPagerAdapter.BANK_TAB);
+    }
+
+    private void returnToLobby() {
+
+        Intent returnToLobby = new Intent(this, LobbyActivity.class);
+        returnToLobby.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        DashboardActivity.this.startActivity(returnToLobby);
     }
 }
