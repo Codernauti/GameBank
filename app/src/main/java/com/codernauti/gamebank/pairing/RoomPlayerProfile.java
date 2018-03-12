@@ -2,8 +2,6 @@ package com.codernauti.gamebank.pairing;
 
 import android.support.annotation.NonNull;
 
-import com.codernauti.gamebank.util.ImagePlayerProfile;
-
 import java.util.UUID;
 
 /**
