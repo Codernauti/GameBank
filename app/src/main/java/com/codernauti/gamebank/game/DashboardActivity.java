@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.pairing.client.LobbyActivity;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.JoinService;
@@ -88,6 +89,7 @@ public class DashboardActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mReceiver);
 
+        stopService(new Intent(this, BTClientService.class));
         stopService(new Intent(this, JoinService.class));
     }
 
