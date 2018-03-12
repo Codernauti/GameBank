@@ -147,6 +147,10 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     @OnClick(R.id.open_lobby)
     void onOpenMatch() {
 
+
+        mRoomLogic.setRoomName(mLobbyName.getText().toString());
+
+        mLobbyName.setEnabled(false);
         openLobbyButton.setEnabled(false);
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
@@ -170,6 +174,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     @OnClick(R.id.cancel_match)
     void onCancelMatch() {
 
+        mLobbyName.setEnabled(true);
         openLobbyButton.setEnabled(true);
         cancelMatchButton.setEnabled(false);
         startMatchButton.setVisibility(View.INVISIBLE);
@@ -259,6 +264,11 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " players.");
+    }
+
+    @Override
+    public void onRoomNameChange(String roomName) {
+        // Empty, nothing to do!
     }
 
     @Override

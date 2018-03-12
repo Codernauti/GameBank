@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.pairing.client;
 
+import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,11 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -47,6 +50,8 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     ListView mMembersList;
     @BindView(R.id.member_set_status)
     FloatingActionButton status;
+    @BindView(R.id.room_activity_toolbar)
+    Toolbar mToolbar;
 
 
     private RoomPlayerAdapter mMembersAdapter;
@@ -99,6 +104,9 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         setContentView(R.layout.activity_room);
         ButterKnife.bind(this);
 
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         mMembersAdapter = new RoomPlayerAdapter(this);
         mMembersList.setAdapter(mMembersAdapter);
 
@@ -133,6 +141,8 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         super.onDestroy();
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
+        mMembersAdapter.clear();
+        ((GameBank) getApplication()).initRoomLogic();
     }
 
     @Override
@@ -175,6 +185,12 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " players.");
+    }
+
+    @Override
+    public void onRoomNameChange(@NonNull  final String roomName) {
+        Log.d(TAG, "Room name: " + roomName);
+        mToolbar.setTitle(getString(R.string.match) + ": " + roomName);
     }
 
     @Override

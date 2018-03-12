@@ -38,7 +38,7 @@ public class JoinService extends Service {
 
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
-                    final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank)getApplication())
+                    final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank) getApplication())
                             .getRoomLogic()
                             .getRoomPlayers();
                     final RoomPlayerProfile newPlayer = (RoomPlayerProfile)bundle.get(RoomPlayerProfile.class.getName());
@@ -49,6 +49,9 @@ public class JoinService extends Service {
                     Intent stateIntent = BTBundle.makeIntentFrom(
                             new BTBundle(BTEvent.CURRENT_STATE)
                                     .append(mPlayers)
+                                    .append(((GameBank) getApplication())
+                                            .getRoomLogic()
+                                            .getRoomName())
                     );
                     stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
                     LocalBroadcastManager.getInstance(JoinService.this).sendBroadcast(stateIntent);

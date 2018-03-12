@@ -29,6 +29,7 @@ public final class RoomLogic {
         void onPlayerChange(RoomPlayerProfile player);
         void onPlayerRemove(RoomPlayerProfile player);
         void onNewPlayerJoined(ArrayList<RoomPlayerProfile> newPlayer);
+        void onRoomNameChange(String roomName);
     }
 
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -38,6 +39,8 @@ public final class RoomLogic {
     // Lobby fields
     private ArrayList<RoomPlayerProfile> mPlayers = new ArrayList<>();
     private final String mNickname;
+
+    private String mRoomName;
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -167,11 +170,14 @@ public final class RoomLogic {
         return mPlayers;
     }
 
-    public void syncState(ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles) {
+    public void syncState(@NonNull ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles,
+                          @NonNull String roomName) {
         mPlayers.addAll(hostRoomPlayerProfiles);
+        mRoomName = roomName;
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
+            mListener.onRoomNameChange(mRoomName);
         }
     }
 
@@ -181,6 +187,14 @@ public final class RoomLogic {
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
         }
+    }
+
+    public void setRoomName(@NonNull String roomName) {
+        mRoomName = roomName;
+    }
+
+    public String getRoomName() {
+        return mRoomName;
     }
 
 }
