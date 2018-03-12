@@ -3,24 +3,19 @@ package com.codernauti.gamebank.bluetooth;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -79,13 +74,13 @@ public class BTHostConnection extends BTConnection {
                         Log.d(TAG, "Read rendezvous");
 
                         if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
-                            RoomPlayer newPlayer = (RoomPlayer)
-                                    btBundle.get(RoomPlayer.class.getName());
+                            RoomPlayerProfile newPlayer = (RoomPlayerProfile)
+                                    btBundle.get(RoomPlayerProfile.class.getName());
 
                             Log.d(TAG, "Member connected: " + newPlayer.getId());
 
                             // TEST
-                            readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
+                            //readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
                             // TEST STOP
 
 

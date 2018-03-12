@@ -126,19 +126,10 @@ abstract class BTConnection implements Closeable {
 
     void sendTo(@NonNull BTBundle data, @NonNull UUID who) {
 
-        File file = (File) data.get(File.class.getName());
-        if (file != null) {
-            data.getMapData().remove(File.class.getName());
-        }
-
         try {
             Log.d(TAG, "Sending event: " + data.getBluetoothAction() + " to " + who);
 
             mConnections.get(who).writeData(data);
-
-            if (file != null) {
-                mConnections.get(who).writeFile(file);
-            }
 
         } catch (IOException e) {
             Log.d(TAG, "Event: " + Event.Network.SEND_DATA_ERROR);

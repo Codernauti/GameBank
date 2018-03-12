@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
@@ -26,9 +26,9 @@ public final class RoomLogic {
     private static final String TAG = "RoomLogic";
 
     public interface Listener {
-        void onPlayerChange(RoomPlayer player);
-        void onPlayerRemove(RoomPlayer player);
-        void onNewPlayerJoined(ArrayList<RoomPlayer> newPlayer);
+        void onPlayerChange(RoomPlayerProfile player);
+        void onPlayerRemove(RoomPlayerProfile player);
+        void onNewPlayerJoined(ArrayList<RoomPlayerProfile> newPlayer);
     }
 
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -36,7 +36,7 @@ public final class RoomLogic {
 
     // Game logic fields
     // Lobby fields
-    private ArrayList<RoomPlayer> mPlayers = new ArrayList<>();
+    private ArrayList<RoomPlayerProfile> mPlayers = new ArrayList<>();
     private final String mNickname;
 
 
@@ -53,7 +53,7 @@ public final class RoomLogic {
 
                 if (Event.Network.MEMBER_CONNECTED.equals(action)) {
 
-                    RoomPlayer newPlayer = (RoomPlayer) btBundle.get(RoomPlayer.class.getName());
+                    RoomPlayerProfile newPlayer = (RoomPlayerProfile) btBundle.get(RoomPlayerProfile.class.getName());
                     mPlayers.add(newPlayer);
 
                     if (mListener != null) {
@@ -65,7 +65,7 @@ public final class RoomLogic {
                     UUID uuid = btBundle.getUuid();
                     boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
 
-                    for (RoomPlayer player : mPlayers) {
+                    for (RoomPlayerProfile player : mPlayers) {
                         if (player.getId().equals(uuid)) {
                             player.setReady(isReady);
 
@@ -79,9 +79,9 @@ public final class RoomLogic {
 
                     UUID playerDisconnected = btBundle.getUuid();
 
-                    Iterator<RoomPlayer> iterator = mPlayers.iterator();
+                    Iterator<RoomPlayerProfile> iterator = mPlayers.iterator();
                     while (iterator.hasNext()) {
-                        RoomPlayer player = iterator.next();
+                        RoomPlayerProfile player = iterator.next();
 
                         if (player.getId().equals(playerDisconnected)) {
                             iterator.remove();
@@ -135,7 +135,7 @@ public final class RoomLogic {
 
     public void setIamHost(String pictureName) {
         Log.d(TAG, "I am host!");
-        mPlayers.add(new RoomPlayer(mNickname, GameBank.BT_ADDRESS, pictureName, true));
+        mPlayers.add(new RoomPlayerProfile(mNickname, GameBank.BT_ADDRESS, pictureName, true));
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
@@ -144,7 +144,7 @@ public final class RoomLogic {
 
 
     public boolean matchCanStart() {
-        for (RoomPlayer player : mPlayers) {
+        for (RoomPlayerProfile player : mPlayers) {
             if (!player.isReady()) {
                 return false;
             }
@@ -156,19 +156,19 @@ public final class RoomLogic {
     List<UUID> getMembersUUID() {
         ArrayList<UUID> result = new ArrayList<>();
 
-        for (RoomPlayer player : mPlayers) {
+        for (RoomPlayerProfile player : mPlayers) {
             result.add(player.getId());
         }
 
         return result;
     }
 
-    public ArrayList<RoomPlayer> getRoomPlayers() {
+    public ArrayList<RoomPlayerProfile> getRoomPlayers() {
         return mPlayers;
     }
 
-    public void syncState(ArrayList<RoomPlayer> hostRoomPlayers) {
-        mPlayers.addAll(hostRoomPlayers);
+    public void syncState(ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles) {
+        mPlayers.addAll(hostRoomPlayerProfiles);
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);

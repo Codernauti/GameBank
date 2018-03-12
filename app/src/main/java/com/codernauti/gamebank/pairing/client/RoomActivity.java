@@ -21,7 +21,7 @@ import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.SyncStateService;
@@ -168,20 +168,20 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     // RoomLogic callbacks
 
     @Override
-    public void onNewPlayerJoined(ArrayList<RoomPlayer> members) {
+    public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " players.");
     }
 
     @Override
-    public void onPlayerChange(RoomPlayer player) {
+    public void onPlayerChange(RoomPlayerProfile player) {
         mMembersAdapter.updatePlayerState(player);
         Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
     }
 
     @Override
-    public void onPlayerRemove(RoomPlayer player) {
+    public void onPlayerRemove(RoomPlayerProfile player) {
         mMembersAdapter.removePlayer(player.getId());
         Log.d(TAG, "Remove player: " + player.getId());
     }

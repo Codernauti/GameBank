@@ -1,9 +1,8 @@
 package com.codernauti.gamebank.pairing;
 
-import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.codernauti.gamebank.util.PlayerProfile;
+import com.codernauti.gamebank.util.ImagePlayerProfile;
 
 import java.util.UUID;
 
@@ -11,19 +10,13 @@ import java.util.UUID;
  * Created by davide on 01/03/18.
  */
 
-public class RoomPlayer extends PlayerProfile {
+public class RoomPlayerProfile extends ImagePlayerProfile {
 
     private boolean isReady;
 
-    public RoomPlayer(@NonNull String nickname, @NonNull UUID id,
-                      @NonNull String picture, boolean isReady) {
+    public RoomPlayerProfile(@NonNull String nickname, @NonNull UUID id,
+                             @NonNull String picture, boolean isReady) {
         super(nickname, id, picture);
-        this.isReady = isReady;
-    }
-
-    public RoomPlayer(@NonNull String nickname, @NonNull UUID id, boolean isReady) {
-        super(nickname, id);
-
         this.isReady = isReady;
     }
 

@@ -1,7 +1,6 @@
 package com.codernauti.gamebank.pairing;
 
 import android.content.Context;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,7 +22,7 @@ import java.util.UUID;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
+public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayerProfile> {
 
     private static final String TAG = "RoomPlayerAdapter";
 
@@ -35,7 +34,7 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
     @Override
     public View getView(int i, View view, @NonNull ViewGroup viewGroup) {
         RoomPlayerVH roomPlayerVH;
-        RoomPlayer client = getItem(i);
+        RoomPlayerProfile client = getItem(i);
 
         if (view == null) {
             view = LayoutInflater.from(getContext())
@@ -81,7 +80,7 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayer> {
         return view;
     }
 
-    public void updatePlayerState(RoomPlayer player) {
+    public void updatePlayerState(RoomPlayerProfile player) {
         for (int i = 0; i < getCount(); i++) {
             if (player.getId().equals(getItem(i).getId())) {
                 getItem(i).setReady(player.isReady());

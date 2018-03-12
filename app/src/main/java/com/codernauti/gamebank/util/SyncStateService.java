@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
 import java.util.ArrayList;
 
@@ -36,11 +36,11 @@ public class SyncStateService extends Service {
                 if (Event.Network.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
 
-                    final ArrayList<RoomPlayer> hostRoomPlayers = (ArrayList<RoomPlayer>)
+                    final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
                             btBundle.get(ArrayList.class.getName());
 
                     ((GameBank) getApplication()).getRoomLogic()
-                            .syncState(hostRoomPlayers);
+                            .syncState(hostRoomPlayerProfiles);
 
                 }
             }
