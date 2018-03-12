@@ -39,9 +39,10 @@ public class SyncStateService extends Service {
 
                     final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
                             btBundle.get(ArrayList.class.getName());
+                    final String roomName = (String) btBundle.get(String.class.getName());
 
                     ((GameBank) getApplication()).getRoomLogic()
-                            .syncState(hostRoomPlayerProfiles);
+                            .syncState(hostRoomPlayerProfiles, roomName);
 
                 }
             }

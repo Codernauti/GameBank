@@ -38,5 +38,8 @@
     <string name="host_disconnected_message">Stop crying, you cannot do anything to it. Your host is not a real friend.</string>
     <string name="exiting_match_title">Disconnection alert!</string>
     <string name="exiting_match_message">You are leaving the match! Are you sure?</string>
+    <string name="match">Match</string>
+    <string name="loading">Loading…</string>
+    <string name="waiting_host">Waiting for the host to start the match</string>
 
 </resources>

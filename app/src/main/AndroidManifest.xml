@@ -49,7 +49,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.lobby.LobbyActivity" />
         </activity>
-        <activity android:name=".pairing.client.RoomActivity" />
+        <activity
+            android:name=".pairing.client.RoomActivity"
+            android:label="@string/loading"
+            />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"
