@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -35,7 +36,7 @@ public class GameBank extends Application {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Network.START.equals(action)) {
+            if (BTEvent.START.equals(action)) {
 
                 List<UUID> membersUUID = mRoomLogic.getMembersUUID();
                 mBankLogic = new BankLogic(
@@ -54,7 +55,7 @@ public class GameBank extends Application {
     public void onCreate() {
         super.onCreate();
 
-        IntentFilter filter = new IntentFilter(Event.Network.START);
+        IntentFilter filter = new IntentFilter(BTEvent.START);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mReceiver, filter);
 

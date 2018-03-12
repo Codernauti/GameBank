@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.Event;
@@ -204,7 +205,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
             startingMatchProgressBar.animate();
 
             Intent startGame = BTBundle.makeIntentFrom(
-                    new BTBundle(Event.Network.START)
+                    new BTBundle(BTEvent.START)
             );
             mLocalBroadcastManager.sendBroadcast(startGame);
 

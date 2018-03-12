@@ -7,12 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.util.Event;
-
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -132,9 +128,9 @@ abstract class BTConnection implements Closeable {
             mConnections.get(who).writeData(data);
 
         } catch (IOException e) {
-            Log.d(TAG, "Event: " + Event.Network.SEND_DATA_ERROR);
+            Log.d(TAG, "Event: " + BTEvent.SEND_DATA_ERROR);
 
-            Intent error = new Intent(Event.Network.SEND_DATA_ERROR);
+            Intent error = new Intent(BTEvent.SEND_DATA_ERROR);
             mLocalBroadcastManager.sendBroadcast(error);
             e.printStackTrace();
         }

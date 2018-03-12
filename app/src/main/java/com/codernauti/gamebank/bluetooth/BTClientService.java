@@ -100,14 +100,14 @@ public class BTClientService extends Service {
 
         try {
             mConnection.connectAndListen(
-                    new BTBundle(Event.Network.MEMBER_CONNECTED)
+                    new BTBundle(BTEvent.MEMBER_CONNECTED)
                             .append(me)
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");
             e.printStackTrace();
 
-            Intent intent = new Intent(Event.Network.CONN_ERRONEOUS);
+            Intent intent = new Intent(BTEvent.CONN_ERRONEOUS);
             mLocalBroadcastManager.sendBroadcast(intent);
         }
     }

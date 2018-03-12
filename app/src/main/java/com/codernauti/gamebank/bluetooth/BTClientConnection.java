@@ -7,9 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.util.Event;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -53,13 +50,13 @@ public class BTClientConnection extends BTConnection {
                     sendTo(rendezvous, mHostUUID);
                     startListeningRunnable(mHostUUID);
 
-                    Intent connectionCompleted = new Intent(Event.Network.CONN_ESTABLISHED);
+                    Intent connectionCompleted = new Intent(BTEvent.CONN_ESTABLISHED);
                     mLocalBroadcastManager.sendBroadcast(connectionCompleted);
 
                 } catch (IOException e) {
                     e.printStackTrace();
 
-                    Intent error = new Intent(Event.Network.CONN_ERRONEOUS);
+                    Intent error = new Intent(BTEvent.CONN_ERRONEOUS);
                     mLocalBroadcastManager.sendBroadcast(error);
                 }
             }
@@ -73,7 +70,7 @@ public class BTClientConnection extends BTConnection {
     @Override
     void onStopReadingDataFrom(UUID who) {
         Intent intent = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Network.HOST_DISCONNECTED)
+                new BTBundle(BTEvent.HOST_DISCONNECTED)
                         .append(who)
         );
         mLocalBroadcastManager.sendBroadcast(intent);

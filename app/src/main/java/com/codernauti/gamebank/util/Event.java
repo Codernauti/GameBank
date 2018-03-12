@@ -19,17 +19,4 @@ public interface Event {
         String MEMBER_READY = "member_ready";
     }
 
-    // Event emitted explicitly by BTConnection
-    interface Network {
-        String CONN_ESTABLISHED = "conn_established";
-        String CONN_ERRONEOUS = "conn_erroneous";
-        String SEND_DATA_ERROR = "send_data_error";
-        String START = "start";
-        String STOP = "stop";
-        String MEMBER_CONNECTED = "member_connected";
-        String MEMBER_DISCONNECTED = "member_disconnected";
-        String CURRENT_STATE = "current_state";
-        String HOST_DISCONNECTED = "host_disconnected";
-    }
-
 }

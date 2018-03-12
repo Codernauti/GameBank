@@ -8,7 +8,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.Event;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -73,7 +72,7 @@ public class BTHostConnection extends BTConnection {
 
                         Log.d(TAG, "Read rendezvous");
 
-                        if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
+                        if (BTEvent.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
                             RoomPlayerProfile newPlayer = (RoomPlayerProfile)
                                     btBundle.get(RoomPlayerProfile.class.getName());
 
@@ -142,7 +141,7 @@ public class BTHostConnection extends BTConnection {
     @Override
     void onStopReadingDataFrom(UUID who) {
         Intent intent = BTBundle.makeIntentFrom(
-                new BTBundle(Event.Network.MEMBER_DISCONNECTED)
+                new BTBundle(BTEvent.MEMBER_DISCONNECTED)
                         .append(who)
         );
         mLocalBroadcastManager.sendBroadcast(intent);

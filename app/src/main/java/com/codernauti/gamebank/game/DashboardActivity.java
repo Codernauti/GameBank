@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.JoinService;
@@ -42,7 +43,7 @@ public class DashboardActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (Event.Network.HOST_DISCONNECTED.equals(action)) {
+            if (BTEvent.HOST_DISCONNECTED.equals(action)) {
 
                 Log.d(TAG, "onHostDisconnect");
 
@@ -79,7 +80,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         setupTopTabber();
 
-        IntentFilter filter = new IntentFilter(Event.Network.HOST_DISCONNECTED);
+        IntentFilter filter = new IntentFilter(BTEvent.HOST_DISCONNECTED);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mReceiver, filter);
     }

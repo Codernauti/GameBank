@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class SyncStateService extends Service {
             final BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Network.CURRENT_STATE.equals(action)) {
+                if (BTEvent.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
 
                     final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
@@ -53,7 +54,7 @@ public class SyncStateService extends Service {
         Log.d(TAG, "onStartCommand");
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Network.CURRENT_STATE);
+        filter.addAction(BTEvent.CURRENT_STATE);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mFromBTClientConnection, filter);

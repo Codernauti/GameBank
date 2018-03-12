@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
@@ -35,7 +36,7 @@ public class JoinService extends Service {
 
             if (bundle != null) {
 
-                if (Event.Network.MEMBER_CONNECTED.equals(action)) {
+                if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
                     final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank)getApplication())
                             .getRoomLogic()
@@ -46,7 +47,7 @@ public class JoinService extends Service {
                             "Send players: " + mPlayers.size());
 
                     Intent stateIntent = BTBundle.makeIntentFrom(
-                            new BTBundle(Event.Network.CURRENT_STATE)
+                            new BTBundle(BTEvent.CURRENT_STATE)
                                     .append(mPlayers)
                     );
                     stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
@@ -62,7 +63,7 @@ public class JoinService extends Service {
         Log.d(TAG, "onStartCommand");
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Network.MEMBER_CONNECTED);
+        filter.addAction(BTEvent.MEMBER_CONNECTED);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mFromBTHostConnection, filter);

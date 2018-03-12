@@ -21,6 +21,7 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
@@ -58,7 +59,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (Event.Network.HOST_DISCONNECTED.equals(action)) {
+            if (BTEvent.HOST_DISCONNECTED.equals(action)) {
                 Log.d(TAG, "onHostDisconnect");
 
                 AlertDialog alertDialog = new AlertDialog.Builder(RoomActivity.this)
@@ -76,12 +77,12 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
                         .create();
 
                 alertDialog.show();
-            } else if (Event.Network.CONN_ESTABLISHED.equals(action)) {
+            } else if (BTEvent.CONN_ESTABLISHED.equals(action)) {
 
                 Toast.makeText(context, "Connect successfully",
                         Toast.LENGTH_SHORT).show();
 
-            } else if (Event.Network.CONN_ERRONEOUS.equals(action)) {
+            } else if (BTEvent.CONN_ERRONEOUS.equals(action)) {
 
                 Toast.makeText(context, "Impossible to connect to this device",
                         Toast.LENGTH_SHORT).show();
@@ -104,9 +105,9 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Network.HOST_DISCONNECTED);
-        filter.addAction(Event.Network.CONN_ESTABLISHED);
-        filter.addAction(Event.Network.CONN_ERRONEOUS);
+        filter.addAction(BTEvent.HOST_DISCONNECTED);
+        filter.addAction(BTEvent.CONN_ESTABLISHED);
+        filter.addAction(BTEvent.CONN_ERRONEOUS);
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
 
         ((GameBank)getApplication()).getRoomLogic().setListener(this);
