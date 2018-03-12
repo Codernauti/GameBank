@@ -69,6 +69,10 @@ public class GameBank extends Application {
                 LocalBroadcastManager.getInstance(this), nickname);
     }
 
+    public void cleanRoomLogic() {
+        initRoomLogic();
+    }
+
     public RoomLogic getRoomLogic() {
         return mRoomLogic;
     }

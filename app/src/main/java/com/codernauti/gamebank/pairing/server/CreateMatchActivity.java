@@ -179,7 +179,9 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     private void closeRoom() {
         // TODO: stop discoverability
 
-        mRoomLogic.clear();
+        Log.d(TAG, "onCloseRoom()");
+
+        ((GameBank)getApplication()).cleanRoomLogic();
 
         Intent joinService = new Intent(this, JoinService.class);
         stopService(joinService);
