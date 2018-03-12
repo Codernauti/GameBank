@@ -25,15 +25,15 @@
         </activity>
         <activity
             android:name=".game.DashboardActivity"
-            android:parentActivityName=".pairing.client.LobbyActivity"
+            android:parentActivityName=".lobby.LobbyActivity"
             android:theme="@style/AppTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".pairing.client.LobbyActivity" />
+                android:value=".lobby.LobbyActivity" />
         </activity>
 
         <activity
-            android:name=".pairing.client.LobbyActivity"
+            android:name=".lobby.LobbyActivity"
             android:label="@string/title_activity_lobby"
             android:theme="@style/AppTheme">
             <meta-data
@@ -43,11 +43,11 @@
         <activity
             android:name=".pairing.server.CreateMatchActivity"
             android:label="@string/title_activity_create_match"
-            android:parentActivityName=".pairing.client.LobbyActivity"
+            android:parentActivityName=".lobby.LobbyActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.codernauti.gamebank.pairing.client.LobbyActivity" />
+                android:value="com.codernauti.gamebank.lobby.LobbyActivity" />
         </activity>
         <activity android:name=".pairing.client.RoomActivity" />
         <activity

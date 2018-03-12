@@ -1,29 +1,19 @@
 package com.codernauti.gamebank;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.ImageView;
 
-import com.codernauti.gamebank.bluetooth.BTStateChange;
-import com.codernauti.gamebank.pairing.client.LobbyActivity;
+import com.codernauti.gamebank.lobby.LobbyActivity;
 import com.codernauti.gamebank.util.PermissionManager;
 import com.luolc.emojirain.EmojiRainLayout;
 
-import java.io.File;
 import java.util.Random;
 
 import butterknife.BindView;

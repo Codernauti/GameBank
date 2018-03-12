@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.pairing.client;
+package com.codernauti.gamebank.lobby;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
+import com.codernauti.gamebank.pairing.client.RoomActivity;
 import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
 
 import butterknife.BindView;

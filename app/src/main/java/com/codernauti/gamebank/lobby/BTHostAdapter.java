@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.pairing.client;
+package com.codernauti.gamebank.lobby;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;

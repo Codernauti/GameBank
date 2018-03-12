@@ -41,7 +41,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
 
     private static final String TAG = "RoomActivity";
 
-    static final String HOST_SELECTED_KEY = "host_selected_key";
+    public static final String HOST_SELECTED_KEY = "host_selected_key";
 
     @BindView(R.id.room_members)
     ListView mMembersList;
