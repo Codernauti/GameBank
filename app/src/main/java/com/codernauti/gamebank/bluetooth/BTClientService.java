@@ -6,16 +6,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -97,9 +95,10 @@ public class BTClientService extends Service {
         Log.d(TAG, "Connection requested to ClientConnection");
 
         String nickname = SharePrefUtil.getNicknamePreference(this);
-        String filename = SharePrefUtil.getStringPreference(this, PrefKey.PROFILE_PICTURE);
+        String filename = SharePrefUtil.getProfilePicturePreference(this);
 
-        RoomPlayer me = new RoomPlayer(nickname, GameBank.BT_ADDRESS, filename, false);
+        RoomPlayerProfile me = new RoomPlayerProfile(nickname, GameBank.BT_ADDRESS, filename, false);
+
 
         try {
             mConnection.connectAndListen(

@@ -71,6 +71,8 @@ public class SharePrefUtil {
                 profilePicture.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fileName = PROFILE_PICTURE_DEFAULT;
 
+                saveStringPreference(context, PrefKey.PROFILE_PICTURE, fileName);
+
                 Log.d(TAG, "Random profile picture copied");
             } catch (IOException e) {
                 e.printStackTrace();

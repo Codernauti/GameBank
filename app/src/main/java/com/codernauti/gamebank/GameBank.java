@@ -24,6 +24,7 @@ public class GameBank extends Application {
     private static final String TAG = "GameBankApp";
 
     public static final UUID BT_ADDRESS = UUID.randomUUID();
+    public static String FILES_DIR;
 
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
@@ -56,6 +57,9 @@ public class GameBank extends Application {
         IntentFilter filter = new IntentFilter(Event.Network.START);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mReceiver, filter);
+
+        Log.d(TAG, "Files directory: " + getFilesDir());
+        FILES_DIR = getFilesDir().toString();
     }
 
     public void initRoomLogic() {

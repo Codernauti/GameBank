@@ -94,25 +94,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
     };
 
-    private final BroadcastReceiver mBluetoothTransmissionReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
 
-            String action = intent.getAction();
-            Log.d(TAG, "Action received: " + action);
-
-            if (Event.Network.CONN_ESTABLISHED.equals(action)) {
-
-                startActivity(new Intent(LobbyActivity.this, RoomActivity.class));
-
-            } else if (Event.Network.CONN_ERRONEOUS.equals(action)) {
-
-                Toast.makeText(context, "Impossible to connect to this device",
-                        Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,8 +154,6 @@ public class LobbyActivity extends AppCompatActivity {
 
         unregisterReceiver(mBTStateChangeReceiver);
         unregisterReceiver(mBTDiscoveryReceiver);
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mBluetoothTransmissionReceiver);
     }
 
 
@@ -188,15 +168,8 @@ public class LobbyActivity extends AppCompatActivity {
         IntentFilter btActionFoundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         btActionFoundFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
-        // Register for BT connection and data receiver
-        IntentFilter incomingTransmissionFilter = new IntentFilter();
-        incomingTransmissionFilter.addAction(Event.Network.CONN_ESTABLISHED);
-        incomingTransmissionFilter.addAction(Event.Network.CONN_ERRONEOUS);
-
         registerReceiver(mBTDiscoveryReceiver, btActionFoundFilter);
         registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mBluetoothTransmissionReceiver, incomingTransmissionFilter);
 
         swipeRefreshLayout.setRefreshing(false);
     }
@@ -294,11 +267,8 @@ public class LobbyActivity extends AppCompatActivity {
         mBluetoothAdapter.cancelDiscovery();
         BluetoothDevice selectedHost = mAdapter.getItem(position);
 
-        Intent syncIntent = new Intent(this, SyncStateService.class);
-        startService(syncIntent);
-
-        Intent intent = new Intent(this, BTClientService.class);
-        intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
-        startService(intent);
+        Intent startLobby = new Intent(this, RoomActivity.class);
+        startLobby.putExtra(RoomActivity.HOST_SELECTED_KEY, selectedHost);
+        startActivity(startLobby);
     }
 }

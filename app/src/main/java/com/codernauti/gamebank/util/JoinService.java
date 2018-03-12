@@ -13,7 +13,7 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
 import java.util.ArrayList;
 
@@ -37,10 +37,10 @@ public class JoinService extends Service {
 
                 if (Event.Network.MEMBER_CONNECTED.equals(action)) {
 
-                    final ArrayList<RoomPlayer> mPlayers = ((GameBank)getApplication())
+                    final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank)getApplication())
                             .getRoomLogic()
                             .getRoomPlayers();
-                    final RoomPlayer newPlayer = (RoomPlayer)bundle.get(RoomPlayer.class.getName());
+                    final RoomPlayerProfile newPlayer = (RoomPlayerProfile)bundle.get(RoomPlayerProfile.class.getName());
 
                     Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
                             "Send players: " + mPlayers.size());
@@ -64,16 +64,19 @@ public class JoinService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.Network.MEMBER_CONNECTED);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mFromBTHostConnection, filter);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(mFromBTHostConnection, filter);
 
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mFromBTHostConnection);
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mFromBTHostConnection);
+        super.onDestroy();
     }
 
     @Nullable

@@ -10,6 +10,7 @@ import android.util.Log;
 import com.codernauti.gamebank.util.Event;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -123,9 +124,10 @@ abstract class BTConnection implements Closeable {
 
     /* SEND METHODS */
 
-    void sendTo(@NonNull Serializable data, @NonNull UUID who) {
+    void sendTo(@NonNull BTBundle data, @NonNull UUID who) {
+
         try {
-            Log.d(TAG, "Sending event: " + ((BTBundle)data).getBluetoothAction() + " to " + who);
+            Log.d(TAG, "Sending event: " + data.getBluetoothAction() + " to " + who);
 
             mConnections.get(who).writeData(data);
 
@@ -138,13 +140,13 @@ abstract class BTConnection implements Closeable {
         }
     }
 
-    void sendBroadcast(@NonNull Serializable data) {
+    void sendBroadcast(@NonNull BTBundle data) {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
             sendTo(data, btc.getKey());
         }
     }
 
-    void sendMulticast(@NonNull Serializable data, @NonNull List<UUID> exceptions) {
+    void sendMulticast(@NonNull BTBundle data, @NonNull List<UUID> exceptions) {
         for (Map.Entry<UUID, BTio> btc : mConnections.entrySet()) {
             if (!exceptions.contains(btc.getKey())) {
                 sendTo(data, btc.getKey());

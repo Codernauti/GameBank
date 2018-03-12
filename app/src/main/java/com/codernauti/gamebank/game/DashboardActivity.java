@@ -43,7 +43,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                 Log.d(TAG, "onHostDisconnect");
 
-                new AlertDialog.Builder(context)
+                new AlertDialog.Builder(DashboardActivity.this)
                         .setTitle(R.string.host_disconnected_title)
                         .setMessage(R.string.host_disconnected_message)
                         .setIcon(android.R.drawable.ic_dialog_alert)

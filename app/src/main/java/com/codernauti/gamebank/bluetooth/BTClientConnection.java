@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.util.Event;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Executors;

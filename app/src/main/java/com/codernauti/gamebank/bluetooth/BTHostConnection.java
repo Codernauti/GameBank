@@ -7,10 +7,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.pairing.RoomPlayer;
+import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.util.Event;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -25,14 +29,17 @@ public class BTHostConnection extends BTConnection {
 
     private final int mAcceptedConnections;
     private final BluetoothServerSocket mBtServerSocket;
+    private final String mPicturePath;
 
     private volatile boolean mServerSocketOpen;
 
 
-    BTHostConnection(int acceptedConnections,
+    BTHostConnection(int acceptedConnections, @NonNull String picturePath,
                      @NonNull BluetoothServerSocket btServerSocket,
                      @NonNull LocalBroadcastManager localBroadcastManager) {
         super(localBroadcastManager, Executors.newCachedThreadPool());
+
+        mPicturePath = picturePath;
 
         if (acceptedConnections > 0 && acceptedConnections < 8) {
 
@@ -57,16 +64,25 @@ public class BTHostConnection extends BTConnection {
                     try {
                         Log.d(TAG, "Waiting for a new connection...");
                         final BluetoothSocket clientSocket = mBtServerSocket.accept();
+                        Log.d(TAG, "New connection!");
 
                         // Read init information from client just connected
-                        ObjectInputStream inputStream = new ObjectInputStream(
+                        ObjectInputStream bundleInputStream = new ObjectInputStream(
                                 clientSocket.getInputStream());
-                        BTBundle btBundle = (BTBundle) inputStream.readObject();
+                        BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
+
+                        Log.d(TAG, "Read rendezvous");
 
                         if (Event.Network.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
+                            RoomPlayerProfile newPlayer = (RoomPlayerProfile)
+                                    btBundle.get(RoomPlayerProfile.class.getName());
 
-                            RoomPlayer newPlayer = (RoomPlayer)
-                                    btBundle.get(RoomPlayer.class.getName());
+                            Log.d(TAG, "Member connected: " + newPlayer.getId());
+
+                            // TEST
+                            //readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
+                            // TEST STOP
+
 
                             addConnection(newPlayer.getId(), clientSocket);
                             startListeningRunnable(newPlayer.getId());
@@ -93,6 +109,34 @@ public class BTHostConnection extends BTConnection {
                 }
             }
         });
+    }
+
+    private void readPicture(InputStream fileInputStream, String pictureName) throws IOException {
+        Log.d(TAG, "Test phase");
+        DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+
+        int bytesCount = dataInputStream.readInt();
+        Log.d(TAG, "Bytes count: " + bytesCount);
+
+
+        // Write file into internal storage
+        File newFile = new File(mPicturePath, pictureName);
+        FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+
+
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        int totBytesRead = 0;
+        while (totBytesRead < bytesCount) {
+            bytesRead = fileInputStream.read(buffer, 0, buffer.length);
+            totBytesRead += bytesRead;
+            fileOutputStream.write(buffer, 0, bytesRead);
+
+            Log.d(TAG, "Read bytes: " + bytesRead);
+        }
+        Log.d(TAG, "Total read bytes: " + totBytesRead);
+
+        fileOutputStream.close();
     }
 
     @Override
