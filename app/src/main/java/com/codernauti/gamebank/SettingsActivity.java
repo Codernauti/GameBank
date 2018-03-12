@@ -2,6 +2,7 @@ package com.codernauti.gamebank;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -10,11 +11,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codernauti.gamebank.util.EditTextActivity;
-import com.codernauti.gamebank.util.generators.NicknameGenerator;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
-
-import org.jetbrains.annotations.NotNull;
+import com.codernauti.gamebank.util.generators.NicknameGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -141,7 +140,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         NaraeImagePicker.instance.start(this, item, new OnPickResultListener() {
             @Override
-            public void onSelect(int resultCode, @NotNull ArrayList<String> imageList) {
+            public void onSelect(int resultCode, @NonNull ArrayList<String> imageList) {
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
 
                     final File previousFile = new File(SharePrefUtil.getProfilePicturePreference(SettingsActivity.this));
