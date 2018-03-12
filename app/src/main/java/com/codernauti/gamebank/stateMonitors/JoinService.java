@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.util;
+package com.codernauti.gamebank.stateMonitors;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

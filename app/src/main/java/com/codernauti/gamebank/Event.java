@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.util;
+package com.codernauti.gamebank;
 
 /**
  * Created by Eduard on 27-Feb-18.

@@ -14,7 +14,7 @@ import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.IOException;

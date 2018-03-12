@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.Event;
 
 import java.io.IOException;
 import java.util.ArrayList;

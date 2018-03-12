@@ -11,7 +11,6 @@ import android.util.Log;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.Event;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -24,8 +24,8 @@ import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.SyncStateService;
+import com.codernauti.gamebank.Event;
+import com.codernauti.gamebank.stateMonitors.SyncStateService;
 
 import java.util.ArrayList;
 

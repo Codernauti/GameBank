@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.game.DashboardActivity;
-import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.List;

@@ -28,10 +28,10 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
-import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.util.JoinService;
+import com.codernauti.gamebank.stateMonitors.JoinService;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.ArrayList;

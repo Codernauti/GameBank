@@ -18,9 +18,8 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.util.Event;
-import com.codernauti.gamebank.util.JoinService;
-import com.codernauti.gamebank.util.SyncStateService;
+import com.codernauti.gamebank.stateMonitors.JoinService;
+import com.codernauti.gamebank.stateMonitors.SyncStateService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

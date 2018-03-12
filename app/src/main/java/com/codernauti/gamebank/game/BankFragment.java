@@ -15,7 +15,7 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.TransModel;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.util.Event;
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.UUID;
