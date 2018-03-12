@@ -36,5 +36,7 @@
     <string name="warning">Attenzione</string>
     <string name="host_disconnected_title">Host disconnesso</string>
     <string name="host_disconnected_message">Basta piangere, non ci puoi fare nulla. Il tuo host non è un vero amico.</string>
+    <string name="exiting_match_title">Allerta disconnessione!</string>
+    <string name="exiting_match_message">Stai abbandonando il match! Sei sicuro?</string>
 
 </resources>

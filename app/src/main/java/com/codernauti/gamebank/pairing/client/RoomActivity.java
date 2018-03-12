@@ -155,7 +155,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     public void toggleReadiness() {
         isReady = !isReady;
 
-        int icon = isReady ? R.drawable.ic_close_white_24dp : R.drawable.ic_add_white_24dp;
+        int icon = isReady ? R.drawable.ic_close_white_24dp : R.drawable.ic_check_white_24dp;
 
         Intent intent = BTBundle.makeIntentFrom(
                 new BTBundle(Event.Game.MEMBER_READY).append(isReady)

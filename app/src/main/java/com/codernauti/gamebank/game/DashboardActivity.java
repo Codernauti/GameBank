@@ -99,21 +99,16 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Log.d(TAG, "onBackPressed()");
-
         new AlertDialog.Builder(this)
-                .setTitle("Disconnection alert")
-                .setMessage("You're leaving the match!")
-                .setIcon(android.R.drawable.stat_sys_warning)
+                .setTitle(getString(R.string.exiting_match_title))
+                .setMessage(getString(R.string.exiting_match_message))
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d(TAG, "User closed the match");
                         dialog.dismiss();
 
-                        // Not the idea solution imo
-                        /*DashboardActivity.this.startActivity(new Intent(DashboardActivity.this, LobbyActivity.class));
-                        DashboardActivity.this.finish();*/
                         DashboardActivity.super.onBackPressed();
 
                     }
