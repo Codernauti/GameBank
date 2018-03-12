@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.TransModel;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -95,15 +94,15 @@ public class BankFragment extends Fragment {
             mAccountBalance += mTransactionValue;
             mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-            TransModel transaction;
+            Transaction transaction;
             UUID bankUUID = UUID.randomUUID();
             UUID myUUUID = GameBank.BT_ADDRESS;
 
             if (mTransactionValue < 0) {
-                transaction = new TransModel(
+                transaction = new Transaction(
                         mNickname, "Bank", myUUUID, bankUUID, Math.abs(mTransactionValue));
             } else {
-                transaction = new TransModel(
+                transaction = new Transaction(
                         "Bank", mNickname, bankUUID, myUUUID, mTransactionValue);
             }
 

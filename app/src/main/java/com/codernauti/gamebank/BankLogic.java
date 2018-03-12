@@ -10,6 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.game.Transaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class BankLogic {
     private static final String TAG = "BankLogic";
 
     public interface ListenerBank {
-        void onNewTransaction(TransModel newTrans);
+        void onNewTransaction(Transaction newTrans);
     }
 
     private LocalBroadcastManager mLocalBroadcastManager;
@@ -34,7 +35,7 @@ public class BankLogic {
 
     // Game fields
     private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
-    private ArrayList<TransModel> mTransactions = new ArrayList<>();
+    private ArrayList<Transaction> mTransactions = new ArrayList<>();
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -47,8 +48,8 @@ public class BankLogic {
 
                 if (Event.Game.TRANSACTION.equals(action)) {
 
-                    TransModel transaction = (TransModel) btBundle.get(
-                            TransModel.class.getName());
+                    Transaction transaction = (Transaction) btBundle.get(
+                            Transaction.class.getName());
 
                     if (transaction != null) {
 

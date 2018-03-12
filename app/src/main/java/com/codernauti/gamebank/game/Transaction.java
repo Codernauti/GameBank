@@ -1,9 +1,9 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.game;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-public class TransModel implements Serializable {
+public class Transaction implements Serializable {
 
     private final String fromUser;
     private final String toUser;
@@ -13,7 +13,7 @@ public class TransModel implements Serializable {
 
     private final int cash;
 
-    public TransModel(String fromU, String toU, UUID fromUUID, UUID toUUID, int cash) {
+    public Transaction(String fromU, String toU, UUID fromUUID, UUID toUUID, int cash) {
         this.fromUser = fromU;
         this.toUser = toU;
 
