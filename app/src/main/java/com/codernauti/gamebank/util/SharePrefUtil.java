@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.util.generators.NicknameGenerator;
 import com.codernauti.gamebank.util.generators.ProfilePicGenerator;
 
@@ -22,7 +23,6 @@ import java.io.IOException;
 public class SharePrefUtil {
 
     public static final String DEFAULT_STRING_VALUE = "default";
-    private static final String PROFILE_PICTURE_DEFAULT = "defaultProfilePicture.png";
     private static final String TAG = "SharePrefUtil";
 
 
@@ -58,6 +58,8 @@ public class SharePrefUtil {
 
     public static String getProfilePicturePreference(Context context) {
 
+        final String PROFILE_PICTURE_DEFAULT = GameBank.BT_ADDRESS + ".jpeg";
+
         String fileName = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(PrefKey.PROFILE_PICTURE, DEFAULT_STRING_VALUE);
 
@@ -68,7 +70,7 @@ public class SharePrefUtil {
 
             try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_DEFAULT, Context.MODE_PRIVATE)) {
 
-                profilePicture.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                profilePicture.compress(Bitmap.CompressFormat.JPEG, 90, fos);
                 fileName = PROFILE_PICTURE_DEFAULT;
 
                 saveStringPreference(context, PrefKey.PROFILE_PICTURE, fileName);
