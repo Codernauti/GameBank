@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.pairing.client.LobbyActivity;
 import com.codernauti.gamebank.util.Event;
 import com.codernauti.gamebank.util.JoinService;
 
@@ -88,6 +89,39 @@ public class DashboardActivity extends AppCompatActivity {
                 .unregisterReceiver(mReceiver);
 
         stopService(new Intent(this, JoinService.class));
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Log.d(TAG, "onBackPressed()");
+
+        new AlertDialog.Builder(this)
+                .setTitle("Disconnection alert")
+                .setMessage("You're leaving the match!")
+                .setIcon(android.R.drawable.stat_sys_warning)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "User closed the match");
+                        dialog.dismiss();
+
+                        // Not the idea solution imo
+                        DashboardActivity.this.startActivity(new Intent(DashboardActivity.this, LobbyActivity.class));
+                        DashboardActivity.this.finish();
+
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "User aborted the match end");
+                        dialog.dismiss();
+                    }
+                })
+                .create()
+                .show();
+
     }
 
     private void setupTopTabber() {
