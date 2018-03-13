@@ -55,7 +55,7 @@
             android:name=".SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.MainActivity" />
@@ -64,15 +64,22 @@
             android:name=".util.EditTextActivity"
             android:label="@string/title_activity_edit_text" />
 
+        <activity
+        android:name=".LoadMatchActivity"
+        android:label="@string/load_match_activity_name"
+        android:parentActivityName=".MainActivity"
+        android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codernauti.gamebank.MainActivity" />
+        </activity>
+
+
         <!-- Services -->
         <service android:name=".bluetooth.BTClientService" />
         <service android:name=".bluetooth.BTHostService" />
         <service android:name=".stateMonitors.JoinService" />
         <service android:name=".stateMonitors.SyncStateService" />
-
-        <activity
-            android:name=".LoadMatch"
-            android:label="@string/load_match_activity_name" />
     </application>
 
 </manifest>

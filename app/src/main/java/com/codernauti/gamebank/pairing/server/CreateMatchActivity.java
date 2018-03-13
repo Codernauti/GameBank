@@ -26,6 +26,9 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
@@ -35,10 +38,15 @@ import com.codernauti.gamebank.stateMonitors.JoinService;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmResults;
+import io.realm.RealmQuery;
 
 public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.Listener {
 
@@ -209,13 +217,70 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
             startMatchButton.setEnabled(false);
             startingMatchProgressBar.animate();
 
+
+            Realm db = Realm.getDefaultInstance();
+            db.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    // Get the current max id in the EntityName table
+                    Number id = realm.where(Match.class).max("mId");
+                    // If id is null, set it to 1, else set increment it by 1
+                    int matchId = (id == null) ? 1 : id.intValue() + 1;
+                    final Match newMatch = realm.createObject(Match.class, matchId);
+                    // Set match nickname
+                    newMatch.setMatchName(mLobbyName.getText().toString());
+
+                    // Set game date
+                    Calendar now = Calendar.getInstance();
+                    newMatch.setMatchStarted(
+                            now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
+                    );
+
+                    // Set players in this game
+                    RealmList<Player> playerMatch = new RealmList<>();
+                    for (int i = 0; i < mMembersAdapter.getCount(); i++) {
+
+                        RoomPlayerProfile rpp = mMembersAdapter.getItem(i);
+                        Player query = realm
+                            .where(Player.class)
+                            .equalTo("mId", rpp.getId().toString())
+                            .findFirst();
+
+                        if (query == null) {
+                            Log.d(TAG, "Adding new player into the Player table");
+                            RealmList<Match> matchList = new RealmList<>();
+                            matchList.add(realm
+                                    .where(Match.class)
+                                    .equalTo("mId", matchId)
+                                    .findFirst());
+
+                            Player toAdd = realm.createObject(Player.class, rpp.getId().toString());
+                            toAdd.setUsername(rpp.getNickname());
+                            toAdd.setPhotoPath(rpp.getImageName());
+                            toAdd.setMatchPlayed(matchList);
+                            query = toAdd;
+                        } else {
+                            Log.d(TAG, "Player already exists, updating the record");
+                            query.getMatchPlayed().add(newMatch);
+                        }
+                        playerMatch.add(query);
+                    }
+                    newMatch.setPlayerList(playerMatch);
+                    // Set a new transaction list
+                    newMatch.setTransactionList(new RealmList<Transaction>());
+
+                    // Insert the match in the database
+                    realm.insert(newMatch);
+                }
+            });
+
             Intent startGame = BTBundle.makeIntentFrom(
                     new BTBundle(BTEvent.START)
             );
             mLocalBroadcastManager.sendBroadcast(startGame);
 
         } else {
-            Toast.makeText(this, "Not all player are ready", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();
         }
     }
 

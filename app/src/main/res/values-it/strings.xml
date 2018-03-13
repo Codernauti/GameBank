@@ -42,5 +42,6 @@
     <string name="loading">Caricamento…</string>
     <string name="waiting_host">Aspettando l\'host per iniziare il match</string>
     <string name="load_match_activity_name">Carica un match salvato</string>
+    <string name="players">Giocatori</string>
 
 </resources>

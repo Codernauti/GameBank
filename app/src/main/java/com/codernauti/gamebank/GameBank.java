@@ -9,6 +9,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by davide on 01/03/18.

@@ -6,6 +6,7 @@ import com.codernauti.gamebank.pairing.ImagePlayerProfile;
 
 import java.util.UUID;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -16,39 +17,58 @@ import io.realm.annotations.PrimaryKey;
 public class Player extends RealmObject {
 
     @PrimaryKey
-    private final UUID mPlayerId;
-    private final String mUsername;
-    private final String mPhotoName;
+    private String mId;
+    private String mUsername;
+    private String mPhotoName;
+    private RealmList<Match> mMatchPlayed;
 
-    public Player (
-            @NonNull UUID playerId,
+    public Player() {}
+
+    public Player(
+            @NonNull String playerId,
             @NonNull String username,
-            @NonNull String photo_path
+            @NonNull String photo_path,
+            @NonNull RealmList<Match> matchPlayed
     ) {
-        this.mPlayerId = playerId;
+        this.mId = playerId;
         this.mUsername = username;
         this.mPhotoName = photo_path;
+        this.mMatchPlayed = matchPlayed;
     }
 
     public Player (@NonNull ImagePlayerProfile playerProfile) {
 
-        this.mPlayerId = playerProfile.getId();
+        this.mId = playerProfile.getId().toString();
         this.mUsername = playerProfile.getNickname();
         this.mPhotoName = playerProfile.getImageName();
     }
 
     @NonNull
-    public UUID getPlayerId() {
-        return mPlayerId;
+    public String getPlayerId() {
+        return mId;
     }
 
-    @NonNull
     public String getUsername() {
         return mUsername;
     }
 
-    @NonNull
+    public void setUsername(@NonNull String username) {
+        this.mUsername = username;
+    }
+
     public String getPhotoPath() {
         return mPhotoName;
+    }
+
+    public void setPhotoPath(@NonNull String photoPath) {
+        this.mPhotoName = photoPath;
+    }
+
+    public RealmList<Match> getMatchPlayed() {
+        return mMatchPlayed;
+    }
+
+    public void setMatchPlayed(@NonNull RealmList<Match> matchPlayed) {
+        this.mMatchPlayed = matchPlayed;
     }
 }

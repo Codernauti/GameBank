@@ -31,21 +31,17 @@ public class LoadMatchAdapter extends ArrayAdapter<Match> {
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.member_list_row, parent, false);
+                    .inflate(R.layout.match_list_row, parent, false);
         }
 
-        Calendar tmpCalendar = selectedMatch.getMatchStarted();
-
         ((TextView)convertView.findViewById(R.id.match_date))
-                .setText(tmpCalendar.get(Calendar.DATE) + "/" +
-                        tmpCalendar.get(Calendar.MONTH) + "/" +
-                        tmpCalendar.get(Calendar.YEAR));
+                .setText(selectedMatch.getMatchStarted());
 
         ((TextView)convertView.findViewById(R.id.match_name))
-                .setText(selectedMatch.getMatchName());
+                .setText(String.valueOf(selectedMatch.getMatchName()));
 
         ((TextView)convertView.findViewById(R.id.match_player_number))
-                .setText(selectedMatch.getPlayerList().size());
+                .setText(String.valueOf(getContext().getResources().getString(R.string.players) + ": " + selectedMatch.getPlayerList().size()));
 
         return convertView;
 

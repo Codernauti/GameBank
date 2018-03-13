@@ -16,17 +16,22 @@ public class Transaction extends RealmObject {
     private int mAmount;
     private Player mFrom;
     private Player mTo;
+    private Match mMatch;
+
+    public Transaction() {}
 
     public Transaction(
             int id,
             int amount,
             @NonNull Player from,
-            @NonNull Player to
+            @NonNull Player to,
+            @NonNull Match match
     ) {
         this.mId = id;
         this.mAmount = amount;
         this.mFrom = from;
         this.mTo = to;
+        this.mMatch = match;
     }
 
     public int getId() {
@@ -37,13 +42,27 @@ public class Transaction extends RealmObject {
         return mAmount;
     }
 
-    @NonNull
+    public void setAmount(int quantity) {
+        this.mAmount = quantity;
+    }
+
     public Player getSender() {
         return mFrom;
     }
 
-    @NonNull
+    public void setSender(@NonNull Player sender) {
+        this.mFrom = sender;
+    }
+
     public Player getRecipient() {
         return mTo;
+    }
+
+    public void setRecipient(@NonNull Player to) {
+        this.mTo = to;
+    }
+
+    public Match getMatch() {
+        return mMatch;
     }
 }

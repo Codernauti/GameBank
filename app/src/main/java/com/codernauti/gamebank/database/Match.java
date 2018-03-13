@@ -16,19 +16,21 @@ import io.realm.annotations.PrimaryKey;
 public class Match extends RealmObject {
 
     @PrimaryKey
-    private final int mId;
-    private final String mMatchName;
-    private final Calendar mMatchStarted;
-    private final RealmList<Transaction> mTransactionList;
-    private final RealmList<Player> mPlayerList;
+    private int mId;
+    private String mMatchName;
+    private String mMatchStarted;
+    private RealmList<Transaction> mTransactionList;
+    private RealmList<Player> mPlayerList;
 
-    public Match(
-            int id,
-            @NonNull String matchName
-    ) {
+    public Match() {}
+
+    public Match(int id, @NonNull String matchName) {
+
+        Calendar c = Calendar.getInstance();
+
         this.mId = id;
         this.mMatchName = matchName;
-        this.mMatchStarted = Calendar.getInstance();
+        this.mMatchStarted = c.get(Calendar.DATE) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR);
         this.mTransactionList = new RealmList<>();
         this.mPlayerList = new RealmList<>();
     }
@@ -42,9 +44,17 @@ public class Match extends RealmObject {
         return mMatchName;
     }
 
+    public void setMatchName(@NonNull String matchName) {
+        this.mMatchName = matchName;
+    }
+
     @NonNull
-    public Calendar getMatchStarted() {
+    public String getMatchStarted() {
         return mMatchStarted;
+    }
+
+    public void setMatchStarted(@NonNull String matchStarted) {
+        this.mMatchStarted = matchStarted;
     }
 
     @NonNull
@@ -52,8 +62,16 @@ public class Match extends RealmObject {
         return mTransactionList;
     }
 
+    public void setTransactionList(@NonNull RealmList<Transaction> transactions) {
+        this.mTransactionList = transactions;
+    }
+
     @NonNull
     public RealmList<Player> getPlayerList() {
         return mPlayerList;
+    }
+
+    public void setPlayerList(@NonNull RealmList<Player> players) {
+        this.mPlayerList = players;
     }
 }
