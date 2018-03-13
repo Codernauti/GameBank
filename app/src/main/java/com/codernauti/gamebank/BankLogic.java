@@ -10,12 +10,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.game.Transaction;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+
+import io.realm.Realm;
 
 /**
  * Created by Eduard on 05-Mar-18.
@@ -34,8 +35,7 @@ public class BankLogic {
     private ListenerBank mListenerBank;
 
     // Game fields
-    private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
-    private ArrayList<Transaction> mTransactions = new ArrayList<>();
+    private Realm db;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -53,24 +53,19 @@ public class BankLogic {
 
                     if (transaction != null) {
 
-                        UUID fromUser = transaction.getFromUUID();
-                        UUID toUser = transaction.getToUUID();
-
-
-                        if (mPlayerAccounts.containsKey(fromUser)) {
-
-                            int fromUserBalance = mPlayerAccounts.get(fromUser);
-                            mPlayerAccounts.put(fromUser, fromUserBalance - transaction.getCash());
+                        if (!transaction.isValid()) {
+                            // Create a copy of the transaction we received
+                            Transaction dbTransaction = db.createObject(Transaction.class, transaction.getId());
+                            dbTransaction.setAmount(transaction.getAmount());
+                            dbTransaction.setRecipient(transaction.getRecipient());
+                            dbTransaction.setSender(transaction.getSender());
+                            dbTransaction.setMatch(transaction.getMatch());
+                            transaction = dbTransaction;
                         }
 
-                        if (mPlayerAccounts.containsKey(toUser)) {
-
-                            int toUserBalance = mPlayerAccounts.get(toUser);
-                            mPlayerAccounts.put(toUser, toUserBalance + transaction.getCash());
-                        }
-
-
-                        mTransactions.add(transaction);
+                        db.where(Match.class)
+                                .equalTo("mId", transaction.getMatch().getId())
+                                .findFirst().getTransactionList().add(transaction);
 
                         if (mListenerBank != null) {
                             mListenerBank.onNewTransaction(transaction);
@@ -78,7 +73,7 @@ public class BankLogic {
 
                         Log.d(TAG, /*"Transaction from " + fromUser +
                                 " to " + toUser + "\n" +*/
-                                "Quantity: " + transaction.getCash());
+                                "Quantity: " + transaction.getAmount());
 
                     } else {
                         Log.e(TAG, "Sent a transaction empty!");
@@ -89,12 +84,9 @@ public class BankLogic {
     };
 
 
-    BankLogic(@NonNull LocalBroadcastManager broadcastManager,
-                     @NonNull List<UUID> playerAccounts) {
+    BankLogic(@NonNull LocalBroadcastManager broadcastManager) {
 
-        for (UUID uuid : playerAccounts) {
-            mPlayerAccounts.put(uuid, 0);
-        }
+        this.db = Realm.getDefaultInstance();
 
         mLocalBroadcastManager = broadcastManager;
 

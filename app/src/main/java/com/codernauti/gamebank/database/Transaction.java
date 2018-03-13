@@ -65,4 +65,8 @@ public class Transaction extends RealmObject {
     public Match getMatch() {
         return mMatch;
     }
+
+    public void setMatch(@NonNull Match match) {
+        this.mMatch = match;
+    }
 }

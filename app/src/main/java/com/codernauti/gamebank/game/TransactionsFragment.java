@@ -57,7 +57,7 @@ public class TransactionsFragment extends Fragment implements BankLogic.Listener
 
     // RoomLogic callbacks
     @Override
-    public void onNewTransaction(Transaction newTrans) {
+    public void onNewTransaction(com.codernauti.gamebank.database.Transaction newTrans) {
         mAdapter.addTransaction(newTrans);
         mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }

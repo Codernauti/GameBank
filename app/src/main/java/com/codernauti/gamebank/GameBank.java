@@ -45,8 +45,7 @@ public class GameBank extends Application {
 
                 List<UUID> membersUUID = mRoomLogic.getMembersUUID();
                 mBankLogic = new BankLogic(
-                        LocalBroadcastManager.getInstance(context),
-                        membersUUID);
+                        LocalBroadcastManager.getInstance(context));
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
                 startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
