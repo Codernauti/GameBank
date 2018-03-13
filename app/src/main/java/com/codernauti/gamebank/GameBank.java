@@ -15,6 +15,8 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 import java.util.List;
 import java.util.UUID;
 
+import io.realm.Realm;
+
 /**
  * Created by davide on 01/03/18.
  */
@@ -60,6 +62,9 @@ public class GameBank extends Application {
 
         Log.d(TAG, "Files directory: " + getFilesDir());
         FILES_DIR = getFilesDir().toString();
+
+        // Initialize realm
+        Realm.init(this);
     }
 
     public void initRoomLogic() {

@@ -184,7 +184,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
-        Log.d(TAG, "Update all " + members.size() + " players.");
+        Log.d(TAG, "Update all " + members.size() + " player.");
     }
 
     @Override

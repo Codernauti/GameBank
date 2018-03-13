@@ -41,5 +41,6 @@
     <string name="match">Match</string>
     <string name="loading">Loading…</string>
     <string name="waiting_host">Waiting for the host to start the match</string>
+    <string name="load_match_activity_name">Load a saved match</string>
 
 </resources>

@@ -215,7 +215,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
             mLocalBroadcastManager.sendBroadcast(startGame);
 
         } else {
-            Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Not all player are ready", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -263,7 +263,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
-        Log.d(TAG, "Update all " + members.size() + " players.");
+        Log.d(TAG, "Update all " + members.size() + " player.");
     }
 
     @Override
