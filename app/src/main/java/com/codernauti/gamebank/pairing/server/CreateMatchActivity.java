@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -47,29 +49,23 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     @BindView(R.id.create_match_toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.members_number)
-    NumberPicker membersNumber;
-
     @BindView(R.id.open_lobby)
     Button openLobbyButton;
-
-    @BindView(R.id.start_match)
-    Button startMatchButton;
 
     @BindView(R.id.cancel_match)
     Button cancelMatchButton;
 
-    @BindView(R.id.hot_join_allowed)
-    CheckBox hotJoinCheckbox;
+    @BindView(R.id.start_match)
+    FloatingActionButton startMatchButton;
 
-    @BindView(R.id.starting_match)
-    ProgressBar startingMatchProgressBar;
+    @BindView(R.id.match_name)
+    TextInputEditText mLobbyName;
+
+    @BindView(R.id.match_init_budget_form)
+    TextInputEditText mInitBudget;
 
     @BindView(R.id.member_list_joined)
     ListView memberListJoined;
-
-    @BindView(R.id.name)
-    EditText mLobbyName;
 
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -104,11 +100,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        membersNumber.setMinValue(1);
-        membersNumber.setMaxValue(7);
-
         startMatchButton.setVisibility(View.INVISIBLE);
-        startingMatchProgressBar.setVisibility(View.INVISIBLE);
         cancelMatchButton.setEnabled(false);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -147,34 +139,45 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     @OnClick(R.id.open_lobby)
     void onOpenMatch() {
 
+        String roomName = mLobbyName.getText().toString();
 
-        mRoomLogic.setRoomName(mLobbyName.getText().toString());
+        if (roomName.isEmpty()) {
 
-        mLobbyName.setEnabled(false);
-        openLobbyButton.setEnabled(false);
-        cancelMatchButton.setEnabled(true);
-        startMatchButton.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Room name cannot be empty", Toast.LENGTH_SHORT).show();
 
-        String pictureName = SharePrefUtil.getProfilePicturePreference(this);
-        mRoomLogic.setIamHost(pictureName);
+        } else {
 
-        // Making the server discoverable for 5 minutes
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
+            mRoomLogic.setRoomName(roomName);
+            mRoomLogic.setInitBudget(Integer.valueOf(mInitBudget.getText().toString()));
 
-        Intent hostService = new Intent(this, BTHostService.class);
-        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
-        startService(hostService);
+            mLobbyName.setEnabled(false);
+            mInitBudget.setEnabled(false);
+            openLobbyButton.setEnabled(false);
+            cancelMatchButton.setEnabled(true);
+            startMatchButton.setVisibility(View.VISIBLE);
 
-        Intent joinService = new Intent(this, JoinService.class);
-        startService(joinService);
+            String pictureName = SharePrefUtil.getProfilePicturePreference(this);
+            mRoomLogic.setIamHost(pictureName);
+
+            // Making the server discoverable for 5 minutes
+            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoverableIntent);
+
+            Intent hostService = new Intent(this, BTHostService.class);
+            hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 7);
+            startService(hostService);
+
+            Intent joinService = new Intent(this, JoinService.class);
+            startService(joinService);
+        }
     }
 
     @OnClick(R.id.cancel_match)
     void onCancelMatch() {
 
         mLobbyName.setEnabled(true);
+        mInitBudget.setEnabled(true);
         openLobbyButton.setEnabled(true);
         cancelMatchButton.setEnabled(false);
         startMatchButton.setVisibility(View.INVISIBLE);
@@ -186,8 +189,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         // TODO: stop discoverability
 
         Log.d(TAG, "onCloseRoom()");
-
-        ((GameBank)getApplication()).cleanRoomLogic();
+        mRoomLogic.clear();
 
         Intent joinService = new Intent(this, JoinService.class);
         stopService(joinService);
@@ -205,9 +207,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
             cancelMatchButton.setVisibility(View.INVISIBLE);
             openLobbyButton.setVisibility(View.INVISIBLE);
-            startingMatchProgressBar.setVisibility(View.VISIBLE);
             startMatchButton.setEnabled(false);
-            startingMatchProgressBar.animate();
 
             Intent startGame = BTBundle.makeIntentFrom(
                     new BTBundle(BTEvent.START)
@@ -231,6 +231,11 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        showWarningDialog();
+    }
+
     private void showWarningDialog() {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.warning)
@@ -250,11 +255,6 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
                 })
                 .create()
                 .show();
-    }
-
-    @Override
-    public void onBackPressed() {
-        showWarningDialog();
     }
 
     // RoomLogic callbacks

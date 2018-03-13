@@ -49,9 +49,14 @@ public class BankFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
+
         final ViewGroup root = (ViewGroup) inflater
                 .inflate(R.layout.bank_fragment, container, false);
         ButterKnife.bind(this, root);
+
+        mAccountBalance = ((GameBank) getActivity().getApplication())
+                .getRoomLogic().getInitBudget();
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 

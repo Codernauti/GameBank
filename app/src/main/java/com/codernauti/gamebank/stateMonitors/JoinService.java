@@ -10,13 +10,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
+import com.codernauti.gamebank.game.Transaction;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by dpolonio on 08/03/18.
@@ -25,6 +30,8 @@ import java.util.ArrayList;
 public class JoinService extends Service {
 
     private static final String TAG = "JoinService";
+
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     private final BroadcastReceiver mFromBTHostConnection = new BroadcastReceiver() {
         @Override
@@ -38,28 +45,37 @@ public class JoinService extends Service {
 
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
-                    final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank) getApplication())
-                            .getRoomLogic()
-                            .getRoomPlayers();
+                    RoomLogic roomLogic = ((GameBank) getApplication()).getRoomLogic();
+
+
+                    final ArrayList<RoomPlayerProfile> mPlayers = roomLogic.getRoomPlayers();
                     final RoomPlayerProfile newPlayer = (RoomPlayerProfile)bundle.get(RoomPlayerProfile.class.getName());
 
+
                     Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
-                            "Send players: " + mPlayers.size());
+                            "Send players: " + mPlayers.size() + "\n" +
+                            "Room name: " + roomLogic.getRoomName() + "\n" +
+                            "Init budget: " + roomLogic.getInitBudget());
 
                     Intent stateIntent = BTBundle.makeIntentFrom(
                             new BTBundle(BTEvent.CURRENT_STATE)
                                     .append(mPlayers)
-                                    .append(((GameBank) getApplication())
-                                            .getRoomLogic()
-                                            .getRoomName())
+                                    .append(roomLogic.getRoomName())
+                                    .append(roomLogic.getInitBudget())
                     );
                     stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                    LocalBroadcastManager.getInstance(JoinService.this).sendBroadcast(stateIntent);
+                    mLocalBroadcastManager.sendBroadcast(stateIntent);
                 }
             }
 
         }
     };
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -68,8 +84,7 @@ public class JoinService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BTEvent.MEMBER_CONNECTED);
 
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mFromBTHostConnection, filter);
+        mLocalBroadcastManager.registerReceiver(mFromBTHostConnection, filter);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -77,8 +92,7 @@ public class JoinService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mFromBTHostConnection);
+        mLocalBroadcastManager.unregisterReceiver(mFromBTHostConnection);
 
         super.onDestroy();
     }

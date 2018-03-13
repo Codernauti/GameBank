@@ -41,6 +41,7 @@ public final class RoomLogic {
     private final String mNickname;
 
     private String mRoomName;
+    private int mInitBudget;
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -171,9 +172,10 @@ public final class RoomLogic {
     }
 
     public void syncState(@NonNull ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles,
-                          @NonNull String roomName) {
+                          @NonNull String roomName, int initBudget) {
         mPlayers.addAll(hostRoomPlayerProfiles);
         mRoomName = roomName;
+        mInitBudget = initBudget;
 
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
@@ -195,6 +197,14 @@ public final class RoomLogic {
 
     public String getRoomName() {
         return mRoomName;
+    }
+
+    public int getInitBudget() {
+        return mInitBudget;
+    }
+
+    public void setInitBudget(int initBudget) {
+        mInitBudget = initBudget;
     }
 
 }

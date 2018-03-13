@@ -37,7 +37,7 @@ public class BTClientService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d(TAG, "Action received: " + action);
+            Log.d(TAG, "Received action: " + action);
 
             BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {

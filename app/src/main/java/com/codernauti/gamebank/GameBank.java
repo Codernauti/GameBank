@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -67,10 +68,6 @@ public class GameBank extends Application {
 
         mRoomLogic = new RoomLogic(
                 LocalBroadcastManager.getInstance(this), nickname);
-    }
-
-    public void cleanRoomLogic() {
-        initRoomLogic();
     }
 
     public RoomLogic getRoomLogic() {

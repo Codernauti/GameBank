@@ -1,29 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_marginTop="16dp"
     tools:context="com.codernauti.gamebank.pairing.server.CreateMatchActivity"
     tools:showIn="@layout/activity_create_match">
 
 
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="match_parent"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/match_name_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="@string/room_name"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/match_init_budget"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        >
 
-    <TextView
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/match_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:hint="@string/room_name"
+
+            />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/match_init_budget"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+
+        app:layout_constraintTop_toBottomOf="@+id/match_name_layout"
+        app:layout_constraintBottom_toTopOf="@+id/cancel_match"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/match_init_budget_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="9"
+            android:hint="Initial budget"
+            android:inputType="number"
+
+            />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <!--<TextView
         android:id="@+id/description_number_of_members"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,9 +82,9 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/description_number_of_members"
-        app:layout_constraintTop_toBottomOf="@+id/name" />
+        app:layout_constraintTop_toBottomOf="@+id/name" />-->
 
-    <CheckBox
+    <!--<CheckBox
         android:id="@+id/hot_join_allowed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,49 +92,42 @@
         android:layout_marginTop="24dp"
         android:text="@string/hot_join_allowed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description_number_of_members" />
-
-    <Button
-        android:id="@+id/open_lobby"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/open_lobby_button"
-        app:layout_constraintEnd_toStartOf="@+id/cancel_match"
-        app:layout_constraintTop_toBottomOf="@+id/hot_join_allowed" />
+        app:layout_constraintTop_toTopOf="parent" />-->
 
     <Button
         android:id="@+id/cancel_match"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
         android:text="@android:string/cancel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hot_join_allowed" />
+        android:layout_marginTop="6dp"
+
+        app:layout_constraintTop_toBottomOf="@+id/match_init_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/open_lobby"
+        />
 
     <Button
+        android:id="@+id/open_lobby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/open_lobby_button"
+
+        app:layout_constraintTop_toTopOf="@+id/cancel_match"
+        app:layout_constraintBottom_toBottomOf="@+id/cancel_match"
+        app:layout_constraintStart_toEndOf="@+id/cancel_match"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/start_match"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/start_match_button"
-        app:layout_constraintEnd_toStartOf="@+id/open_lobby"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hot_join_allowed" />
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_media_play"
 
-    <ProgressBar
-        android:id="@+id/starting_match"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@+id/start_match"
-        app:layout_constraintTop_toBottomOf="@+id/hot_join_allowed" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     <ListView
         android:id="@+id/member_list_joined"

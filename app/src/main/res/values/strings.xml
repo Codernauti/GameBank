@@ -10,7 +10,7 @@
     <string name="title_activity_create_match">Create a new match</string>
     <string name="room_name">Room name</string>
     <string name="member_number_description">Select the maximum number of members</string>
-    <string name="open_lobby_button">Open the lobby</string>
+    <string name="open_lobby_button">Open lobby</string>
     <string name="start_match_button">Start!</string>
     <string name="hot_join_allowed">Allow hotjoin</string>
     <string name="status_member_not_ready">Not Ready</string>
