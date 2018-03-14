@@ -140,15 +140,20 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     void onOpenMatch() {
 
         String roomName = mLobbyName.getText().toString();
+        String initBudget = mInitBudget.getText().toString();
 
         if (roomName.isEmpty()) {
 
             Toast.makeText(this, "Room name cannot be empty", Toast.LENGTH_SHORT).show();
 
+        } else if (initBudget.isEmpty()) {
+
+            Toast.makeText(this, "Initial budget cannot be empty", Toast.LENGTH_SHORT).show();
+
         } else {
 
             mRoomLogic.setRoomName(roomName);
-            mRoomLogic.setInitBudget(Integer.valueOf(mInitBudget.getText().toString()));
+            mRoomLogic.setInitBudget(Integer.valueOf(initBudget));
 
             mLobbyName.setEnabled(false);
             mInitBudget.setEnabled(false);

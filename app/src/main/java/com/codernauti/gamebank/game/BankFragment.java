@@ -15,6 +15,7 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.Event;
+import com.codernauti.gamebank.game.sendTransaction.SelectPlayerActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.UUID;
@@ -123,6 +124,11 @@ public class BankFragment extends Fragment {
         } else {
             Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @OnClick(R.id.bank_change_debtor)
+    public void openSelectDebtorActivity() {
+        startActivity(new Intent(getContext(), SelectPlayerActivity.class));
     }
 
 

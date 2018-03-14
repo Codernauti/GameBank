@@ -7,6 +7,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/bank_change_debtor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_line_separator"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_line_separator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+
+        app:layout_constraintHorizontal_bias="1"
+        />
+
+    <!--<android.support.design.widget.FloatingActionButton
+        android:id="@+id/bank_change_to_bank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="@+id/bank_change_debtor"
+        app:layout_constraintEnd_toEndOf="@+id/bank_change_debtor"
+        app:layout_constraintTop_toBottomOf="@+id/bank_change_debtor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />-->
+
     <TextView
         android:id="@+id/bank_account_balance_label"
         android:layout_width="wrap_content"
@@ -45,8 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/colorPrimary"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginBottom="18dp"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_account_balance"
         app:layout_constraintBottom_toTopOf="@+id/bank_total_trans_label"
@@ -64,6 +88,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:textSize="18sp"
+        android:gravity="center"
         android:text="Transaction:"
 
         app:layout_constraintHorizontal_chainStyle="spread_inside"
