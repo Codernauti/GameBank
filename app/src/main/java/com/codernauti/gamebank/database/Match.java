@@ -2,6 +2,7 @@ package com.codernauti.gamebank.database;
 
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -13,7 +14,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by dpolonio on 13/03/18.
  */
 
-public class Match extends RealmObject {
+public class Match extends RealmObject implements Serializable {
 
     @PrimaryKey
     private int mId;

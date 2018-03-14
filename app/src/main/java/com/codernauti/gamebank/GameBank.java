@@ -13,6 +13,7 @@ import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.game.DashboardActivity;
+import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.List;
@@ -68,6 +69,22 @@ public class GameBank extends Application {
 
         // Initialize realm
         Realm.init(this);
+
+        final String bankuuid = "610b1d4d-81b1-4487-956b-2b5c964339cc";
+        SharePrefUtil.saveStringPreference(this, PrefKey.BANK_UUID, bankuuid);
+
+        // add bank player if it doesn't exist
+        Player bank = Realm
+                .getDefaultInstance()
+                .where(Player.class)
+                .equalTo("mId", bankuuid)
+                .findFirst();
+
+        if (bank != null) {
+            bank = Realm.getDefaultInstance().createObject(Player.class);
+            bank.setUsername("Bank");
+            bank.setMatchPlayed(new RealmList<Match>());
+        }
     }
 
     public void initRoomLogic() {

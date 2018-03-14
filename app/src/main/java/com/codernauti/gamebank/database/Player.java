@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.codernauti.gamebank.pairing.ImagePlayerProfile;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import io.realm.RealmList;
@@ -14,7 +15,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by dpolonio on 13/03/18.
  */
 
-public class Player extends RealmObject {
+public class Player extends RealmObject implements Serializable {
 
     @PrimaryKey
     private String mId;

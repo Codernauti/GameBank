@@ -11,17 +11,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.Event;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmList;
 
 public class BankFragment extends Fragment {
 
@@ -94,27 +100,45 @@ public class BankFragment extends Fragment {
             mAccountBalance += mTransactionValue;
             mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-            Transaction transaction;
-            UUID bankUUID = UUID.randomUUID();
-            UUID myUUUID = GameBank.BT_ADDRESS;
+            Realm db = Realm.getDefaultInstance();
+            db.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    com.codernauti.gamebank.database.Transaction transaction;
+                    String bankUUID = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                    String myUUUID = GameBank.BT_ADDRESS.toString();
 
-            if (mTransactionValue < 0) {
-                transaction = new Transaction(
-                        mNickname, "Bank", myUUUID, bankUUID, Math.abs(mTransactionValue));
-            } else {
-                transaction = new Transaction(
-                        "Bank", mNickname, bankUUID, myUUUID, mTransactionValue);
-            }
+                    transaction = realm.createObject(
+                            com.codernauti.gamebank.database.Transaction.class,
+                            (int)(Calendar.getInstance().getTimeInMillis()/1000L));
+                    transaction.setAmount(Math.abs(mTransactionValue));
+                    RealmList<Player> listOfPlayers = realm.where(Match.class)
+                            .equalTo("mId", 1/*id match*/)
+                            .findFirst()
+                            .getPlayerList();
 
-            Intent transIntent = BTBundle.makeIntentFrom(
-                    new BTBundle(Event.Game.TRANSACTION)
-                            .append(transaction)
-            );
-            mLocalBroadcastManager.sendBroadcast(transIntent);
+                    Player bank = listOfPlayers.where().equalTo("mId", bankUUID).findFirst();
+                    Player myself = listOfPlayers.where().equalTo("mId", myUUUID).findFirst();
 
-            mTransactionValue = 0;
-            mTransactionValueView.setText("0");
+                    if (mTransactionValue < 0) {
+                        transaction.setRecipient(myself);
+                        transaction.setSender(bank);
+                    } else {
+                        transaction.setRecipient(bank);
+                        transaction.setRecipient(myself);
+                    }
 
+                    Intent transIntent = BTBundle.makeIntentFrom(
+                            new BTBundle(Event.Game.TRANSACTION)
+                                    .append(transaction)
+                    );
+                    mLocalBroadcastManager.sendBroadcast(transIntent);
+
+                    mTransactionValue = 0;
+                    mTransactionValueView.setText("0");
+
+                }
+            });
         } else {
             Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
         }
