@@ -22,6 +22,9 @@ import java.util.UUID;
 import io.realm.Realm;
 import io.realm.RealmList;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * Created by davide on 01/03/18.
  */
@@ -30,8 +33,10 @@ public class GameBank extends Application {
 
     private static final String TAG = "GameBankApp";
 
-    public static final UUID BT_ADDRESS = UUID.randomUUID();
+    public static UUID BT_ADDRESS;
     public static String FILES_DIR;
+
+    private Gson gsonConverter;
 
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
@@ -73,7 +78,13 @@ public class GameBank extends Application {
         final String bankuuid = "610b1d4d-81b1-4487-956b-2b5c964339cc";
         SharePrefUtil.saveStringPreference(this, PrefKey.BANK_UUID, bankuuid);
 
-        // add bank player if it doesn't exist
+        BT_ADDRESS = UUID.fromString(SharePrefUtil.getStringPreference(this, PrefKey.BT_ADDRESS));
+        if (BT_ADDRESS == null) {
+            BT_ADDRESS = UUID.randomUUID();
+            SharePrefUtil.saveStringPreference(this, PrefKey.BT_ADDRESS, BT_ADDRESS.toString());
+        }
+
+        // Add bank player if it doesn't exist
         Player bank = Realm
                 .getDefaultInstance()
                 .where(Player.class)
@@ -85,6 +96,8 @@ public class GameBank extends Application {
             bank.setUsername("Bank");
             bank.setMatchPlayed(new RealmList<Match>());
         }
+
+        // TODO inizialize GSON with custom TypeAdapter for realm proxy object
     }
 
     public void initRoomLogic() {
