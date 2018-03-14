@@ -45,8 +45,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import io.realm.RealmQuery;
 
 public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.Listener {
 
@@ -227,6 +225,8 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
                     // If id is null, set it to 1, else set increment it by 1
                     int matchId = (id == null) ? 1 : id.intValue() + 1;
                     final Match newMatch = realm.createObject(Match.class, matchId);
+
+                    //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
                     // Set match nickname
                     newMatch.setMatchName(mLobbyName.getText().toString());
 
@@ -256,7 +256,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
                             Player toAdd = realm.createObject(Player.class, rpp.getId().toString());
                             toAdd.setUsername(rpp.getNickname());
-                            toAdd.setPhotoPath(rpp.getImageName());
+                            toAdd.setPhotoName(rpp.getImageName());
                             toAdd.setMatchPlayed(matchList);
                             query = toAdd;
                         } else {
@@ -271,13 +271,14 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
                     // Insert the match in the database
                     realm.insert(newMatch);
+                    Intent startGame = BTBundle.makeIntentFrom(
+                            new BTBundle(BTEvent.START)
+                                    .append(matchId)
+                    );
+                    mLocalBroadcastManager.sendBroadcast(startGame);
                 }
             });
 
-            Intent startGame = BTBundle.makeIntentFrom(
-                    new BTBundle(BTEvent.START)
-            );
-            mLocalBroadcastManager.sendBroadcast(startGame);
 
         } else {
             Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();

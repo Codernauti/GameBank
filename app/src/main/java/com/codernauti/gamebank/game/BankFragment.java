@@ -17,8 +17,10 @@ import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -100,45 +102,37 @@ public class BankFragment extends Fragment {
             mAccountBalance += mTransactionValue;
             mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
+
+            String bankUUID = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+            String myUUUID = GameBank.BT_ADDRESS.toString();
+
             Realm db = Realm.getDefaultInstance();
-            db.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    com.codernauti.gamebank.database.Transaction transaction;
-                    String bankUUID = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
-                    String myUUUID = GameBank.BT_ADDRESS.toString();
+            RealmList<Player> listOfPlayers = db.where(Match.class)
+                    .equalTo("mId", 1/*id match*/)
+                    .findFirst()
+                    .getPlayerList();
+            Player bank = listOfPlayers.where().equalTo("mId", bankUUID).findFirst();
+            Player myself = listOfPlayers.where().equalTo("mId", myUUUID).findFirst();
 
-                    transaction = realm.createObject(
-                            com.codernauti.gamebank.database.Transaction.class,
-                            (int)(Calendar.getInstance().getTimeInMillis()/1000L));
-                    transaction.setAmount(Math.abs(mTransactionValue));
-                    RealmList<Player> listOfPlayers = realm.where(Match.class)
-                            .equalTo("mId", 1/*id match*/)
-                            .findFirst()
-                            .getPlayerList();
+            String to;
+            String from;
 
-                    Player bank = listOfPlayers.where().equalTo("mId", bankUUID).findFirst();
-                    Player myself = listOfPlayers.where().equalTo("mId", myUUUID).findFirst();
+            if (mTransactionValue < 0) {
+                to = myself.getPlayerId();
+                from = bank.getPlayerId();
+            } else {
+                to = bank.getPlayerId();
+                from = myself.getPlayerId();
+            }
 
-                    if (mTransactionValue < 0) {
-                        transaction.setRecipient(myself);
-                        transaction.setSender(bank);
-                    } else {
-                        transaction.setRecipient(bank);
-                        transaction.setRecipient(myself);
-                    }
+            ((GameBank)getActivity().getApplication()).getBankLogic().addTransaction(
+                    Math.abs(mTransactionValue),
+                    to,
+                    from);
 
-                    Intent transIntent = BTBundle.makeIntentFrom(
-                            new BTBundle(Event.Game.TRANSACTION)
-                                    .append(transaction)
-                    );
-                    mLocalBroadcastManager.sendBroadcast(transIntent);
 
-                    mTransactionValue = 0;
-                    mTransactionValueView.setText("0");
-
-                }
-            });
+            mTransactionValue = 0;
+            mTransactionValueView.setText("0");
         } else {
             Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
         }

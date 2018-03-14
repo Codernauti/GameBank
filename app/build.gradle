@@ -55,4 +55,5 @@ dependencies {
 
     // Realm
     apply plugin: 'realm-android'
+    compile 'com.google.code.gson:gson:2.8.2'
 }
