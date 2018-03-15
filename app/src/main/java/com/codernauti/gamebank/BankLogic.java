@@ -13,10 +13,13 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by Eduard on 05-Mar-18.
@@ -26,6 +29,7 @@ import io.realm.Realm;
 public class BankLogic {
 
     private static final String TAG = "BankLogic";
+    private int matchId;
 
     public interface ListenerBank {
         void onNewTransaction(Transaction newTrans);
@@ -43,55 +47,82 @@ public class BankLogic {
             String action = intent.getAction();
             Log.d(TAG, "Received action " + action);
 
-            BTBundle btBundle = BTBundle.extractFrom(intent);
+            final BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
-                if (Event.Game.TRANSACTION.equals(action)) {
+                /*if (Event.Game.TRANSACTION.equals(action)) {
 
-                    Transaction transaction = (Transaction) btBundle.get(
-                            Transaction.class.getName());
+                    db.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            Transaction transaction = realm.createOrUpdateObjectFromJson(
+                                    Transaction.class,
+                                    (String)btBundle.get(String.class.getName())
+                            );
 
-                    if (transaction != null) {
+                            if (transaction != null) {
 
-                        if (!transaction.isValid()) {
-                            // Create a copy of the transaction we received
-                            Transaction dbTransaction = db.createObject(Transaction.class, transaction.getId());
-                            dbTransaction.setAmount(transaction.getAmount());
-                            dbTransaction.setRecipient(transaction.getRecipient());
-                            dbTransaction.setSender(transaction.getSender());
-                            dbTransaction.setMatch(transaction.getMatch());
-                            transaction = dbTransaction;
-                        }
+                                Log.d(TAG, "Transaction is not null");
 
-                        db.where(Match.class)
-                                .equalTo("mId", transaction.getMatch().getId())
-                                .findFirst().getTransactionList().add(transaction);
+                                if (!transaction.isValid()) {
 
-                        if (mListenerBank != null) {
-                            mListenerBank.onNewTransaction(transaction);
-                        }
+                                    Log.d(TAG, "Transaction is not valid!");
 
-                        Log.d(TAG, /*"Transaction from " + fromUser +
+                                    // Create a copy of the transaction we received
+                                    Transaction dbTransaction = realm.createObject(Transaction.class, transaction.getId());
+                                    dbTransaction.setAmount(transaction.getAmount());
+                                    dbTransaction.setRecipient(transaction.getRecipient());
+                                    dbTransaction.setSender(transaction.getSender());
+                                    dbTransaction.setMatch(transaction.getMatch());
+                                    transaction = dbTransaction;
+                                }
+
+                                db.where(Match.class)
+                                        .equalTo("mId", transaction.getMatch().getId())
+                                        .findFirst().getTransactionList().add(transaction);
+
+                                if (mListenerBank != null) {
+                                    mListenerBank.onNewTransaction(transaction);
+                                }
+
+                                Log.d(TAG, /*"Transaction from " + fromUser +
                                 " to " + toUser + "\n" +*/
-                                "Quantity: " + transaction.getAmount());
+                                        /*"Quantity: " + transaction.getAmount());
 
-                    } else {
-                        Log.e(TAG, "Sent a transaction empty!");
-                    }
-                }
+                            } else {
+                                Log.e(TAG, "Sent a transaction empty!");
+                            }
+                        }
+                    });
+                }*/
             }
         }
     };
 
 
-    BankLogic(@NonNull LocalBroadcastManager broadcastManager) {
+    BankLogic(@NonNull LocalBroadcastManager broadcastManager, final int matchId, final String bankuuid) {
 
         this.db = Realm.getDefaultInstance();
+        this.matchId = matchId;
+        this.mLocalBroadcastManager = broadcastManager;
 
-        mLocalBroadcastManager = broadcastManager;
+        // Add bank player to this game
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.where(Match.class)
+                        .equalTo("mId", matchId)
+                        .findFirst()
+                        .getPlayerList()
+                        .add(realm.where(Player.class)
+                                    .equalTo("mId", bankuuid)
+                                    .findFirst());
+            }
+        });
+
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Event.Game.TRANSACTION);
+        //filter.addAction(Event.Game.TRANSACTION);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
@@ -103,6 +134,55 @@ public class BankLogic {
         }
 
         mListenerBank = listenerBank;
+    }
+
+    public void addTransaction(final int amount, @NonNull final String to, @NonNull final String from) {
+
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                Gson converter = GameBank.gsonConverter;
+                RealmList<Player> listOfPlayers = db.where(Match.class)
+                        .equalTo("mId", matchId)
+                        .findFirst()
+                        .getPlayerList();
+
+
+                Transaction transaction = realm.createObject(
+                        Transaction.class,
+                        (int)(Calendar.getInstance().getTimeInMillis()/1000L)
+                );
+                transaction.setAmount(amount);
+                transaction.setRecipient(
+                        listOfPlayers
+                                .where()
+                                .equalTo("mId", to)
+                                .findFirst()
+                );
+                transaction.setSender(
+                        listOfPlayers
+                                .where()
+                                .equalTo("mId", from)
+                                .findFirst()
+                );
+
+                String jsonToSend = converter.toJson(transaction);
+                Log.d(TAG, "Sending this json object: \n" + jsonToSend);
+
+                Intent transIntent = BTBundle.makeIntentFrom(
+                        new BTBundle(Event.Game.TRANSACTION)
+                                .append(jsonToSend)
+                );
+
+                if (mListenerBank != null) {
+                    mListenerBank.onNewTransaction(transaction);
+                }
+
+                mLocalBroadcastManager.sendBroadcast(transIntent);
+            }
+        });
+
     }
 
 }

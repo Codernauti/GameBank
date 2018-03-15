@@ -57,11 +57,11 @@ public class Player extends RealmObject implements Serializable {
         this.mUsername = username;
     }
 
-    public String getPhotoPath() {
+    public String getPhotoName() {
         return mPhotoName;
     }
 
-    public void setPhotoPath(@NonNull String photoPath) {
+    public void setPhotoName(@NonNull String photoPath) {
         this.mPhotoName = photoPath;
     }
 

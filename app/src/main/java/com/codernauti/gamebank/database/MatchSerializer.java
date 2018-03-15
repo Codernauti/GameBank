@@ -1,12 +1,10 @@
 package com.codernauti.gamebank.database;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.JsonArray;
-
-import io.realm.RealmList;
 
 import java.lang.reflect.Type;
 
@@ -24,7 +22,13 @@ public class MatchSerializer implements JsonSerializer<Match> {
             transactions.add(context.serialize(t, Transaction.class));
         }
 
-        // TODO Addd player list
+        JsonArray players = new JsonArray();
+        for (Player p : src.getPlayerList()) {
+            players.add(context.serialize(p, Player.class));
+        }
+
+        jsonObject.add("transactions", transactions);
+        jsonObject.add("player", players);
         
         return jsonObject;
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by Eduard on 07-Mar-18.
@@ -85,6 +87,29 @@ public class SharePrefUtil {
 
         Log.d(TAG, "Returning pp name: " + fileName);
         return fileName;
+    }
+
+    @NonNull
+    public static UUID getBTAddressPreference(Context context) {
+
+        String uuid = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PrefKey.BT_ADDRESS, DEFAULT_STRING_VALUE);
+
+        UUID res;
+
+        if (uuid.equals(DEFAULT_STRING_VALUE)) {
+
+            res = UUID.randomUUID();
+            saveStringPreference(context, PrefKey.BT_ADDRESS, res.toString());
+
+            Log.d(TAG, "Random uuid generated for this device");
+        } else {
+
+            res = UUID.fromString(uuid);
+        }
+
+
+        return res;
     }
 
 }

@@ -8,10 +8,14 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.MatchSerializer;
 import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.PlayerSerializer;
 import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.database.TransactionSerializer;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -21,7 +25,10 @@ import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmObject;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -36,7 +43,7 @@ public class GameBank extends Application {
     public static UUID BT_ADDRESS;
     public static String FILES_DIR;
 
-    private Gson gsonConverter;
+    public static Gson gsonConverter;
 
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
@@ -49,9 +56,14 @@ public class GameBank extends Application {
 
             if (BTEvent.START.equals(action)) {
 
-                List<UUID> membersUUID = mRoomLogic.getMembersUUID();
+                BTBundle bundle = BTBundle.extractFrom(intent);
+                int matchId = (int)bundle.get(Integer.class.getName());
                 mBankLogic = new BankLogic(
-                        LocalBroadcastManager.getInstance(context));
+                        LocalBroadcastManager.getInstance(context),
+                        matchId,
+                        SharePrefUtil.getStringPreference(GameBank.this, PrefKey.BANK_UUID)
+                );
+
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
                 startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -78,26 +90,49 @@ public class GameBank extends Application {
         final String bankuuid = "610b1d4d-81b1-4487-956b-2b5c964339cc";
         SharePrefUtil.saveStringPreference(this, PrefKey.BANK_UUID, bankuuid);
 
-        BT_ADDRESS = UUID.fromString(SharePrefUtil.getStringPreference(this, PrefKey.BT_ADDRESS));
-        if (BT_ADDRESS == null) {
-            BT_ADDRESS = UUID.randomUUID();
-            SharePrefUtil.saveStringPreference(this, PrefKey.BT_ADDRESS, BT_ADDRESS.toString());
-        }
+        BT_ADDRESS = SharePrefUtil.getBTAddressPreference(this);
 
         // Add bank player if it doesn't exist
-        Player bank = Realm
-                .getDefaultInstance()
-                .where(Player.class)
-                .equalTo("mId", bankuuid)
-                .findFirst();
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Player bank = Realm
+                        .getDefaultInstance()
+                        .where(Player.class)
+                        .equalTo("mId", bankuuid)
+                        .findFirst();
 
-        if (bank != null) {
-            bank = Realm.getDefaultInstance().createObject(Player.class);
-            bank.setUsername("Bank");
-            bank.setMatchPlayed(new RealmList<Match>());
-        }
+                if (bank == null) {
+
+                    bank = Realm.getDefaultInstance().createObject(Player.class, bankuuid);
+                    bank.setUsername("Bank");
+                    bank.setMatchPlayed(new RealmList<Match>());
+                    bank.setPhotoName("aaa");
+                }
+            }
+        });
 
         // TODO inizialize GSON with custom TypeAdapter for realm proxy object
+        try {
+            gsonConverter = new GsonBuilder()
+                    .setExclusionStrategies(new ExclusionStrategy() {
+                        @Override
+                        public boolean shouldSkipField(FieldAttributes f) {
+                            return f.getDeclaringClass().equals(RealmObject.class);
+                        }
+
+                        @Override
+                        public boolean shouldSkipClass(Class<?> clazz) {
+                            return false;
+                        }
+                    })
+                    .registerTypeAdapter(Class.forName("io.realm.MatchRealmProxy"), new MatchSerializer())
+                    .registerTypeAdapter(Class.forName("io.realm.PlayerRealmProxy"), new PlayerSerializer())
+                    .registerTypeAdapter(Class.forName("io.realm.TransactionRealmProxy"), new TransactionSerializer())
+                    .create();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initRoomLogic() {
