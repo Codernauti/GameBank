@@ -1,5 +1,7 @@
 package com.codernauti.gamebank.database;
 
+import android.util.Log;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,6 +28,8 @@ public class PlayerSerializer implements JsonSerializer<Player> {
         }
 
         jsonObject.add("matches", matches);
+
+        Log.d("PlayerSerializer", "Single player serialized result: \n" + jsonObject.toString());
 
         return jsonObject;
     }

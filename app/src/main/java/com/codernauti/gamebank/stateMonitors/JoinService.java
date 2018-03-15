@@ -14,9 +14,20 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.util.PrefKey;
+import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.UUID;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 /**
  * Created by dpolonio on 08/03/18.
@@ -38,7 +49,9 @@ public class JoinService extends Service {
 
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
-                    final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank) getApplication())
+                    addPlayerIntoDb(bundle);
+
+                    /*final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank) getApplication())
                             .getRoomLogic()
                             .getRoomPlayers();
                     final RoomPlayerProfile newPlayer = (RoomPlayerProfile)bundle.get(RoomPlayerProfile.class.getName());
@@ -54,12 +67,58 @@ public class JoinService extends Service {
                                             .getRoomName())
                     );
                     stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                    LocalBroadcastManager.getInstance(JoinService.this).sendBroadcast(stateIntent);
+                    LocalBroadcastManager.getInstance(JoinService.this).sendBroadcast(stateIntent);*/
                 }
             }
 
         }
     };
+
+    private void addPlayerIntoDb(final BTBundle bundle) {
+        Realm db = Realm.getDefaultInstance();
+
+        db.beginTransaction();
+        String playerJson = (String) bundle.get(String.class.getName());
+        Log.d(TAG, "Player json: \n" + playerJson);
+        // FIXME: test carefully
+        final Player newPlayer = db.createOrUpdateObjectFromJson(Player.class, playerJson);
+
+        Match match = db.where(Match.class)
+                .equalTo("mId", Integer.parseInt(SharePrefUtil.getStringPreference(
+                        getApplicationContext(),
+                        PrefKey.CURRENT_MATCH_ID)))
+                .findFirst();
+
+        match.getPlayerList().add(newPlayer);
+
+
+        // Send state to client
+        RealmResults<Player> players = db.where(Player.class).findAll();
+
+        for (Player p : match.getPlayerList()) {
+            Log.d(TAG, "Player name: " + p.getUsername());
+        }
+        db.commitTransaction();
+
+
+        Intent stateIntent = BTBundle.makeIntentFrom(
+                new BTBundle(BTEvent.CURRENT_STATE)
+                        .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
+                        .appendJson("PLAYERS", GameBank.gsonConverter.toJson(match.getPlayerList()))  // TODO test
+        );
+        stateIntent.putExtra(BTHostService.RECEIVER_UUID,
+                UUID.fromString(newPlayer.getPlayerId()));
+
+        LocalBroadcastManager.getInstance(JoinService.this)
+                .sendBroadcast(stateIntent);
+        players.addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
+            @Override
+            public void onChange(RealmResults<Player> players) {
+
+            }
+        });
+
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

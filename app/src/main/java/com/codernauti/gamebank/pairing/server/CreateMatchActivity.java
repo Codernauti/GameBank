@@ -35,6 +35,7 @@ import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.stateMonitors.JoinService;
+import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.ArrayList;
@@ -175,6 +176,9 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         Intent joinService = new Intent(this, JoinService.class);
         startService(joinService);
+
+        createMatchInstance();
+
     }
 
     @OnClick(R.id.cancel_match)
@@ -202,6 +206,70 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         stopService(intent);
     }
 
+    private void createMatchInstance() {
+        Realm db = Realm.getDefaultInstance();
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                // Get the current max id in the EntityName table
+                Number id = realm.where(Match.class).max("mId");
+                // If id is null, set it to 1, else set increment it by 1
+                int matchId = (id == null) ? 1 : id.intValue() + 1;
+                final Match newMatch = realm.createObject(Match.class, matchId);
+
+                SharePrefUtil.saveStringPreference(CreateMatchActivity.this,
+                        PrefKey.CURRENT_MATCH_ID,
+                        String.valueOf(matchId));
+
+                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
+                // Set match nickname
+                newMatch.setMatchName(mLobbyName.getText().toString());
+
+                // Set game date
+                Calendar now = Calendar.getInstance();
+                newMatch.setMatchStarted(
+                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
+                );
+
+                // Set players in this game
+                /*RealmList<Player> playerMatch = new RealmList<>();
+                for (int i = 0; i < mMembersAdapter.getCount(); i++) {
+
+                    RoomPlayerProfile rpp = mMembersAdapter.getItem(i);
+                    Player query = realm
+                            .where(Player.class)
+                            .equalTo("mId", rpp.getId().toString())
+                            .findFirst();
+
+                    if (query == null) {
+                        Log.d(TAG, "Adding new player into the Player table");
+                        RealmList<Match> matchList = new RealmList<>();
+                        matchList.add(realm
+                                .where(Match.class)
+                                .equalTo("mId", matchId)
+                                .findFirst());
+
+                        Player toAdd = realm.createObject(Player.class, rpp.getId().toString());
+                        toAdd.setUsername(rpp.getNickname());
+                        toAdd.setPhotoName(rpp.getImageName());
+                        toAdd.setMatchPlayed(matchList);
+                        query = toAdd;
+                    } else {
+                        Log.d(TAG, "Player already exists, updating the record");
+                        query.getMatchPlayed().add(newMatch);
+                    }
+                    playerMatch.add(query);
+                }*/
+                newMatch.setPlayerList(new RealmList<Player>());
+                // Set a new transaction list
+                newMatch.setTransactionList(new RealmList<Transaction>());
+
+                // Insert the match in the database
+                realm.insert(newMatch);
+            }
+        });
+    }
+
     @OnClick(R.id.start_match)
     void onMatchStart() {
 
@@ -215,70 +283,11 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
             startMatchButton.setEnabled(false);
             startingMatchProgressBar.animate();
 
+            Intent startGame = BTBundle.makeIntentFrom(
+                   new BTBundle(BTEvent.START)
+            );
 
-            Realm db = Realm.getDefaultInstance();
-            db.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    // Get the current max id in the EntityName table
-                    Number id = realm.where(Match.class).max("mId");
-                    // If id is null, set it to 1, else set increment it by 1
-                    int matchId = (id == null) ? 1 : id.intValue() + 1;
-                    final Match newMatch = realm.createObject(Match.class, matchId);
-
-                    //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
-                    // Set match nickname
-                    newMatch.setMatchName(mLobbyName.getText().toString());
-
-                    // Set game date
-                    Calendar now = Calendar.getInstance();
-                    newMatch.setMatchStarted(
-                            now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
-                    );
-
-                    // Set players in this game
-                    RealmList<Player> playerMatch = new RealmList<>();
-                    for (int i = 0; i < mMembersAdapter.getCount(); i++) {
-
-                        RoomPlayerProfile rpp = mMembersAdapter.getItem(i);
-                        Player query = realm
-                            .where(Player.class)
-                            .equalTo("mId", rpp.getId().toString())
-                            .findFirst();
-
-                        if (query == null) {
-                            Log.d(TAG, "Adding new player into the Player table");
-                            RealmList<Match> matchList = new RealmList<>();
-                            matchList.add(realm
-                                    .where(Match.class)
-                                    .equalTo("mId", matchId)
-                                    .findFirst());
-
-                            Player toAdd = realm.createObject(Player.class, rpp.getId().toString());
-                            toAdd.setUsername(rpp.getNickname());
-                            toAdd.setPhotoName(rpp.getImageName());
-                            toAdd.setMatchPlayed(matchList);
-                            query = toAdd;
-                        } else {
-                            Log.d(TAG, "Player already exists, updating the record");
-                            query.getMatchPlayed().add(newMatch);
-                        }
-                        playerMatch.add(query);
-                    }
-                    newMatch.setPlayerList(playerMatch);
-                    // Set a new transaction list
-                    newMatch.setTransactionList(new RealmList<Transaction>());
-
-                    // Insert the match in the database
-                    realm.insert(newMatch);
-                    Intent startGame = BTBundle.makeIntentFrom(
-                            new BTBundle(BTEvent.START)
-                                    .append(matchId)
-                    );
-                    mLocalBroadcastManager.sendBroadcast(startGame);
-                }
-            });
-
+            mLocalBroadcastManager.sendBroadcast(startGame);
 
         } else {
             Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();

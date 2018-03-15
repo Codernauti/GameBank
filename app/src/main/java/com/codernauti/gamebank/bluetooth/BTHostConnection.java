@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
 import java.io.DataInputStream;
@@ -70,17 +72,22 @@ public class BTHostConnection extends BTConnection {
                                 clientSocket.getInputStream());
                         BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
 
-                        Log.d(TAG, "Read rendezvous");
+                        Log.d(TAG, "Read rendezvous, action: " +
+                                btBundle.getBluetoothAction());
 
                         if (BTEvent.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
+
+                            Player newPlayerRealm = GameBank.gsonConverter.fromJson(
+                                    (String) btBundle.get(String.class.getName()), Player.class);
+
+                            Log.d(TAG, "Player from Realm connected: " +
+                                    newPlayerRealm.getPlayerId());
+
+
                             RoomPlayerProfile newPlayer = (RoomPlayerProfile)
                                     btBundle.get(RoomPlayerProfile.class.getName());
 
                             Log.d(TAG, "Member connected: " + newPlayer.getId());
-
-                            // TEST
-                            //readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
-                            // TEST STOP
 
 
                             addConnection(newPlayer.getId(), clientSocket);

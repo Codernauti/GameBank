@@ -84,6 +84,12 @@ public class BTBundle implements Serializable {
     }
 
     @NonNull
+    public BTBundle appendJson(String key, String json) {
+        mData.put(key, json);
+        return this;
+    }
+
+    @NonNull
     public static Intent makeIntentFrom(BTBundle bundle) {
         Intent intent = new Intent(bundle.mAction);
         intent.putExtra(BTBUNDLE_KEY, bundle);

@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -95,13 +96,16 @@ public class BTClientService extends Service {
         String nickname = SharePrefUtil.getNicknamePreference(this);
         String filename = SharePrefUtil.getProfilePicturePreference(this);
 
-        RoomPlayerProfile me = new RoomPlayerProfile(nickname, GameBank.BT_ADDRESS, filename, false);
+        RoomPlayerProfile myself = new RoomPlayerProfile(nickname, GameBank.BT_ADDRESS, filename, false);
+        // TODO: remove from this level
+        Player me = new Player(myself);
 
 
         try {
             mConnection.connectAndListen(
                     new BTBundle(BTEvent.MEMBER_CONNECTED)
-                            .append(me)
+                            .append(myself)
+                            .append(GameBank.gsonConverter.toJson(me))
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");

@@ -32,6 +32,9 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by davide on 01/03/18.
  */
@@ -48,6 +51,8 @@ public class GameBank extends Application {
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
 
+    private boolean isHost = false;
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -57,12 +62,35 @@ public class GameBank extends Application {
             if (BTEvent.START.equals(action)) {
 
                 BTBundle bundle = BTBundle.extractFrom(intent);
-                int matchId = (int)bundle.get(Integer.class.getName());
-                mBankLogic = new BankLogic(
+
+                /*int matchId = -1;
+                if (!isHost) {
+
+                    Realm db = Realm.getDefaultInstance();
+
+                    db.beginTransaction();
+                    Match match = db.createObjectFromJson(
+                            Match.class,
+                            (String)bundle.get(String.class.getName()));
+
+                    matchId = match.getId();
+                    db.commitTransaction();
+                } else {
+                    // I'm the host, I only need the id
+                    try {
+                        JSONObject jsonMatch = new JSONObject((String)bundle.get(String.class.getName()));
+
+                        matchId = jsonMatch.getInt("mId");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }*/
+
+                /*mBankLogic = new BankLogic(
                         LocalBroadcastManager.getInstance(context),
                         matchId,
                         SharePrefUtil.getStringPreference(GameBank.this, PrefKey.BANK_UUID)
-                );
+                );*/
 
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
@@ -151,4 +179,12 @@ public class GameBank extends Application {
     }
 
     public BankLogic getBankLogic() { return mBankLogic; }
+
+    public void setHost(boolean value) {
+        isHost = value;
+    }
+
+    public boolean isHost() {
+        return isHost;
+    }
 }

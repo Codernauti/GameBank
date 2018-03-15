@@ -13,9 +13,16 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by Eduard on 08-Mar-18.
@@ -37,18 +44,44 @@ public class SyncStateService extends Service {
                 if (BTEvent.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
 
-                    final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
+                    updateDbWithHostState(btBundle);
+
+                    /*final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
                             btBundle.get(ArrayList.class.getName());
                     final String roomName = (String) btBundle.get(String.class.getName());
 
                     ((GameBank) getApplication()).getRoomLogic()
-                            .syncState(hostRoomPlayerProfiles, roomName);
+                            .syncState(hostRoomPlayerProfiles, roomName);*/
 
                 }
             }
 
         }
     };
+
+    private void updateDbWithHostState(final BTBundle btBundle) {
+        Realm db = Realm.getDefaultInstance();
+
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                String matchJson = (String) btBundle.get("MATCH");
+
+                String playersJson = (String) btBundle.get("PLAYERS");
+                Type listType = new TypeToken<RealmList<Player>>(){}.getType();
+                RealmList<Player> players = GameBank.gsonConverter.fromJson(playersJson, listType);
+
+                Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
+                Log.d(TAG, "Players received: " + players.size());
+                Log.d(TAG, players.get(0).getUsername());
+
+                // TODO: update realm db
+                Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
+                match.getPlayerList().addAll(players);
+            }
+        });
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
