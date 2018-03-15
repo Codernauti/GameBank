@@ -25,6 +25,10 @@ public class Player extends RealmObject implements Serializable {
 
     public Player() {}
 
+    public Player(String uuid) {
+        mId = uuid;
+    }
+
     public Player(
             @NonNull String playerId,
             @NonNull String username,

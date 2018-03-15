@@ -22,14 +22,8 @@ public class PlayerSerializer implements JsonSerializer<Player> {
         jsonObject.addProperty("mUsername", src.getUsername());
         jsonObject.addProperty("mPhotoName", src.getPhotoName());
 
-        JsonArray matches = new JsonArray();
-        for (Match m : src.getMatchPlayed()) {
-            matches.add(context.serialize(m, Match.class));
-        }
-
-        jsonObject.add("matches", matches);
-
-        Log.d("PlayerSerializer", "Single player serialized result: \n" + jsonObject.toString());
+        jsonObject.add("mMatchPlayed",
+                context.serialize(src.getMatchPlayed().toArray(), Match[].class));
 
         return jsonObject;
     }

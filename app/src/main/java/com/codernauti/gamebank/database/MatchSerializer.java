@@ -19,21 +19,12 @@ public class MatchSerializer implements JsonSerializer<Match> {
         jsonObject.addProperty("mMatchName", src.getMatchName());
         jsonObject.addProperty("mMatchStarted", src.getMatchStarted());
 
-        JsonArray transactions = new JsonArray();
-        for (Transaction t : src.getTransactionList()) {
-            transactions.add(context.serialize(t, Transaction.class));
-        }
+        jsonObject.add("mTransaction",
+                context.serialize(src.getTransactionList().toArray(), Transaction[].class));
 
-        JsonArray players = new JsonArray();
-        for (Player p : src.getPlayerList()) {
-            JsonElement tmp = context.serialize(p, Player.class);
-            Log.d("MatchSerializer", "Serialized: \n" + tmp.toString());
-            players.add(tmp);
-        }
+        jsonObject.add("mPlayerList",
+                context.serialize(src.getPlayerList().toArray(), Player[].class));
 
-        jsonObject.add("mTransactionList", transactions);
-        jsonObject.add("mPlayerList", players);
-        
         return jsonObject;
     }
 }
