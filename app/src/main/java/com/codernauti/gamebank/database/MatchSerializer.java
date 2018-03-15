@@ -1,5 +1,7 @@
 package com.codernauti.gamebank.database;
 
+import android.util.Log;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,11 +26,13 @@ public class MatchSerializer implements JsonSerializer<Match> {
 
         JsonArray players = new JsonArray();
         for (Player p : src.getPlayerList()) {
-            players.add(context.serialize(p, Player.class));
+            JsonElement tmp = context.serialize(p, Player.class);
+            Log.d("MatchSerializer", "Serialized: \n" + tmp.toString());
+            players.add(tmp);
         }
 
-        jsonObject.add("transactions", transactions);
-        jsonObject.add("player", players);
+        jsonObject.add("mTransactionList", transactions);
+        jsonObject.add("mPlayerList", players);
         
         return jsonObject;
     }
