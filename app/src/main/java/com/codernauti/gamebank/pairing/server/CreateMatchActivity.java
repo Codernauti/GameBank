@@ -29,18 +29,16 @@ import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.stateMonitors.JoinService;
-import com.codernauti.gamebank.util.PrefKey;
+import com.codernauti.gamebank.stateMonitors.HostJoinService;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -127,7 +125,6 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-        ((GameBank)getApplication()).initRoomLogic();
         mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
         mRoomLogic.setListener(this);
     }
@@ -164,19 +161,16 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         cancelMatchButton.setEnabled(true);
         startMatchButton.setVisibility(View.VISIBLE);
 
-        String pictureName = SharePrefUtil.getProfilePicturePreference(this);
-        mRoomLogic.setIamHost(pictureName);
-
         // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
 
         Intent hostService = new Intent(this, BTHostService.class);
-        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, membersNumber.getValue());
+        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 7);
         startService(hostService);
 
-        Intent joinService = new Intent(this, JoinService.class);
+        Intent joinService = new Intent(this, HostJoinService.class);
         startService(joinService);
 
         createMatchInstance();
@@ -224,13 +218,13 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
                 Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
                 bank.setUsername("Bank");
-                bank.setMatchPlayed(new RealmList<Match>());
                 bank.setPhotoName("aaa");
+                bank.setReady(true);
 
                 Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
                 myself.setUsername(SharePrefUtil.getNicknamePreference(CreateMatchActivity.this));
-                myself.setMatchPlayed(new RealmList<Match>());
                 myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(CreateMatchActivity.this));
+                myself.setReady(true);
 
                 newMatch.getPlayerList().add(bank);
                 newMatch.getPlayerList().add(myself);
@@ -256,7 +250,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         ((GameBank)getApplication()).cleanRoomLogic();
 
-        Intent joinService = new Intent(this, JoinService.class);
+        Intent joinService = new Intent(this, HostJoinService.class);
         stopService(joinService);
 
         Intent intent = new Intent(this, BTHostService.class);
@@ -330,7 +324,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     // RoomLogic callbacks
 
     @Override
-    public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
+    public void onNewPlayerJoined(List<Player> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " player.");
@@ -342,14 +336,14 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     }
 
     @Override
-    public void onPlayerChange(RoomPlayerProfile player) {
-        mMembersAdapter.updatePlayerState(player);
-        Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
+    public void onPlayerChange(Player player) {
+        mMembersAdapter.notifyDataSetChanged();//updatePlayerState(player);
+        Log.d(TAG, "Update ui of: " + player.getPlayerId() + "\nisReady? " + player.getPlayerId());
     }
 
     @Override
-    public void onPlayerRemove(RoomPlayerProfile player) {
-        mMembersAdapter.removePlayer(player.getId());
-        Log.d(TAG, "Remove player: " + player.getId());
+    public void onPlayerRemove(Player player) {
+        mMembersAdapter.removePlayer(player.getPlayerId());
+        Log.d(TAG, "Remove player: " + player.getPlayerId());
     }
 }

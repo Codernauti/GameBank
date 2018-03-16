@@ -57,37 +57,11 @@ public class GameBank extends Application {
 
             if (BTEvent.START.equals(action)) {
 
-                BTBundle bundle = BTBundle.extractFrom(intent);
-
-                /*int matchId = -1;
-                if (!isHost) {
-
-                    Realm db = Realm.getDefaultInstance();
-
-                    db.beginTransaction();
-                    Match match = db.createObjectFromJson(
-                            Match.class,
-                            (String)bundle.get(String.class.getName()));
-
-                    matchId = match.getId();
-                    db.commitTransaction();
-                } else {
-                    // I'm the host, I only need the id
-                    try {
-                        JSONObject jsonMatch = new JSONObject((String)bundle.get(String.class.getName()));
-
-                        matchId = jsonMatch.getInt("mId");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }*/
-
                 mBankLogic = new BankLogic(
                         LocalBroadcastManager.getInstance(context),
                         SharePrefUtil.getCurrentMatchId(context),
                         SharePrefUtil.getStringPreference(GameBank.this, PrefKey.BANK_UUID)
                 );
-
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
                 startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -146,7 +120,7 @@ public class GameBank extends Application {
     }
 
     public void cleanRoomLogic() {
-        initRoomLogic();
+        //initRoomLogic();
     }
 
     public RoomLogic getRoomLogic() {

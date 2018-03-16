@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.database.Player;
 
 import java.io.File;
 import java.util.UUID;
@@ -22,7 +23,7 @@ import java.util.UUID;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayerProfile> {
+public class RoomPlayerAdapter extends ArrayAdapter<Player> {
 
     private static final String TAG = "RoomPlayerAdapter";
 
@@ -34,7 +35,7 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayerProfile> {
     @Override
     public View getView(int i, View view, @NonNull ViewGroup viewGroup) {
         RoomPlayerVH roomPlayerVH;
-        RoomPlayerProfile client = getItem(i);
+        Player client = getItem(i);
 
         if (view == null) {
             view = LayoutInflater.from(getContext())
@@ -50,10 +51,10 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayerProfile> {
             roomPlayerVH = (RoomPlayerVH) view.getTag();
         }
 
-        roomPlayerVH.mProfileName.setText(client.getNickname());
+        roomPlayerVH.mProfileName.setText(client.getUsername());
 
-        if (client.getImageName() != null) {
-            File file = new File(getContext().getFilesDir(), client.getImageName());
+        if (client.getPhotoName() != null) {
+            File file = new File(getContext().getFilesDir(), client.getPhotoName());
 
             if (file.exists()) {
                 Glide.with(viewGroup.getContext())
@@ -80,18 +81,19 @@ public class RoomPlayerAdapter extends ArrayAdapter<RoomPlayerProfile> {
         return view;
     }
 
-    public void updatePlayerState(RoomPlayerProfile player) {
-        for (int i = 0; i < getCount(); i++) {
-            if (player.getId().equals(getItem(i).getId())) {
-                getItem(i).setReady(player.isReady());
+    public void updatePlayerState(Player player) {
+        /*for (int i = 0; i < getCount(); i++) {
+            Player innerPlayer = getItem(i);
+            if (player.getPlayerId().equals(innerPlayer.getPlayerId())) {
+                innerPlayer.setReady(player.isReady());
                 notifyDataSetChanged();
             }
-        }
+        }*/
     }
 
-    public void removePlayer(UUID playerToRemoveUuid) {
+    public void removePlayer(String playerToRemoveUuid) {
         for (int i = 0; i < getCount(); i++) {
-            if (playerToRemoveUuid.equals(getItem(i).getId())) {
+            if (playerToRemoveUuid.equals(getItem(i).getPlayerId())) {
                 remove(getItem(i));
             }
         }

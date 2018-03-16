@@ -4,10 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.codernauti.gamebank.pairing.ImagePlayerProfile;
 
-import java.io.Serializable;
-import java.util.UUID;
-
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -15,13 +11,13 @@ import io.realm.annotations.PrimaryKey;
  * Created by dpolonio on 13/03/18.
  */
 
-public class Player extends RealmObject implements Serializable {
+public class Player extends RealmObject {
 
     @PrimaryKey
     private String mId;
     private String mUsername;
     private String mPhotoName;
-    private RealmList<Match> mMatchPlayed;  // TODO: remove this item
+    private boolean mReady;
 
     public Player() {}
 
@@ -32,13 +28,12 @@ public class Player extends RealmObject implements Serializable {
     public Player(
             @NonNull String playerId,
             @NonNull String username,
-            @NonNull String photo_path,
-            @NonNull RealmList<Match> matchPlayed
+            @NonNull String photo_path
     ) {
         this.mId = playerId;
         this.mUsername = username;
         this.mPhotoName = photo_path;
-        this.mMatchPlayed = matchPlayed;
+        this.mReady = false;
     }
 
     public Player (@NonNull ImagePlayerProfile playerProfile) {
@@ -69,11 +64,11 @@ public class Player extends RealmObject implements Serializable {
         this.mPhotoName = photoPath;
     }
 
-    public RealmList<Match> getMatchPlayed() {
-        return mMatchPlayed;
+    public boolean isReady() {
+        return mReady;
     }
 
-    public void setMatchPlayed(@NonNull RealmList<Match> matchPlayed) {
-        this.mMatchPlayed = matchPlayed;
+    public void setReady(boolean mIsReady) {
+        this.mReady = mIsReady;
     }
 }

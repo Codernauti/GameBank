@@ -78,8 +78,8 @@
         <!-- Services -->
         <service android:name=".bluetooth.BTClientService" />
         <service android:name=".bluetooth.BTHostService" />
-        <service android:name=".stateMonitors.JoinService" />
-        <service android:name=".stateMonitors.SyncStateService" />
+        <service android:name=".stateMonitors.HostJoinService" />
+        <service android:name=".stateMonitors.ClientSyncStateService" />
     </application>
 
 </manifest>

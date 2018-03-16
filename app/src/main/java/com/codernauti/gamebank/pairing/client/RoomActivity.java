@@ -1,6 +1,5 @@
 package com.codernauti.gamebank.pairing.client;
 
-import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,19 +24,21 @@ import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.Event;
-import com.codernauti.gamebank.stateMonitors.SyncStateService;
+import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 28-Feb-18.
@@ -127,7 +128,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         if(extras != null) {
             BluetoothDevice selectedHost = (BluetoothDevice) extras.get(HOST_SELECTED_KEY);
 
-            Intent syncIntent = new Intent(this, SyncStateService.class);
+            Intent syncIntent = new Intent(this, ClientSyncStateService.class);
             startService(syncIntent);
 
             Intent intent = new Intent(this, BTClientService.class);
@@ -145,6 +146,14 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         } else {
             Log.d(TAG, "No host pass, cannot start services");
         }
+
+        Realm.getDefaultInstance().where(Player.class).findAll()
+                .addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
+                    @Override
+                    public void onChange(RealmResults<Player> players) {
+                        Log.w(TAG, "on change from activity: - " + players.size());
+                    }
+                });
     }
 
     @Override
@@ -153,7 +162,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
         mMembersAdapter.clear();
-        ((GameBank) getApplication()).initRoomLogic();
     }
 
     @Override
@@ -192,7 +200,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     // RoomLogic callbacks
 
     @Override
-    public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
+    public void onNewPlayerJoined(List<Player> members) {
         mMembersAdapter.clear();
         mMembersAdapter.addAll(members);
         Log.d(TAG, "Update all " + members.size() + " player.");
@@ -205,19 +213,19 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     }
 
     @Override
-    public void onPlayerChange(RoomPlayerProfile player) {
-        mMembersAdapter.updatePlayerState(player);
-        Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
+    public void onPlayerChange(Player player) {
+        mMembersAdapter.notifyDataSetChanged();//updatePlayerState(player);
+        Log.d(TAG, "Update ui of: " + player.getPlayerId() + "\nisReady? " + player.getPlayerId());
     }
 
     @Override
-    public void onPlayerRemove(RoomPlayerProfile player) {
-        mMembersAdapter.removePlayer(player.getId());
-        Log.d(TAG, "Remove player: " + player.getId());
+    public void onPlayerRemove(Player player) {
+        mMembersAdapter.removePlayer(player.getPlayerId());
+        Log.d(TAG, "Remove player: " + player.getPlayerId());
     }
 
     private void closeServices() {
-        Intent syncServiceIntent = new Intent(this, SyncStateService.class);
+        Intent syncServiceIntent = new Intent(this, ClientSyncStateService.class);
         stopService(syncServiceIntent);
 
         Intent clientServiceIntent = new Intent(this, BTClientService.class);

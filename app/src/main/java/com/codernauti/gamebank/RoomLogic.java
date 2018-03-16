@@ -10,12 +10,20 @@ import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 03-Mar-18.
@@ -26,9 +34,9 @@ public final class RoomLogic {
     private static final String TAG = "RoomLogic";
 
     public interface Listener {
-        void onPlayerChange(RoomPlayerProfile player);
-        void onPlayerRemove(RoomPlayerProfile player);
-        void onNewPlayerJoined(ArrayList<RoomPlayerProfile> newPlayer);
+        void onPlayerChange(Player player);
+        void onPlayerRemove(Player player);
+        void onNewPlayerJoined(List<Player> players);
         void onRoomNameChange(String roomName);
     }
 
@@ -37,9 +45,7 @@ public final class RoomLogic {
 
     // Game logic fields
     // Lobby fields
-    private ArrayList<RoomPlayerProfile> mPlayers = new ArrayList<>();
     private final String mNickname;
-
     private String mRoomName;
 
 
@@ -56,43 +62,71 @@ public final class RoomLogic {
 
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
-                    RoomPlayerProfile newPlayer = (RoomPlayerProfile) btBundle.get(RoomPlayerProfile.class.getName());
-                    mPlayers.add(newPlayer);
+                    final String newPlayerJson = (String) btBundle.get(String.class.getName());
+
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            Player playerFromJson = GameBank.gsonConverter.fromJson(newPlayerJson, Player.class);
+                            Log.d(TAG, "Valid: " + playerFromJson.isValid());
+
+                            realm.createOrUpdateObjectFromJson(Player.class, newPlayerJson);
+
+                            //realm.insert(playerFromJson);
+                            /*Player newPlayer = realm.createObject(Player.class, playerFromJson.getPlayerId());
+                            newPlayer.setUsername(playerFromJson.getUsername());
+                            newPlayer.setPhotoName(playerFromJson.getPhotoName());
+                            newPlayer.setReady(playerFromJson.isReady());*/
+                        }
+                    });
 
                     if (mListener != null) {
-                        mListener.onNewPlayerJoined(mPlayers);
+                        RealmResults<Player> players = Realm.getDefaultInstance()
+                                .where(Player.class)
+                                .findAll();
+                        mListener.onNewPlayerJoined(players);
                     }
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
 
-                    UUID uuid = btBundle.getUuid();
-                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
+                    String uuid = btBundle.getUuid().toString();
+                    final boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
+                    Log.d(TAG, "Player " + uuid + " is ready? " + isReady);
 
-                    for (RoomPlayerProfile player : mPlayers) {
-                        if (player.getId().equals(uuid)) {
+                    final Player player = Realm.getDefaultInstance()
+                            .where(Player.class)
+                            .equalTo("mId", uuid)
+                            .findFirst();
+
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
                             player.setReady(isReady);
-
-                            if (mListener != null) {
-                                mListener.onPlayerChange(player);
-                            }
                         }
+                    });
+
+                    if (mListener != null) {
+                        mListener.onPlayerChange(player);
                     }
 
                 } else if (BTEvent.MEMBER_DISCONNECTED.equals(action)) {
 
-                    UUID playerDisconnected = btBundle.getUuid();
+                    final String playerDisconnected = btBundle.getUuid().toString();
 
-                    Iterator<RoomPlayerProfile> iterator = mPlayers.iterator();
-                    while (iterator.hasNext()) {
-                        RoomPlayerProfile player = iterator.next();
+                    final Player player = Realm.getDefaultInstance()
+                            .where(Player.class)
+                            .equalTo("mId", playerDisconnected)
+                            .findFirst();
 
-                        if (player.getId().equals(playerDisconnected)) {
-                            iterator.remove();
-
-                            if (mListener != null) {
-                                mListener.onPlayerRemove(player);
-                            }
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            player.deleteFromRealm();
                         }
+                    });
+
+                    if (mListener != null) {
+                        mListener.onPlayerRemove(player);
                     }
 
                 }
@@ -121,7 +155,11 @@ public final class RoomLogic {
         Log.d(TAG, "Set listener: " + listener.getClass());
         mListener = listener;
 
-        listener.onNewPlayerJoined(mPlayers);
+        RealmResults<Player> players = Realm.getDefaultInstance()
+                .where(Player.class)
+                .findAll();
+
+        listener.onNewPlayerJoined(players);
     }
 
     /**
@@ -136,49 +174,31 @@ public final class RoomLogic {
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
 
-    public void setIamHost(String pictureName) {
-        Log.d(TAG, "I am host!");
-        mPlayers.add(new RoomPlayerProfile(mNickname, GameBank.BT_ADDRESS, pictureName, true));
-
-        if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
-        }
-    }
-
 
     public boolean matchCanStart() {
-        for (RoomPlayerProfile player : mPlayers) {
-            if (!player.isReady()) {
-                return false;
-            }
-        }
 
-        return true;
+        RealmResults<Player> playersNotReady = Realm.getDefaultInstance()
+                .where(Player.class)
+                .equalTo("mReady", false)
+                .findAll();
+
+        return playersNotReady.isEmpty();
     }
 
-    List<UUID> getMembersUUID() {
-        ArrayList<UUID> result = new ArrayList<>();
-
-        for (RoomPlayerProfile player : mPlayers) {
-            result.add(player.getId());
-        }
-
-        return result;
-    }
-
-    public ArrayList<RoomPlayerProfile> getRoomPlayers() {
-        return mPlayers;
-    }
-
-    public void syncState(@NonNull ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles,
-                          @NonNull String roomName) {
-        mPlayers.addAll(hostRoomPlayerProfiles);
-        mRoomName = roomName;
+    public void syncState() {
+        Log.d(TAG, "TEST: sync state");
 
         if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
-            mListener.onRoomNameChange(mRoomName);
+
+            mListener.onNewPlayerJoined(
+                    Realm.getDefaultInstance().where(Player.class)
+                    .findAll()
+            );
         }
+    }
+
+    /*public ArrayList<RoomPlayerProfile> getRoomPlayers() {
+        return mPlayers;
     }
 
     public void clear() {
@@ -187,14 +207,10 @@ public final class RoomLogic {
         if (mListener != null) {
             mListener.onNewPlayerJoined(mPlayers);
         }
-    }
+    }*/
 
     public void setRoomName(@NonNull String roomName) {
         mRoomName = roomName;
-    }
-
-    public String getRoomName() {
-        return mRoomName;
     }
 
 }

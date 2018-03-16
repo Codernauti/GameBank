@@ -14,25 +14,17 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
-import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 
 /**
  * Created by Eduard on 08-Mar-18.
  */
 
-public class SyncStateService extends Service {
+public class ClientSyncStateService extends Service {
 
-    private static final String TAG = "SyncStateService";
+    private static final String TAG = "ClientSyncStateService";
 
     private final BroadcastReceiver mFromBTClientConnection = new BroadcastReceiver() {
         @Override
@@ -45,16 +37,7 @@ public class SyncStateService extends Service {
 
                 if (BTEvent.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
-
                     updateDbWithHostState(btBundle);
-
-                    /*final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
-                            btBundle.get(ArrayList.class.getName());
-                    final String roomName = (String) btBundle.get(String.class.getName());
-
-                    ((GameBank) getApplication()).getRoomLogic()
-                            .syncState(hostRoomPlayerProfiles, roomName);*/
-
                 }
             }
 
@@ -69,24 +52,16 @@ public class SyncStateService extends Service {
             public void execute(Realm realm) {
 
                 String matchJson = (String) btBundle.get("MATCH");
-/*
-                String playersJson = (String) btBundle.get("PLAYERS");
-                Type listType = new TypeToken<RealmList<Player>>(){}.getType();
-                RealmList<Player> players = GameBank.gsonConverter.fromJson(playersJson, listType);*/
 
                 Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
-                //Log.d(TAG, "Players received: " + players.size());
-                //Log.d(TAG, players.get(0).getUsername());
 
-
-                // Update realm db
                 Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
-                //match.getPlayerList().addAll(players);
 
-                // Update Share Preference
-                SharePrefUtil.saveCurrentMatchId(SyncStateService.this, match.getId());
+                SharePrefUtil.saveCurrentMatchId(ClientSyncStateService.this, match.getId());
             }
         });
+
+        ((GameBank) getApplication()).getRoomLogic().syncState();
     }
 
     @Override

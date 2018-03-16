@@ -103,19 +103,15 @@ public class BankFragment extends Fragment {
             mAccountBalance += mTransactionValue;
             mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-
-            String bankUUID = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
-            String myUUUID = GameBank.BT_ADDRESS.toString();
-
             String to;
             String from;
 
             if (mTransactionValue < 0) {
-                to = myUUUID;
-                from = bankUUID;
+                to = GameBank.BT_ADDRESS.toString();
+                from = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
             } else {
-                to = bankUUID;
-                from = myUUUID;
+                to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                from = GameBank.BT_ADDRESS.toString();
             }
 
             sendTransaction(to, from);

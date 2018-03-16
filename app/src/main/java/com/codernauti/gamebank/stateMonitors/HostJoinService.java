@@ -16,28 +16,19 @@ import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
-import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.UUID;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmList;
-import io.realm.RealmResults;
 
 /**
  * Created by dpolonio on 08/03/18.
  */
 
-public class JoinService extends Service {
+public class HostJoinService extends Service {
 
-    private static final String TAG = "JoinService";
+    private static final String TAG = "HostJoinService";
 
     private final BroadcastReceiver mFromBTHostConnection = new BroadcastReceiver() {
         @Override
@@ -69,7 +60,7 @@ public class JoinService extends Service {
                                             .getRoomName())
                     );
                     stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                    LocalBroadcastManager.getInstance(JoinService.this).sendBroadcast(stateIntent);*/
+                    LocalBroadcastManager.getInstance(HostJoinService.this).sendBroadcast(stateIntent);*/
                 }
             }
 
@@ -107,7 +98,7 @@ public class JoinService extends Service {
         stateIntent.putExtra(BTHostService.RECEIVER_UUID,
                 UUID.fromString(newPlayer.getPlayerId()));
 
-        LocalBroadcastManager.getInstance(JoinService.this)
+        LocalBroadcastManager.getInstance(HostJoinService.this)
                 .sendBroadcast(stateIntent);
     }
 
