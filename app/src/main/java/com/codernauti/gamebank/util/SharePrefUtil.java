@@ -58,6 +58,7 @@ public class SharePrefUtil {
         return nick;
     }
 
+    @NonNull
     public static String getProfilePicturePreference(Context context) {
 
         final String PROFILE_PICTURE_DEFAULT = GameBank.BT_ADDRESS + ".jpeg";
@@ -81,7 +82,7 @@ public class SharePrefUtil {
             } catch (IOException e) {
                 e.printStackTrace();
 
-                return null;
+                return "null";
             }
         }
 
@@ -110,6 +111,27 @@ public class SharePrefUtil {
 
 
         return res;
+    }
+
+    @NonNull
+    public static int getCurrentMatchId(Context context) {
+
+        int res = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PrefKey.CURRENT_MATCH_ID, -1);
+
+        if (res < 0) {
+            throw new RuntimeException("No match id saved here");
+        }
+
+        return res;
+    }
+
+    public static void saveCurrentMatchId(Context context, int toSave) {
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(PrefKey.CURRENT_MATCH_ID, toSave)
+                .apply();
     }
 
 }

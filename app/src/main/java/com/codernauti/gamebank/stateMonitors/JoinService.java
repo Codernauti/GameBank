@@ -21,6 +21,8 @@ import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -84,17 +86,13 @@ public class JoinService extends Service {
         final Player newPlayer = db.createOrUpdateObjectFromJson(Player.class, playerJson);
 
         Match match = db.where(Match.class)
-                .equalTo("mId", Integer.parseInt(SharePrefUtil.getStringPreference(
-                        getApplicationContext(),
-                        PrefKey.CURRENT_MATCH_ID)))
+                .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
                 .findFirst();
 
         match.getPlayerList().add(newPlayer);
 
 
         // Send state to client
-        RealmResults<Player> players = db.where(Player.class).findAll();
-
         for (Player p : match.getPlayerList()) {
             Log.d(TAG, "Player name: " + p.getUsername());
         }
@@ -104,20 +102,13 @@ public class JoinService extends Service {
         Intent stateIntent = BTBundle.makeIntentFrom(
                 new BTBundle(BTEvent.CURRENT_STATE)
                         .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
-                        .appendJson("PLAYERS", GameBank.gsonConverter.toJson(match.getPlayerList()))  // TODO test
+                        //.appendJson("PLAYERS", GameBank.gsonConverter.toJson(match.getPlayerList()))  // TODO test
         );
         stateIntent.putExtra(BTHostService.RECEIVER_UUID,
                 UUID.fromString(newPlayer.getPlayerId()));
 
         LocalBroadcastManager.getInstance(JoinService.this)
                 .sendBroadcast(stateIntent);
-        players.addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
-            @Override
-            public void onChange(RealmResults<Player> players) {
-
-            }
-        });
-
     }
 
     @Override

@@ -14,13 +14,11 @@ import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.MatchSerializer;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.PlayerSerializer;
-import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.database.TransactionSerializer;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
-import java.util.List;
 import java.util.UUID;
 
 import io.realm.Realm;
@@ -32,9 +30,6 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 /**
  * Created by davide on 01/03/18.
  */
@@ -45,6 +40,7 @@ public class GameBank extends Application {
 
     public static UUID BT_ADDRESS;
     public static String FILES_DIR;
+    public static final String BANK_UUID = "610b1d4d-81b1-4487-956b-2b5c964339cc";
 
     public static Gson gsonConverter;
 
@@ -86,11 +82,11 @@ public class GameBank extends Application {
                     }
                 }*/
 
-                /*mBankLogic = new BankLogic(
+                mBankLogic = new BankLogic(
                         LocalBroadcastManager.getInstance(context),
-                        matchId,
+                        SharePrefUtil.getCurrentMatchId(context),
                         SharePrefUtil.getStringPreference(GameBank.this, PrefKey.BANK_UUID)
-                );*/
+                );
 
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
@@ -115,27 +111,39 @@ public class GameBank extends Application {
         // Initialize realm
         Realm.init(this);
 
-        final String bankuuid = "610b1d4d-81b1-4487-956b-2b5c964339cc";
-        SharePrefUtil.saveStringPreference(this, PrefKey.BANK_UUID, bankuuid);
+        SharePrefUtil.saveStringPreference(this, PrefKey.BANK_UUID, BANK_UUID);
 
         BT_ADDRESS = SharePrefUtil.getBTAddressPreference(this);
 
-        // Add bank player if it doesn't exist
+        // Add bank player && myself if they don't exist
         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 Player bank = Realm
                         .getDefaultInstance()
                         .where(Player.class)
-                        .equalTo("mId", bankuuid)
+                        .equalTo("mId", BANK_UUID)
+                        .findFirst();
+
+                Player myself = Realm
+                        .getDefaultInstance()
+                        .where(Player.class)
+                        .equalTo("mId", BT_ADDRESS.toString())
                         .findFirst();
 
                 if (bank == null) {
 
-                    bank = Realm.getDefaultInstance().createObject(Player.class, bankuuid);
+                    bank = Realm.getDefaultInstance().createObject(Player.class, BANK_UUID);
                     bank.setUsername("Bank");
                     bank.setMatchPlayed(new RealmList<Match>());
                     bank.setPhotoName("aaa");
+                }
+
+                if (myself == null) {
+                    myself = Realm.getDefaultInstance().createObject(Player.class, BT_ADDRESS.toString());
+                    myself.setUsername(SharePrefUtil.getNicknamePreference(GameBank.this));
+                    myself.setMatchPlayed(new RealmList<Match>());
+                    myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(GameBank.this));
                 }
             }
         });

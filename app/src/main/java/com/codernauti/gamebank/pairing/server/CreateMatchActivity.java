@@ -217,9 +217,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
                 int matchId = (id == null) ? 1 : id.intValue() + 1;
                 final Match newMatch = realm.createObject(Match.class, matchId);
 
-                SharePrefUtil.saveStringPreference(CreateMatchActivity.this,
-                        PrefKey.CURRENT_MATCH_ID,
-                        String.valueOf(matchId));
+                SharePrefUtil.saveCurrentMatchId(CreateMatchActivity.this, matchId);
 
                 //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
                 // Set match nickname
@@ -263,6 +261,13 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
                 newMatch.setPlayerList(new RealmList<Player>());
                 // Set a new transaction list
                 newMatch.setTransactionList(new RealmList<Transaction>());
+
+                newMatch.getPlayerList().addAll(
+                        realm.where(Player.class)
+                        .equalTo("mId", GameBank.BT_ADDRESS.toString())
+                        .or()
+                        .equalTo("mId", GameBank.BANK_UUID)
+                        .findAll());
 
                 // Insert the match in the database
                 realm.insert(newMatch);

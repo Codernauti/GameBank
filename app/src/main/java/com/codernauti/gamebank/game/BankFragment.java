@@ -108,7 +108,7 @@ public class BankFragment extends Fragment {
 
             Realm db = Realm.getDefaultInstance();
             RealmList<Player> listOfPlayers = db.where(Match.class)
-                    .equalTo("mId", 1/*id match*/)
+                    .equalTo("mId", SharePrefUtil.getCurrentMatchId(getActivity()))
                     .findFirst()
                     .getPlayerList();
             Player bank = listOfPlayers.where().equalTo("mId", bankUUID).findFirst();

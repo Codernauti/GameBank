@@ -16,6 +16,8 @@ import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.util.PrefKey;
+import com.codernauti.gamebank.util.SharePrefUtil;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -67,18 +69,22 @@ public class SyncStateService extends Service {
             public void execute(Realm realm) {
 
                 String matchJson = (String) btBundle.get("MATCH");
-
+/*
                 String playersJson = (String) btBundle.get("PLAYERS");
                 Type listType = new TypeToken<RealmList<Player>>(){}.getType();
-                RealmList<Player> players = GameBank.gsonConverter.fromJson(playersJson, listType);
+                RealmList<Player> players = GameBank.gsonConverter.fromJson(playersJson, listType);*/
 
                 Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
-                Log.d(TAG, "Players received: " + players.size());
-                Log.d(TAG, players.get(0).getUsername());
+                //Log.d(TAG, "Players received: " + players.size());
+                //Log.d(TAG, players.get(0).getUsername());
 
-                // TODO: update realm db
+
+                // Update realm db
                 Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
-                match.getPlayerList().addAll(players);
+                //match.getPlayerList().addAll(players);
+
+                // Update Share Preference
+                SharePrefUtil.saveCurrentMatchId(SyncStateService.this, match.getId());
             }
         });
     }
