@@ -21,7 +21,7 @@ public class Player extends RealmObject implements Serializable {
     private String mId;
     private String mUsername;
     private String mPhotoName;
-    private RealmList<Match> mMatchPlayed;
+    private RealmList<Match> mMatchPlayed;  // TODO: remove this item
 
     public Player() {}
 

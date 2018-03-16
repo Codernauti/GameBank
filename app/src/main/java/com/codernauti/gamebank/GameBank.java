@@ -115,39 +115,6 @@ public class GameBank extends Application {
 
         BT_ADDRESS = SharePrefUtil.getBTAddressPreference(this);
 
-        // Add bank player && myself if they don't exist
-        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Player bank = Realm
-                        .getDefaultInstance()
-                        .where(Player.class)
-                        .equalTo("mId", BANK_UUID)
-                        .findFirst();
-
-                Player myself = Realm
-                        .getDefaultInstance()
-                        .where(Player.class)
-                        .equalTo("mId", BT_ADDRESS.toString())
-                        .findFirst();
-
-                if (bank == null) {
-
-                    bank = Realm.getDefaultInstance().createObject(Player.class, BANK_UUID);
-                    bank.setUsername("Bank");
-                    bank.setMatchPlayed(new RealmList<Match>());
-                    bank.setPhotoName("aaa");
-                }
-
-                if (myself == null) {
-                    myself = Realm.getDefaultInstance().createObject(Player.class, BT_ADDRESS.toString());
-                    myself.setUsername(SharePrefUtil.getNicknamePreference(GameBank.this));
-                    myself.setMatchPlayed(new RealmList<Match>());
-                    myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(GameBank.this));
-                }
-            }
-        });
-
         // TODO inizialize GSON with custom TypeAdapter for realm proxy object
         try {
             gsonConverter = new GsonBuilder()

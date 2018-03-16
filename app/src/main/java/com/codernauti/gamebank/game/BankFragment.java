@@ -30,6 +30,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class BankFragment extends Fragment {
 
@@ -106,30 +107,18 @@ public class BankFragment extends Fragment {
             String bankUUID = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
             String myUUUID = GameBank.BT_ADDRESS.toString();
 
-            Realm db = Realm.getDefaultInstance();
-            RealmList<Player> listOfPlayers = db.where(Match.class)
-                    .equalTo("mId", SharePrefUtil.getCurrentMatchId(getActivity()))
-                    .findFirst()
-                    .getPlayerList();
-            Player bank = listOfPlayers.where().equalTo("mId", bankUUID).findFirst();
-            Player myself = listOfPlayers.where().equalTo("mId", myUUUID).findFirst();
-
             String to;
             String from;
 
             if (mTransactionValue < 0) {
-                to = myself.getPlayerId();
-                from = bank.getPlayerId();
+                to = myUUUID;
+                from = bankUUID;
             } else {
-                to = bank.getPlayerId();
-                from = myself.getPlayerId();
+                to = bankUUID;
+                from = myUUUID;
             }
 
-            ((GameBank)getActivity().getApplication()).getBankLogic().addTransaction(
-                    Math.abs(mTransactionValue),
-                    to,
-                    from);
-
+            sendTransaction(to, from);
 
             mTransactionValue = 0;
             mTransactionValueView.setText("0");
@@ -138,6 +127,35 @@ public class BankFragment extends Fragment {
         }
     }
 
+    private void sendTransaction(String to, String from) {
+
+        Realm realm = Realm.getDefaultInstance();
+        Gson converter = GameBank.gsonConverter;
+
+        RealmResults<Player> listOfPlayers = realm.where(Player.class).findAll();
+
+        Player toPlayer = listOfPlayers.where().equalTo("mId", to).findFirst();
+        Player fromPlayer = listOfPlayers.where().equalTo("mId", from).findFirst();
+
+        Transaction transaction = new Transaction(
+                (int)(Calendar.getInstance().getTimeInMillis()/1000L),
+                Math.abs(mTransactionValue),
+                fromPlayer,
+                toPlayer,
+                null
+        );
+
+        // Send Transaction to all
+        String jsonToSend = converter.toJson(transaction);
+        Log.d(TAG, "Sending this json object: \n" + jsonToSend);
+
+        Intent transIntent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.TRANSACTION)
+                        .append(jsonToSend)
+        );
+
+        mLocalBroadcastManager.sendBroadcast(transIntent);
+    }
 
 
 }

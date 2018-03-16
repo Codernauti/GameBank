@@ -30,11 +30,14 @@ import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.stateMonitors.SyncStateService;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * Created by Eduard on 28-Feb-18.
@@ -130,6 +133,14 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
             Intent intent = new Intent(this, BTClientService.class);
             intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
             startService(intent);
+
+            // Create database associated with match
+            RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                    .name("Test.realm") // TODO which name set in client device?
+                    .directory(new File(getFilesDir(), "matches"))
+                    .build();
+
+            Realm.setDefaultConfiguration(myConfig);
 
         } else {
             Log.d(TAG, "No host pass, cannot start services");

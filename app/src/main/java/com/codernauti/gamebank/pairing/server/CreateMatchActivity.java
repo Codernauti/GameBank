@@ -38,6 +38,7 @@ import com.codernauti.gamebank.stateMonitors.JoinService;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -45,6 +46,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 
 public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.Listener {
@@ -181,6 +183,61 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
     }
 
+    private void createMatchInstance() {
+
+        // Create database associated with match
+        RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                .name("Test.realm")
+                .directory(new File(getFilesDir(), "matches"))
+                .build();
+
+        Realm.setDefaultConfiguration(myConfig);
+        Realm db = Realm.getDefaultInstance();
+
+
+        // insert initial data
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                // Get the current max id in the EntityName table
+                //Number id = realm.where(Match.class).max("mId");
+                // If id is null, set it to 1, else set increment it by 1
+                int matchId = 42;//(id == null) ? 1 : id.intValue() + 1;
+                final Match newMatch = realm.createObject(Match.class, matchId);
+
+                SharePrefUtil.saveCurrentMatchId(CreateMatchActivity.this, matchId);
+
+                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
+                // Set match nickname
+                newMatch.setMatchName(mLobbyName.getText().toString());
+
+                // Set game date
+                Calendar now = Calendar.getInstance();
+                newMatch.setMatchStarted(
+                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
+                );
+
+                newMatch.setPlayerList(new RealmList<Player>());
+                newMatch.setTransactionList(new RealmList<Transaction>());
+
+
+                Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
+                bank.setUsername("Bank");
+                bank.setMatchPlayed(new RealmList<Match>());
+                bank.setPhotoName("aaa");
+
+                Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
+                myself.setUsername(SharePrefUtil.getNicknamePreference(CreateMatchActivity.this));
+                myself.setMatchPlayed(new RealmList<Match>());
+                myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(CreateMatchActivity.this));
+
+                newMatch.getPlayerList().add(bank);
+                newMatch.getPlayerList().add(myself);
+            }
+        });
+    }
+
     @OnClick(R.id.cancel_match)
     void onCancelMatch() {
 
@@ -204,75 +261,8 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);
-    }
 
-    private void createMatchInstance() {
-        Realm db = Realm.getDefaultInstance();
-        db.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                // Get the current max id in the EntityName table
-                Number id = realm.where(Match.class).max("mId");
-                // If id is null, set it to 1, else set increment it by 1
-                int matchId = (id == null) ? 1 : id.intValue() + 1;
-                final Match newMatch = realm.createObject(Match.class, matchId);
-
-                SharePrefUtil.saveCurrentMatchId(CreateMatchActivity.this, matchId);
-
-                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
-                // Set match nickname
-                newMatch.setMatchName(mLobbyName.getText().toString());
-
-                // Set game date
-                Calendar now = Calendar.getInstance();
-                newMatch.setMatchStarted(
-                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
-                );
-
-                // Set players in this game
-                /*RealmList<Player> playerMatch = new RealmList<>();
-                for (int i = 0; i < mMembersAdapter.getCount(); i++) {
-
-                    RoomPlayerProfile rpp = mMembersAdapter.getItem(i);
-                    Player query = realm
-                            .where(Player.class)
-                            .equalTo("mId", rpp.getId().toString())
-                            .findFirst();
-
-                    if (query == null) {
-                        Log.d(TAG, "Adding new player into the Player table");
-                        RealmList<Match> matchList = new RealmList<>();
-                        matchList.add(realm
-                                .where(Match.class)
-                                .equalTo("mId", matchId)
-                                .findFirst());
-
-                        Player toAdd = realm.createObject(Player.class, rpp.getId().toString());
-                        toAdd.setUsername(rpp.getNickname());
-                        toAdd.setPhotoName(rpp.getImageName());
-                        toAdd.setMatchPlayed(matchList);
-                        query = toAdd;
-                    } else {
-                        Log.d(TAG, "Player already exists, updating the record");
-                        query.getMatchPlayed().add(newMatch);
-                    }
-                    playerMatch.add(query);
-                }*/
-                newMatch.setPlayerList(new RealmList<Player>());
-                // Set a new transaction list
-                newMatch.setTransactionList(new RealmList<Transaction>());
-
-                newMatch.getPlayerList().addAll(
-                        realm.where(Player.class)
-                        .equalTo("mId", GameBank.BT_ADDRESS.toString())
-                        .or()
-                        .equalTo("mId", GameBank.BANK_UUID)
-                        .findAll());
-
-                // Insert the match in the database
-                realm.insert(newMatch);
-            }
-        });
+        Realm.getDefaultInstance().refresh();
     }
 
     @OnClick(R.id.start_match)
