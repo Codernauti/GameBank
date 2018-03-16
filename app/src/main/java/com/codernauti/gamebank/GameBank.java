@@ -47,8 +47,6 @@ public class GameBank extends Application {
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
 
-    private boolean isHost = false;
-
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -128,12 +126,4 @@ public class GameBank extends Application {
     }
 
     public BankLogic getBankLogic() { return mBankLogic; }
-
-    public void setHost(boolean value) {
-        isHost = value;
-    }
-
-    public boolean isHost() {
-        return isHost;
-    }
 }
