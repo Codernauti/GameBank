@@ -10,10 +10,14 @@ import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +27,8 @@ import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -45,6 +51,7 @@ public final class RoomLogic {
 
     // Game logic fields
     // Lobby fields
+    private RealmResults<Player> mPlayers;
     private final String mNickname;
     private String mRoomName;
 
@@ -71,12 +78,6 @@ public final class RoomLogic {
                             Log.d(TAG, "Valid: " + playerFromJson.isValid());
 
                             realm.createOrUpdateObjectFromJson(Player.class, newPlayerJson);
-
-                            //realm.insert(playerFromJson);
-                            /*Player newPlayer = realm.createObject(Player.class, playerFromJson.getPlayerId());
-                            newPlayer.setUsername(playerFromJson.getUsername());
-                            newPlayer.setPhotoName(playerFromJson.getPhotoName());
-                            newPlayer.setReady(playerFromJson.isReady());*/
                         }
                     });
 
@@ -137,6 +138,7 @@ public final class RoomLogic {
 
 
     RoomLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
+        Log.d(TAG, "Create RoomLogic");
         mNickname = hostNickname;
         mLocalBroadcastManager = broadcastManager;
 
@@ -148,18 +150,82 @@ public final class RoomLogic {
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
 
+
+    public void createMatchInstance(final Context context, final String matchName) {
+
+        // Create database associated with match
+        RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                .name("Test.realm")
+                .directory(new File(context.getFilesDir(), "matches"))
+                .build();
+
+        Realm.setDefaultConfiguration(myConfig);
+        Realm db = Realm.getDefaultInstance();
+
+        mPlayers = Realm.getDefaultInstance().where(Player.class).findAll();
+        mPlayers.addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
+            @Override
+            public void onChange(RealmResults<Player> players) {
+                Log.d(TAG, "Players change! Size: " + players.size());
+                if (mListener != null) {
+                    mListener.onNewPlayerJoined(players);
+                }
+            }
+        });
+
+        // insert initial data
+        db.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                // Get the current max id in the EntityName table
+                //Number id = realm.where(Match.class).max("mId");
+                // If id is null, set it to 1, else set increment it by 1
+                int matchId = 42;//(id == null) ? 1 : id.intValue() + 1;
+                final Match newMatch = realm.createObject(Match.class, matchId);
+
+                SharePrefUtil.saveCurrentMatchId(context, matchId);
+
+                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
+                // Set match nickname
+                newMatch.setMatchName(matchName);
+
+                // Set game date
+                Calendar now = Calendar.getInstance();
+                newMatch.setMatchStarted(
+                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
+                );
+
+                newMatch.setPlayerList(new RealmList<Player>());
+                newMatch.setTransactionList(new RealmList<Transaction>());
+
+
+                Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
+                bank.setUsername("Bank");
+                bank.setPhotoName("aaa");
+                bank.setReady(true);
+
+                Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
+                myself.setUsername(SharePrefUtil.getNicknamePreference(context));
+                myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(context));
+                myself.setReady(true);
+
+                newMatch.getPlayerList().add(bank);
+                newMatch.getPlayerList().add(myself);
+            }
+        });
+    }
+
+    public void clearDatabase() {
+        Realm.getDefaultInstance().deleteAll();
+    }
+
     /**
      * @param listener: the Activity that listen the game state
      */
     public void setListener(@NonNull Listener listener) {
         Log.d(TAG, "Set listener: " + listener.getClass());
         mListener = listener;
-
-        RealmResults<Player> players = Realm.getDefaultInstance()
-                .where(Player.class)
-                .findAll();
-
-        listener.onNewPlayerJoined(players);
     }
 
     /**
@@ -196,18 +262,6 @@ public final class RoomLogic {
             );
         }
     }
-
-    /*public ArrayList<RoomPlayerProfile> getRoomPlayers() {
-        return mPlayers;
-    }
-
-    public void clear() {
-        mPlayers.clear();
-
-        if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
-        }
-    }*/
 
     public void setRoomName(@NonNull String roomName) {
         mRoomName = roomName;

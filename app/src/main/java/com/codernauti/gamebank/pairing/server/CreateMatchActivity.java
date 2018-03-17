@@ -126,7 +126,6 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
-        mRoomLogic.setListener(this);
     }
 
     @Override
@@ -147,12 +146,13 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        closeRoom();
         mRoomLogic.removeListener();
     }
 
     @OnClick(R.id.open_lobby)
     void onOpenMatch() {
-
+        Log.d(TAG, "Open Match");
 
         mRoomLogic.setRoomName(mLobbyName.getText().toString());
 
@@ -173,63 +173,8 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         Intent joinService = new Intent(this, HostJoinService.class);
         startService(joinService);
 
-        createMatchInstance();
-
-    }
-
-    private void createMatchInstance() {
-
-        // Create database associated with match
-        RealmConfiguration myConfig = new RealmConfiguration.Builder()
-                .name("Test.realm")
-                .directory(new File(getFilesDir(), "matches"))
-                .build();
-
-        Realm.setDefaultConfiguration(myConfig);
-        Realm db = Realm.getDefaultInstance();
-
-
-        // insert initial data
-        db.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-
-                // Get the current max id in the EntityName table
-                //Number id = realm.where(Match.class).max("mId");
-                // If id is null, set it to 1, else set increment it by 1
-                int matchId = 42;//(id == null) ? 1 : id.intValue() + 1;
-                final Match newMatch = realm.createObject(Match.class, matchId);
-
-                SharePrefUtil.saveCurrentMatchId(CreateMatchActivity.this, matchId);
-
-                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
-                // Set match nickname
-                newMatch.setMatchName(mLobbyName.getText().toString());
-
-                // Set game date
-                Calendar now = Calendar.getInstance();
-                newMatch.setMatchStarted(
-                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
-                );
-
-                newMatch.setPlayerList(new RealmList<Player>());
-                newMatch.setTransactionList(new RealmList<Transaction>());
-
-
-                Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
-                bank.setUsername("Bank");
-                bank.setPhotoName("aaa");
-                bank.setReady(true);
-
-                Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
-                myself.setUsername(SharePrefUtil.getNicknamePreference(CreateMatchActivity.this));
-                myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(CreateMatchActivity.this));
-                myself.setReady(true);
-
-                newMatch.getPlayerList().add(bank);
-                newMatch.getPlayerList().add(myself);
-            }
-        });
+        mRoomLogic.setListener(this);
+        mRoomLogic.createMatchInstance(this, mLobbyName.getText().toString());
     }
 
     @OnClick(R.id.cancel_match)
@@ -256,7 +201,7 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);
 
-        Realm.getDefaultInstance().refresh();
+        mRoomLogic.clearDatabase();
     }
 
     @OnClick(R.id.start_match)

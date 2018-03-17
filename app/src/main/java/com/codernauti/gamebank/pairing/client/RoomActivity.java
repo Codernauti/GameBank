@@ -146,14 +146,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         } else {
             Log.d(TAG, "No host pass, cannot start services");
         }
-
-        Realm.getDefaultInstance().where(Player.class).findAll()
-                .addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
-                    @Override
-                    public void onChange(RealmResults<Player> players) {
-                        Log.w(TAG, "on change from activity: - " + players.size());
-                    }
-                });
     }
 
     @Override
@@ -166,10 +158,16 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
 
     @Override
     public void onBackPressed() {
-
         closeServices();
-
         super.onBackPressed();
+    }
+
+    private void closeServices() {
+        Intent syncServiceIntent = new Intent(this, ClientSyncStateService.class);
+        stopService(syncServiceIntent);
+
+        Intent clientServiceIntent = new Intent(this, BTClientService.class);
+        stopService(clientServiceIntent);
     }
 
     @OnClick(R.id.room_poke_fab)
@@ -222,13 +220,5 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     public void onPlayerRemove(Player player) {
         mMembersAdapter.removePlayer(player.getPlayerId());
         Log.d(TAG, "Remove player: " + player.getPlayerId());
-    }
-
-    private void closeServices() {
-        Intent syncServiceIntent = new Intent(this, ClientSyncStateService.class);
-        stopService(syncServiceIntent);
-
-        Intent clientServiceIntent = new Intent(this, BTClientService.class);
-        stopService(clientServiceIntent);
     }
 }
