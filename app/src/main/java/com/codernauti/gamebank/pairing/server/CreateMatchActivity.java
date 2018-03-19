@@ -47,7 +47,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 
-public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.Listener {
+public class CreateMatchActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateMatchActivity";
 
@@ -119,10 +119,6 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         cancelMatchButton.setEnabled(false);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        mMembersAdapter = new RoomPlayerAdapter(this);
-        memberListJoined.setAdapter(mMembersAdapter);
-
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
@@ -147,8 +143,22 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
     protected void onDestroy() {
         super.onDestroy();
         closeRoom();
-        mRoomLogic.removeListener();
     }
+
+    private void closeRoom() {
+        // TODO: stop discoverability
+
+        Log.d(TAG, "onCloseRoom()");
+
+        Intent joinService = new Intent(this, HostJoinService.class);
+        stopService(joinService);
+
+        Intent intent = new Intent(this, BTHostService.class);
+        stopService(intent);
+
+        mRoomLogic.clearDatabase();
+    }
+
 
     @OnClick(R.id.open_lobby)
     void onOpenMatch() {
@@ -173,8 +183,14 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         Intent joinService = new Intent(this, HostJoinService.class);
         startService(joinService);
 
-        mRoomLogic.setListener(this);
         mRoomLogic.createMatchInstance(this, mLobbyName.getText().toString());
+
+        mMembersAdapter = new RoomPlayerAdapter(
+                Realm.getDefaultInstance().where(Player.class)
+                        .notEqualTo("mId", GameBank.BANK_UUID)
+                        .findAll()
+        );
+        memberListJoined.setAdapter(mMembersAdapter);
     }
 
     @OnClick(R.id.cancel_match)
@@ -186,22 +202,6 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         startMatchButton.setVisibility(View.INVISIBLE);
 
         closeRoom();
-    }
-
-    private void closeRoom() {
-        // TODO: stop discoverability
-
-        Log.d(TAG, "onCloseRoom()");
-
-        ((GameBank)getApplication()).cleanRoomLogic();
-
-        Intent joinService = new Intent(this, HostJoinService.class);
-        stopService(joinService);
-
-        Intent intent = new Intent(this, BTHostService.class);
-        stopService(intent);
-
-        mRoomLogic.clearDatabase();
     }
 
     @OnClick(R.id.start_match)
@@ -266,30 +266,4 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
         showWarningDialog();
     }
 
-    // RoomLogic callbacks
-
-    @Override
-    public void onNewPlayerJoined(List<Player> members) {
-        mMembersAdapter.clear();
-        mMembersAdapter.addAll(members);
-        Log.d(TAG, "Update all " + members.size() + " player.");
-    }
-
-    @Override
-    public void onRoomNameChange(String roomName) {
-        // Empty, nothing to do!
-    }
-
-    @Override
-    public void onPlayerChange(Player player) {
-        mMembersAdapter.notifyDataSetChanged();//updatePlayerState(player);
-        Log.d(TAG, "Update ui of: " + player.getPlayerId() + "\nisReady? " + player.getPlayerId());
-    }
-
-    @Override
-    public void onPlayerRemove(Player player) {
-        mMembersAdapter.notifyDataSetChanged();
-        //mMembersAdapter.removePlayer(player.getPlayerId());
-        Log.d(TAG, "Remove a player");
-    }
 }

@@ -36,51 +36,9 @@ public class HostJoinService extends Service {
 
     private RealmResults<Player> mPlayers;
 
-    // TODO: remove this receiver
-    private final BroadcastReceiver mFromBTHostConnection = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            Log.d(TAG, "Received action: " + action);
-
-            final BTBundle bundle = BTBundle.extractFrom(intent);
-
-            if (bundle != null) {
-
-                if (BTEvent.MEMBER_CONNECTED.equals(action)) {
-
-                    /*final ArrayList<RoomPlayerProfile> mPlayers = ((GameBank) getApplication())
-                            .getRoomLogic()
-                            .getRoomPlayers();
-                    final RoomPlayerProfile newPlayer = (RoomPlayerProfile)bundle.get(RoomPlayerProfile.class.getName());
-
-                    Log.d(TAG, "(only host) Synchronize state with the new player.\n" +
-                            "Send players: " + mPlayers.size());
-
-                    Intent stateIntent = BTBundle.makeIntentFrom(
-                            new BTBundle(BTEvent.CURRENT_STATE)
-                                    .append(mPlayers)
-                                    .append(((GameBank) getApplication())
-                                            .getRoomLogic()
-                                            .getRoomName())
-                    );
-                    stateIntent.putExtra(BTHostService.RECEIVER_UUID, newPlayer.getId());
-                    LocalBroadcastManager.getInstance(HostJoinService.this).sendBroadcast(stateIntent);*/
-                }
-            }
-
-        }
-    };
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-
-        /*IntentFilter filter = new IntentFilter();
-        filter.addAction(BTEvent.MEMBER_CONNECTED);
-
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mFromBTHostConnection, filter);*/
 
         mPlayers = Realm.getDefaultInstance().where(Player.class).findAll();
         mPlayers.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Player>>() {
@@ -133,9 +91,6 @@ public class HostJoinService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mFromBTHostConnection);
-
         super.onDestroy();
     }
 

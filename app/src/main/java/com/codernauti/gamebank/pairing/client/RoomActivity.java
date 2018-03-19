@@ -24,10 +24,12 @@ import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.File;
 import java.util.List;
@@ -111,9 +113,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         setSupportActionBar(mToolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mMembersAdapter = new RoomPlayerAdapter(this);
-        mMembersList.setAdapter(mMembersAdapter);
-
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         IntentFilter filter = new IntentFilter();
@@ -153,7 +152,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         super.onDestroy();
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
-        mMembersAdapter.clear();
 
         closeServices();
     }
@@ -198,31 +196,31 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         status.setImageResource(icon);
     }
 
+    // TODO: call when database is ready
+    private void initAdapter() {
+        mMembersAdapter = new RoomPlayerAdapter(
+                Realm.getDefaultInstance().where(Player.class)
+                        .notEqualTo("mId", GameBank.BANK_UUID)
+                        .findAll()
+        );
+        mMembersList.setAdapter(mMembersAdapter);
+    }
+
 
     // RoomLogic callbacks
 
     @Override
-    public void onNewPlayerJoined(List<Player> members) {
-        mMembersAdapter.clear();
-        mMembersAdapter.addAll(members);
-        Log.d(TAG, "Update all " + members.size() + " player.");
+    public void stateSynchronized() {
+        initAdapter();
+
+        String matchName = Realm.getDefaultInstance()
+                .where(Match.class)
+                .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
+                .findFirst()
+                .getMatchName();
+
+        mToolbar.setTitle(matchName);
+
     }
 
-    @Override
-    public void onRoomNameChange(@NonNull  final String roomName) {
-        Log.d(TAG, "Room name: " + roomName);
-        mToolbar.setTitle(getString(R.string.match) + ": " + roomName);
-    }
-
-    @Override
-    public void onPlayerChange(Player player) {
-        mMembersAdapter.notifyDataSetChanged();//updatePlayerState(player);
-        Log.d(TAG, "Update ui of: " + player.getPlayerId() + "\nisReady? " + player.getPlayerId());
-    }
-
-    @Override
-    public void onPlayerRemove(Player player) {
-        mMembersAdapter.removePlayer(player.getPlayerId());
-        Log.d(TAG, "Remove player: " + player.getPlayerId());
-    }
 }

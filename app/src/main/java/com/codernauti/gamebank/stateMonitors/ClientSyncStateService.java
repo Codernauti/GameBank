@@ -45,9 +45,12 @@ public class ClientSyncStateService extends Service {
     };
 
     private void updateDbWithHostState(final BTBundle btBundle) {
-        Realm db = Realm.getDefaultInstance();
 
-        db.executeTransaction(new Realm.Transaction() {
+        ((GameBank) getApplication()).getRoomLogic().initRealmDatabase(this);
+
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
 
@@ -57,7 +60,6 @@ public class ClientSyncStateService extends Service {
                 Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
 
                 realm.copyToRealm(matchFromJson);
-                //Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
 
                 SharePrefUtil.saveCurrentMatchId(ClientSyncStateService.this, matchFromJson.getId());
             }

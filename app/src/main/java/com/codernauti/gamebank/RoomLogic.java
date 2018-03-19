@@ -40,10 +40,7 @@ public final class RoomLogic {
     private static final String TAG = "RoomLogic";
 
     public interface Listener {
-        void onPlayerChange(Player player);
-        void onPlayerRemove(Player player);
-        void onNewPlayerJoined(List<Player> players);
-        void onRoomNameChange(String roomName);
+        void stateSynchronized();
     }
 
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -51,7 +48,6 @@ public final class RoomLogic {
 
     // Game logic fields
     // Lobby fields
-    private RealmResults<Player> mPlayers;
     private final String mNickname;
     private String mRoomName;
 
@@ -82,13 +78,6 @@ public final class RoomLogic {
                         }
                     });
 
-                    if (mListener != null) {
-                        RealmResults<Player> players = Realm.getDefaultInstance()
-                                .where(Player.class)
-                                .findAll();
-                        mListener.onNewPlayerJoined(players);
-                    }
-
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
 
                     String uuid = btBundle.getUuid().toString();
@@ -107,10 +96,6 @@ public final class RoomLogic {
                         }
                     });
 
-                    if (mListener != null) {
-                        mListener.onPlayerChange(player);
-                    }
-
                 } else if (BTEvent.MEMBER_DISCONNECTED.equals(action)) {
 
                     final String playerDisconnected = btBundle.get(UUID.class.getName()).toString();
@@ -128,12 +113,7 @@ public final class RoomLogic {
                                 player.deleteFromRealm();
                             }
                         });
-
-                        if (mListener != null) {
-                            mListener.onPlayerRemove(player);
-                        }
                     }
-
                 }
 
             }
@@ -157,28 +137,10 @@ public final class RoomLogic {
 
     public void createMatchInstance(final Context context, final String matchName) {
 
-        // Create database associated with match
-        RealmConfiguration myConfig = new RealmConfiguration.Builder()
-                .name("Test.realm")
-                .directory(new File(context.getFilesDir(), "matches"))
-                .build();
-
-        Realm.setDefaultConfiguration(myConfig);
-        Realm db = Realm.getDefaultInstance();
-
-        mPlayers = Realm.getDefaultInstance().where(Player.class).findAll();
-        mPlayers.addChangeListener(new RealmChangeListener<RealmResults<Player>>() {
-            @Override
-            public void onChange(RealmResults<Player> players) {
-                Log.d(TAG, "Players change! Size: " + players.size());
-                if (mListener != null) {
-                    mListener.onNewPlayerJoined(players);
-                }
-            }
-        });
+        initRealmDatabase(context);
 
         // insert initial data
-        db.executeTransaction(new Realm.Transaction() {
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
 
@@ -190,7 +152,6 @@ public final class RoomLogic {
 
                 SharePrefUtil.saveCurrentMatchId(context, matchId);
 
-                //((GameBank)getApplication()).getBankLogic().setMatchId(matchId);
                 // Set match nickname
                 newMatch.setMatchName(matchName);
 
@@ -216,6 +177,16 @@ public final class RoomLogic {
                 newMatch.getPlayerList().add(myself);
             }
         });
+    }
+
+    public void initRealmDatabase(Context context) {
+        // Create database associated with match
+        RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                .name("Test.realm")
+                .directory(new File(context.getFilesDir(), "matches"))
+                .build();
+
+        Realm.setDefaultConfiguration(myConfig);
     }
 
     public void clearDatabase() {
@@ -259,14 +230,10 @@ public final class RoomLogic {
     }
 
     public void syncState() {
-        Log.d(TAG, "TEST: sync state");
+        Log.d(TAG, "sync state completed. Update UI");
 
         if (mListener != null) {
-
-            mListener.onNewPlayerJoined(
-                    Realm.getDefaultInstance().where(Player.class)
-                    .findAll()
-            );
+            mListener.stateSynchronized();
         }
     }
 
