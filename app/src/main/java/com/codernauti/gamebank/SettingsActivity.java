@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
@@ -146,45 +148,42 @@ public class SettingsActivity extends AppCompatActivity {
                     final File previousFile = new File(SharePrefUtil.getProfilePicturePreference(SettingsActivity.this));
                     final File pickedUpFile = new File(imageList.get(0));
 
-                    if (!previousFile.getName().equals(pickedUpFile.getName())) {
 
-                        Log.d(TAG, "Profile picture changed, updating it");
+                    Log.d(TAG, "Profile picture changed, updating it");
 
-                        if (deleteFile(previousFile.getName())) {
-                            Log.d(TAG, "Previous profile picture successfully deleted");
-                        }
-
-                        final String fileName = pickedUpFile.getName();
-
-                        SharePrefUtil.saveStringPreference(
-                                SettingsActivity.this,
-                                PrefKey.PROFILE_PICTURE,
-                                fileName);
-
-                        try(final FileInputStream is = new FileInputStream(pickedUpFile);
-                            final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
-                        ) {
-
-                            // Transfer bytes from in to out
-                            byte[] buf = new byte[1024];
-                            int len;
-                            while ((len = is.read(buf)) > 0) {
-                                os.write(buf, 0, len);
-                            }
-
-                            Log.d(TAG, "Copy completed");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        Glide.with(SettingsActivity.this)
-                                .load(getFilesDir() + "/" + fileName)
-                                .into(mProfilePicture);
+                    if (deleteFile(previousFile.getName())) {
+                        Log.d(TAG, "Previous profile picture successfully deleted");
                     }
 
+                    final String fileName = GameBank.BT_ADDRESS + ".jpeg";
 
-                } else {
-                    Toast.makeText(SettingsActivity.this, "failed to pick image", Toast.LENGTH_SHORT).show();
+                    SharePrefUtil.saveStringPreference(
+                            SettingsActivity.this,
+                            PrefKey.PROFILE_PICTURE,
+                            fileName);
+
+                    try(final FileInputStream is = new FileInputStream(pickedUpFile);
+                        final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
+                    ) {
+
+                        // Transfer bytes from in to out
+                        byte[] buf = new byte[1024];
+                        int len;
+                        while ((len = is.read(buf)) > 0) {
+                            os.write(buf, 0, len);
+                        }
+
+                        Log.d(TAG, "Copy completed");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Glide.with(SettingsActivity.this)
+                            .load(getFilesDir() + "/" + fileName)
+                            .apply(new RequestOptions()
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true))
+                            .into(mProfilePicture);
                 }
             }
         });

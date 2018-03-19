@@ -288,7 +288,8 @@ public class CreateMatchActivity extends AppCompatActivity implements RoomLogic.
 
     @Override
     public void onPlayerRemove(Player player) {
-        mMembersAdapter.removePlayer(player.getPlayerId());
-        Log.d(TAG, "Remove player: " + player.getPlayerId());
+        mMembersAdapter.notifyDataSetChanged();
+        //mMembersAdapter.removePlayer(player.getPlayerId());
+        Log.d(TAG, "Remove a player");
     }
 }

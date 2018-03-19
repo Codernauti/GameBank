@@ -12,10 +12,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.IOException;
@@ -94,18 +93,17 @@ public class BTClientService extends Service {
         Log.d(TAG, "Connection requested to ClientConnection");
 
         String nickname = SharePrefUtil.getNicknamePreference(this);
-        String filename = SharePrefUtil.getProfilePicturePreference(this);
 
-        RoomPlayerProfile myself = new RoomPlayerProfile(nickname, GameBank.BT_ADDRESS, filename, false);
         // TODO: remove from this level
-        Player me = new Player(myself);
+        Player me = new Player(GameBank.BT_ADDRESS.toString(), nickname, false);
+        String jsonMe = GameBank.gsonConverter.toJson(me);
 
+        Log.d(TAG, "Send rendezvous: " + jsonMe);
 
         try {
             mConnection.connectAndListen(
                     new BTBundle(BTEvent.MEMBER_CONNECTED)
-                            .append(myself)
-                            .append(GameBank.gsonConverter.toJson(me))
+                            .append(jsonMe)
             );
         } catch (IOException e) {
             Log.e(TAG, "Something in the connection went wrong");

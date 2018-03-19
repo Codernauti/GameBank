@@ -53,8 +53,8 @@ public class RoomPlayerAdapter extends ArrayAdapter<Player> {
 
         roomPlayerVH.mProfileName.setText(client.getUsername());
 
-        if (client.getPhotoName() != null) {
-            File file = new File(getContext().getFilesDir(), client.getPhotoName());
+        if (client.getPictureNameFile() != null) {
+            File file = new File(getContext().getFilesDir(), client.getPictureNameFile());
 
             if (file.exists()) {
                 Glide.with(viewGroup.getContext())
@@ -92,11 +92,12 @@ public class RoomPlayerAdapter extends ArrayAdapter<Player> {
     }
 
     public void removePlayer(String playerToRemoveUuid) {
-        for (int i = 0; i < getCount(); i++) {
+        notifyDataSetChanged();
+        /*for (int i = 0; i < getCount(); i++) {
             if (playerToRemoveUuid.equals(getItem(i).getPlayerId())) {
                 remove(getItem(i));
             }
-        }
+        }*/
     }
 
     private class RoomPlayerVH {

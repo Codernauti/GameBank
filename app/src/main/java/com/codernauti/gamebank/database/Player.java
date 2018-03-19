@@ -16,8 +16,9 @@ public class Player extends RealmObject {
     @PrimaryKey
     private String mId;
     private String mUsername;
-    private String mPhotoName;
     private boolean mReady;
+
+    private String mImageBase64 = "";
 
     public Player() {}
 
@@ -27,20 +28,19 @@ public class Player extends RealmObject {
 
     public Player(
             @NonNull String playerId,
-            @NonNull String username,
-            @NonNull String photo_path
+            @NonNull String username
     ) {
         this.mId = playerId;
         this.mUsername = username;
-        this.mPhotoName = photo_path;
-        this.mReady = false;
     }
 
-    public Player (@NonNull ImagePlayerProfile playerProfile) {
-
-        this.mId = playerProfile.getId().toString();
-        this.mUsername = playerProfile.getNickname();
-        this.mPhotoName = playerProfile.getImageName();
+    public Player(
+            @NonNull String playerId,
+            @NonNull String username,
+            boolean isReady
+    ) {
+        this(playerId, username);
+        mReady = isReady;
     }
 
     @NonNull
@@ -56,19 +56,23 @@ public class Player extends RealmObject {
         this.mUsername = username;
     }
 
-    public String getPhotoName() {
-        return mPhotoName;
-    }
-
-    public void setPhotoName(@NonNull String photoPath) {
-        this.mPhotoName = photoPath;
-    }
-
     public boolean isReady() {
         return mReady;
     }
 
     public void setReady(boolean mIsReady) {
         this.mReady = mIsReady;
+    }
+
+    public String getImageBase64() {
+        return mImageBase64;
+    }
+
+    public void setImageBase64(String imageBase64) {
+        this.mImageBase64 = imageBase64;
+    }
+
+    public String getPictureNameFile() {
+        return mId + ".jpeg";
     }
 }

@@ -54,10 +54,12 @@ public class ClientSyncStateService extends Service {
                 String matchJson = (String) btBundle.get("MATCH");
 
                 Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
+                Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
 
-                Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
+                realm.copyToRealm(matchFromJson);
+                //Match match = realm.createOrUpdateObjectFromJson(Match.class, matchJson);
 
-                SharePrefUtil.saveCurrentMatchId(ClientSyncStateService.this, match.getId());
+                SharePrefUtil.saveCurrentMatchId(ClientSyncStateService.this, matchFromJson.getId());
             }
         });
 

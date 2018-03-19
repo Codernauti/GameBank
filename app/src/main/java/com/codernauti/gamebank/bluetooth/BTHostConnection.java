@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -83,15 +82,8 @@ public class BTHostConnection extends BTConnection {
                             Log.d(TAG, "Player from Realm connected: " +
                                     newPlayerRealm.getPlayerId());
 
-
-                            RoomPlayerProfile newPlayer = (RoomPlayerProfile)
-                                    btBundle.get(RoomPlayerProfile.class.getName());
-
-                            Log.d(TAG, "Member connected: " + newPlayer.getId());
-
-
-                            addConnection(newPlayer.getId(), clientSocket);
-                            startListeningRunnable(newPlayer.getId());
+                            addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
+                            startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));
 
                             Intent intentJoin = btBundle.getIntent();
                             mLocalBroadcastManager.sendBroadcast(intentJoin);

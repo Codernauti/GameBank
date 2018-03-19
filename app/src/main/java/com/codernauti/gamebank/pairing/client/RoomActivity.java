@@ -154,6 +154,8 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
         mMembersAdapter.clear();
+
+        closeServices();
     }
 
     @Override
@@ -168,6 +170,8 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
 
         Intent clientServiceIntent = new Intent(this, BTClientService.class);
         stopService(clientServiceIntent);
+
+        ((GameBank)getApplication()).getRoomLogic().clearDatabase();
     }
 
     @OnClick(R.id.room_poke_fab)

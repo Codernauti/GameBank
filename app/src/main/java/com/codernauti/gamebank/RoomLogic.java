@@ -70,6 +70,7 @@ public final class RoomLogic {
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
                     final String newPlayerJson = (String) btBundle.get(String.class.getName());
+                    Log.d(TAG, "Player json: \n" + newPlayerJson);
 
                     Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                         @Override
@@ -77,7 +78,7 @@ public final class RoomLogic {
                             Player playerFromJson = GameBank.gsonConverter.fromJson(newPlayerJson, Player.class);
                             Log.d(TAG, "Valid: " + playerFromJson.isValid());
 
-                            realm.createOrUpdateObjectFromJson(Player.class, newPlayerJson);
+                            realm.copyToRealmOrUpdate(playerFromJson);
                         }
                     });
 
@@ -112,22 +113,25 @@ public final class RoomLogic {
 
                 } else if (BTEvent.MEMBER_DISCONNECTED.equals(action)) {
 
-                    final String playerDisconnected = btBundle.getUuid().toString();
+                    final String playerDisconnected = btBundle.get(UUID.class.getName()).toString();
+                    Log.d(TAG, "Player to remove: " + playerDisconnected);
 
                     final Player player = Realm.getDefaultInstance()
                             .where(Player.class)
                             .equalTo("mId", playerDisconnected)
                             .findFirst();
 
-                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-                            player.deleteFromRealm();
-                        }
-                    });
+                    if (player != null) {
+                        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                player.deleteFromRealm();
+                            }
+                        });
 
-                    if (mListener != null) {
-                        mListener.onPlayerRemove(player);
+                        if (mListener != null) {
+                            mListener.onPlayerRemove(player);
+                        }
                     }
 
                 }
@@ -202,12 +206,10 @@ public final class RoomLogic {
 
                 Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
                 bank.setUsername("Bank");
-                bank.setPhotoName("aaa");
                 bank.setReady(true);
 
                 Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
                 myself.setUsername(SharePrefUtil.getNicknamePreference(context));
-                myself.setPhotoName(SharePrefUtil.getProfilePicturePreference(context));
                 myself.setReady(true);
 
                 newMatch.getPlayerList().add(bank);
@@ -217,7 +219,12 @@ public final class RoomLogic {
     }
 
     public void clearDatabase() {
-        Realm.getDefaultInstance().deleteAll();
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.deleteAll();
+            }
+        });
     }
 
     /**

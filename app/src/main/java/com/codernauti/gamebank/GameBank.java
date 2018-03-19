@@ -8,11 +8,10 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
-import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.MatchSerializer;
 import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.PlayerDeserializer;
 import com.codernauti.gamebank.database.PlayerSerializer;
 import com.codernauti.gamebank.database.TransactionSerializer;
 import com.codernauti.gamebank.game.DashboardActivity;
@@ -22,7 +21,6 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 import java.util.UUID;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmObject;
 
 import com.google.gson.ExclusionStrategy;
@@ -87,6 +85,9 @@ public class GameBank extends Application {
 
         BT_ADDRESS = SharePrefUtil.getBTAddressPreference(this);
 
+        // Set a default image TODO: rename this method
+        SharePrefUtil.getProfilePicturePreference(this);
+
         // TODO inizialize GSON with custom TypeAdapter for realm proxy object
         try {
             gsonConverter = new GsonBuilder()
@@ -104,7 +105,10 @@ public class GameBank extends Application {
                     .registerTypeAdapter(Class.forName("io.realm.MatchRealmProxy"), new MatchSerializer())
                     .registerTypeAdapter(Class.forName("io.realm.PlayerRealmProxy"), new PlayerSerializer())
                     .registerTypeAdapter(Class.forName("io.realm.TransactionRealmProxy"), new TransactionSerializer())
+                    .registerTypeAdapter(Player.class, new PlayerSerializer())
+                    .registerTypeAdapter(Player.class, new PlayerDeserializer())
                     .create();
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
