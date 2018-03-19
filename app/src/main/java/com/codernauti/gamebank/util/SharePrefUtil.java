@@ -58,36 +58,32 @@ public class SharePrefUtil {
         return nick;
     }
 
-    @NonNull
-    public static String getProfilePicturePreference(Context context) {
 
-        final String PROFILE_PICTURE_DEFAULT = GameBank.BT_ADDRESS + ".jpeg";
+    public static void loadDefaultProfilePicturePreference(Context context) {
 
         String fileName = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(PrefKey.PROFILE_PICTURE, DEFAULT_STRING_VALUE);
 
         if (fileName.equals(DEFAULT_STRING_VALUE)) {
+            // never set a image -> chose a random one
+            Log.d(TAG, "Initialize image.");
+
+            final String PROFILE_PICTURE_NAME = GameBank.BT_ADDRESS + ".jpeg";
 
             ProfilePicGenerator ppg = new ProfilePicGenerator();
             Bitmap profilePicture = BitmapFactory.decodeResource(context.getResources(), ppg.generateRandomContent());
 
-            try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_DEFAULT, Context.MODE_PRIVATE)) {
+            try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_NAME, Context.MODE_PRIVATE)) {
 
                 profilePicture.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-                fileName = PROFILE_PICTURE_DEFAULT;
 
-                saveStringPreference(context, PrefKey.PROFILE_PICTURE, fileName);
+                saveStringPreference(context, PrefKey.PROFILE_PICTURE, PROFILE_PICTURE_NAME);
 
                 Log.d(TAG, "Random profile picture copied");
             } catch (IOException e) {
                 e.printStackTrace();
-
-                return "null";
             }
         }
-
-        Log.d(TAG, "Returning pp name: " + fileName);
-        return fileName;
     }
 
     @NonNull

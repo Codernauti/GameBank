@@ -73,7 +73,7 @@ public class TestGsonPlayer {
         final String pippoId = GameBank.BT_ADDRESS.toString();
         final int matchId = 42;
 
-        SharePrefUtil.getProfilePicturePreference(appContext);
+        SharePrefUtil.loadDefaultProfilePicturePreference(appContext);
 
         realm.executeTransaction(new Realm.Transaction() {
             @Override

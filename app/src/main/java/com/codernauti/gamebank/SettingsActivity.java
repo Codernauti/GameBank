@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -57,24 +56,13 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        final String fileName = SharePrefUtil.getProfilePicturePreference(this);
-
-        if (fileName == null) {
-            // Load standard profile pic
-            Glide.with(this)
-                    .load(R.drawable.default_profile_pic_1)
-                    .into(mProfilePicture);
-
-            Log.e(TAG, "Something went wrong coping a default picture into storage");
-
-        } else {
-            // Load user picture
-            Glide.with(this)
-                    .load(getFilesDir() + "/" + fileName)
-                    .into(mProfilePicture);
-        }
-
-
+        // Load standard profile pic
+        Glide.with(this)
+                .load(getFilesDir() + "/" + GameBank.BT_ADDRESS + ".jpeg")
+                .apply(new RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true))
+                .into(mProfilePicture);
     }
 
     @Override
@@ -143,27 +131,16 @@ public class SettingsActivity extends AppCompatActivity {
         NaraeImagePicker.instance.start(this, item, new OnPickResultListener() {
             @Override
             public void onSelect(int resultCode, @NonNull ArrayList<String> imageList) {
+
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
 
-                    final File previousFile = new File(SharePrefUtil.getProfilePicturePreference(SettingsActivity.this));
+                    final String pictureFileNamePath = GameBank.BT_ADDRESS + ".jpeg";
                     final File pickedUpFile = new File(imageList.get(0));
-
 
                     Log.d(TAG, "Profile picture changed, updating it");
 
-                    if (deleteFile(previousFile.getName())) {
-                        Log.d(TAG, "Previous profile picture successfully deleted");
-                    }
-
-                    final String fileName = GameBank.BT_ADDRESS + ".jpeg";
-
-                    SharePrefUtil.saveStringPreference(
-                            SettingsActivity.this,
-                            PrefKey.PROFILE_PICTURE,
-                            fileName);
-
                     try(final FileInputStream is = new FileInputStream(pickedUpFile);
-                        final FileOutputStream os = openFileOutput(fileName, MODE_PRIVATE);
+                        final FileOutputStream os = openFileOutput(pictureFileNamePath, MODE_PRIVATE);
                     ) {
 
                         // Transfer bytes from in to out
@@ -179,7 +156,7 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     Glide.with(SettingsActivity.this)
-                            .load(getFilesDir() + "/" + fileName)
+                            .load(getFilesDir() + "/" + pictureFileNamePath)
                             .apply(new RequestOptions()
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                                     .skipMemoryCache(true))

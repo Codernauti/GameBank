@@ -38,6 +38,10 @@ public class ClientSyncStateService extends Service {
                 if (BTEvent.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
                     updateDbWithHostState(btBundle);
+
+                } else if (BTEvent.HOST_DISCONNECTED.equals(action)) {
+
+                    ((GameBank) getApplication()).getRoomLogic().clearDatabase();
                 }
             }
 
@@ -74,6 +78,7 @@ public class ClientSyncStateService extends Service {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BTEvent.CURRENT_STATE);
+        filter.addAction(BTEvent.HOST_DISCONNECTED);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mFromBTClientConnection, filter);

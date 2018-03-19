@@ -86,7 +86,7 @@ public class GameBank extends Application {
         BT_ADDRESS = SharePrefUtil.getBTAddressPreference(this);
 
         // Set a default image TODO: rename this method
-        SharePrefUtil.getProfilePicturePreference(this);
+        SharePrefUtil.loadDefaultProfilePicturePreference(this);
 
         // TODO inizialize GSON with custom TypeAdapter for realm proxy object
         try {
