@@ -1,7 +1,7 @@
 package com.codernauti.gamebank.bluetooth;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
+
 import java.util.Calendar;
 
 import java.io.BufferedWriter;
@@ -17,11 +17,13 @@ public class BTDataMetric {
 
     private final static String FILE_NAME = "BTMetric";
 
-    private final BufferedWriter logger;
+    private final BufferedWriter mLogger;
+
+    private long mOverallDataTransmitted;
 
     abstract static class Measurement {
 
-        protected final String timeStamp;
+        final String timeStamp;
 
         Measurement() {
             this.timeStamp = String.valueOf((int)Calendar.getInstance().getTimeInMillis()/1000L);
@@ -78,24 +80,35 @@ public class BTDataMetric {
 
         Calendar time = Calendar.getInstance();
 
-        String now = time.get(Calendar.DATE) + "." + time.get(Calendar.MONTH) + "." + time.get(Calendar.YEAR) + "_" + time.get(Calendar.HOUR) + "." + time.get(Calendar.MINUTE) + "." + time.get(Calendar.SECOND);
-        this.logger = new BufferedWriter(new FileWriter(path + "/" + FILE_NAME + now + ".log"));
+        String now = time.get(Calendar.DATE) + "." +
+                time.get(Calendar.MONTH) + "." +
+                time.get(Calendar.YEAR) + "_" +
+                time.get(Calendar.HOUR) + "." +
+                time.get(Calendar.MINUTE) + "." +
+                time.get(Calendar.SECOND);
+        this.mLogger = new BufferedWriter(new FileWriter(path + "/" + FILE_NAME + now + ".log"));
+        this.mOverallDataTransmitted = 0;
     }
 
     public synchronized void log(Measurement m) {
+        mOverallDataTransmitted += m.getCount();
         try {
-            logger.write(m.getReport());
-            logger.newLine();
+            mLogger.write(m.getReport());
+            mLogger.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public long getOverallDataTransmitted() {
+        return mOverallDataTransmitted;
+    }
+
     @Override
     protected void finalize() {
         try {            
-            logger.flush();
-            logger.close();
+            mLogger.flush();
+            mLogger.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothSocket;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.codernauti.gamebank.GameBank;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.DataOutputStream;
@@ -36,12 +38,17 @@ class BTio implements Closeable {
     void writeData(@NonNull Serializable toSend) throws IOException {
 
         ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
+        BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(objos);
 
         Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
 
         objos.writeObject(toSend);
 
         Log.d(TAG, "DATA SENT");
+
+        if (GameBank.BT_METRIC != null) {
+            GameBank.BT_METRIC.log(outputMeasurement);
+        }
     }
 
     void writeFile(File file) throws IOException {
@@ -81,10 +88,17 @@ class BTio implements Closeable {
 
             try {
                 ObjectInputStream objis = new ObjectInputStream(mBTSocket.getInputStream());
+                BTDataMetric.InputMeasurement inputMeasurement = new BTDataMetric.InputMeasurement(objis);
 
                 Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
-                return objis.readObject();
+                Object res = objis.readObject();
+
+                if (GameBank.BT_METRIC != null) {
+                    GameBank.BT_METRIC.log(inputMeasurement);
+                }
+
+                return res;
             } catch (ClassNotFoundException e) {
 
                 Log.e(TAG, "Data stream end unexpectedly: " + e.getMessage());
