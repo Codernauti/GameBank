@@ -20,18 +20,20 @@ public class Match extends RealmObject implements Serializable {
     private int mId;
     private String mMatchName;
     private String mMatchStarted;
+    private int mInitBudget;
     private RealmList<Transaction> mTransactionList;
     private RealmList<Player> mPlayerList;
 
     public Match() {}
 
-    public Match(int id, @NonNull String matchName) {
+    public Match(int id, @NonNull String matchName, int initBudget) {
 
         Calendar c = Calendar.getInstance();
 
         this.mId = id;
         this.mMatchName = matchName;
         this.mMatchStarted = c.get(Calendar.DATE) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR);
+        this.mInitBudget = initBudget;
         this.mTransactionList = new RealmList<>();
         this.mPlayerList = new RealmList<>();
     }
@@ -74,5 +76,20 @@ public class Match extends RealmObject implements Serializable {
 
     public void setPlayerList(@NonNull RealmList<Player> players) {
         this.mPlayerList = players;
+    }
+
+    public int getInitBudget() {
+        return mInitBudget;
+    }
+
+    public void setInitBudget(int mInitBudget) {
+        this.mInitBudget = mInitBudget;
+    }
+
+    public void setNowAsTimeStarted() {
+        Calendar now = Calendar.getInstance();
+        mMatchStarted = now.get(Calendar.DATE) + "/" +
+                now.get(Calendar.MONTH) + "/" +
+                now.get(Calendar.YEAR);
     }
 }

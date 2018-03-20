@@ -2,6 +2,7 @@ package com.codernauti.gamebank.game;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -47,7 +48,6 @@ public class BankFragment extends Fragment {
     // TODO: move these to a Model class
     private int mAccountBalance;
     private int mTransactionValue;
-    private String mNickname;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class BankFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
 
@@ -65,11 +65,20 @@ public class BankFragment extends Fragment {
                 .inflate(R.layout.bank_fragment, container, false);
         ButterKnife.bind(this, root);
 
-        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
-
-        mNickname = SharePrefUtil.getNicknamePreference(getContext());
+        setInitBudget();
 
         return root;
+    }
+
+    private void setInitBudget() {
+        int matchId = SharePrefUtil.getCurrentMatchId(getContext());
+        Match match = Realm.getDefaultInstance()
+                .where(Match.class)
+                .equalTo("mId", matchId)
+                .findFirst();
+
+        mAccountBalance += match.getInitBudget();
+        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
     @OnClick(R.id.bank_plus_5)

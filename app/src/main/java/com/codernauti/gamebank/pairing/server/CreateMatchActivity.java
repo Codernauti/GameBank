@@ -169,9 +169,6 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         } else {
 
-            mRoomLogic.setRoomName(roomName);
-            mRoomLogic.setInitBudget(Integer.valueOf(initBudget));
-
             mLobbyName.setEnabled(false);
             mInitBudget.setEnabled(false);
             openLobbyButton.setEnabled(false);
@@ -190,7 +187,10 @@ public class CreateMatchActivity extends AppCompatActivity {
             Intent joinService = new Intent(this, HostJoinService.class);
             startService(joinService);
 
-            mRoomLogic.createMatchInstance(this, mLobbyName.getText().toString());
+            mRoomLogic.createMatchInstance(this,
+                    roomName,
+                    Integer.parseInt(initBudget)
+            );
 
             mMembersAdapter = new RoomPlayerAdapter(
                     Realm.getDefaultInstance().where(Player.class)

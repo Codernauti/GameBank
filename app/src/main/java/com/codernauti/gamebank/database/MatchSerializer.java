@@ -18,12 +18,13 @@ public class MatchSerializer implements JsonSerializer<Match> {
 
     @Override
     public JsonElement serialize(Match src, Type typeOfSrc, JsonSerializationContext context) {
-        Log.d(TAG, "serialize\n" + src.getMatchName());
+        Log.d(TAG, "serialize: " + src.getMatchName());
 
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mId", src.getId());
         jsonObject.addProperty("mMatchName", src.getMatchName());
         jsonObject.addProperty("mMatchStarted", src.getMatchStarted());
+        jsonObject.addProperty("mInitBudget", src.getInitBudget());
 
         jsonObject.add("mTransaction",
                 context.serialize(src.getTransactionList().toArray(), Transaction[].class));

@@ -46,13 +46,6 @@ public final class RoomLogic {
     private final LocalBroadcastManager mLocalBroadcastManager;
     private Listener mListener;
 
-    // Game logic fields
-    // Lobby fields
-    private final String mNickname;
-    private String mRoomName;
-    private int mInitBudget;
-
-
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -122,9 +115,8 @@ public final class RoomLogic {
     };
 
 
-    RoomLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
+    RoomLogic(LocalBroadcastManager broadcastManager) {
         Log.d(TAG, "Create RoomLogic");
-        mNickname = hostNickname;
         mLocalBroadcastManager = broadcastManager;
 
         IntentFilter filter = new IntentFilter();
@@ -136,7 +128,9 @@ public final class RoomLogic {
     }
 
 
-    public void createMatchInstance(final Context context, final String matchName) {
+    public void createMatchInstance(final Context context, final String matchName, final int initBudget) {
+        Log.d(TAG, "Create new match (aka new db).\n" +
+                "MatchName: " + matchName + " InitBudget: " + initBudget);
 
         initRealmDatabase(context);
 
@@ -153,15 +147,10 @@ public final class RoomLogic {
 
                 SharePrefUtil.saveCurrentMatchId(context, matchId);
 
-                // Set match nickname
+
                 newMatch.setMatchName(matchName);
-
-                // Set game date
-                Calendar now = Calendar.getInstance();
-                newMatch.setMatchStarted(
-                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
-                );
-
+                newMatch.setNowAsTimeStarted();
+                newMatch.setInitBudget(initBudget);
                 newMatch.setPlayerList(new RealmList<Player>());
                 newMatch.setTransactionList(new RealmList<Transaction>());
 
@@ -238,11 +227,4 @@ public final class RoomLogic {
         }
     }
 
-    public void setRoomName(@NonNull String roomName) {
-        mRoomName = roomName;
-    }
-
-    public void setInitBudget(int initBudget) {
-        mInitBudget = initBudget;
-    }
 }
