@@ -11,11 +11,9 @@ import android.util.Log;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.SharePrefUtil;
-import com.codernauti.gamebank.bluetooth.BTDataMetric;
 
 import java.util.List;
 import java.util.UUID;
-import java.io.IOException;
 
 /**
  * Created by davide on 01/03/18.
@@ -27,7 +25,6 @@ public class GameBank extends Application {
 
     public static final UUID BT_ADDRESS = UUID.randomUUID();
     public static String FILES_DIR;
-    public static BTDataMetric BT_METRIC;
 
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
@@ -63,13 +60,6 @@ public class GameBank extends Application {
 
         Log.d(TAG, "Files directory: " + getFilesDir());
         FILES_DIR = getFilesDir().toString();
-
-        try {
-            BT_METRIC = new BTDataMetric(getFilesDir().toString());
-        } catch (IOException e){
-            Log.e(TAG, "Impossible to open BTDataMetric");
-            e.printStackTrace();
-        }
     }
 
     public void initRoomLogic() {

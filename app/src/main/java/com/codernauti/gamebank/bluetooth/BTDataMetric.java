@@ -1,21 +1,23 @@
 package com.codernauti.gamebank.bluetooth;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import java.util.Calendar;
+import org.apache.commons.io.input.CountingInputStream;
+import org.apache.commons.io.output.CountingOutputStream;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Calendar;
 
-import org.apache.commons.io.output.CountingOutputStream;
-import org.apache.commons.io.input.CountingInputStream;
-
-public class BTDataMetric {
+public class BTDataMetric implements Closeable{
 
     private final static String FILE_NAME = "BTMetric";
+    private static final String TAG = "BTDataMetric";
 
     private final BufferedWriter mLogger;
 
@@ -37,7 +39,7 @@ public class BTDataMetric {
 
         private final CountingInputStream mIs;
         
-        InputMeasurement(@NonNull ObjectInputStream is) {
+        InputMeasurement(@NonNull InputStream is) {
             super();
             this.mIs = new CountingInputStream(is);
         }
@@ -50,7 +52,11 @@ public class BTDataMetric {
         @Override
         String getReport() {
 
-            return timeStamp + " - Received: " + getCount() + " bytes";
+            return timeStamp + " - Received: " + getCount() + " B";
+        }
+
+        public InputStream getInputStream() {
+            return mIs;
         }
     }
 
@@ -58,7 +64,7 @@ public class BTDataMetric {
 
         private final CountingOutputStream mOs;
 
-        OutputMeasurement(@NonNull ObjectOutputStream os) {
+        OutputMeasurement(@NonNull OutputStream os) {
             super();
             this.mOs = new CountingOutputStream(os);
         }
@@ -71,7 +77,11 @@ public class BTDataMetric {
         @Override
         String getReport() {
 
-            return timeStamp + " - Transferred: " + getCount() + " bytes";
+            return timeStamp + " - Transferred: " + getCount() + " B";
+        }
+
+        public OutputStream getOutputStream() {
+            return mOs;
         }
         
     }
@@ -93,6 +103,7 @@ public class BTDataMetric {
     public synchronized void log(Measurement m) {
         mOverallDataTransmitted += m.getCount();
         try {
+            Log.d(TAG, "Report: " + m.getReport());
             mLogger.write(m.getReport());
             mLogger.newLine();
         } catch (IOException e) {
@@ -105,12 +116,17 @@ public class BTDataMetric {
     }
 
     @Override
-    protected void finalize() {
-        try {            
-            mLogger.flush();
-            mLogger.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void close() throws IOException {
+        Log.d(TAG, "Closing the BTDataMetric");
+        mLogger.newLine();
+        mLogger.write("*****");
+        mLogger.newLine();
+        mLogger.write("Total data transmitted: " + mOverallDataTransmitted + " B " +
+         "(" + (float)mOverallDataTransmitted/1024 + " KB)");
+        mLogger.newLine();
+        mLogger.write("*****");
+        mLogger.newLine();
+        mLogger.flush();
+        mLogger.close();
     }
 }

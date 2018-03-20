@@ -108,7 +108,8 @@ public class BTHostService extends Service {
                 mConnections = new BTHostConnection(acceptedConn,
                         getFilesDir().toString(),
                         mServerSocket,
-                        LocalBroadcastManager.getInstance(this));
+                        LocalBroadcastManager.getInstance(this),
+                        getFilesDir().toString());
 
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(BTEvent.MEMBER_CONNECTED);

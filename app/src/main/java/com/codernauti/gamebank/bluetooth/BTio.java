@@ -37,8 +37,9 @@ class BTio implements Closeable {
 
     void writeData(@NonNull Serializable toSend) throws IOException {
 
-        ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
-        BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(objos);
+        BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(
+                mBTSocket.getOutputStream());
+        ObjectOutputStream objos = new ObjectOutputStream(outputMeasurement.getOutputStream());
 
         Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
 
@@ -46,8 +47,8 @@ class BTio implements Closeable {
 
         Log.d(TAG, "DATA SENT");
 
-        if (GameBank.BT_METRIC != null) {
-            GameBank.BT_METRIC.log(outputMeasurement);
+        if (BTConnection.btDataMetric != null) {
+            BTConnection.btDataMetric.log(outputMeasurement);
         }
     }
 
@@ -87,15 +88,16 @@ class BTio implements Closeable {
         if (mBTSocket.isConnected()) {
 
             try {
-                ObjectInputStream objis = new ObjectInputStream(mBTSocket.getInputStream());
-                BTDataMetric.InputMeasurement inputMeasurement = new BTDataMetric.InputMeasurement(objis);
+                BTDataMetric.InputMeasurement inputMeasurement = new BTDataMetric.InputMeasurement(
+                        mBTSocket.getInputStream());
+                ObjectInputStream objis = new ObjectInputStream(inputMeasurement.getInputStream());
 
                 Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
                 Object res = objis.readObject();
 
-                if (GameBank.BT_METRIC != null) {
-                    GameBank.BT_METRIC.log(inputMeasurement);
+                if (BTConnection.btDataMetric != null) {
+                    BTConnection.btDataMetric.log(inputMeasurement);
                 }
 
                 return res;

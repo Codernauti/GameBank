@@ -28,16 +28,27 @@ abstract class BTConnection implements Closeable {
     final LocalBroadcastManager mLocalBroadcastManager;
 
     final ExecutorService mExecutorService;
+    static BTDataMetric btDataMetric;
     private final Map<UUID, BTio> mConnections;
 
     BTConnection (@NonNull LocalBroadcastManager mLocalBroadcastManager,
-                  @NonNull ExecutorService executorService) {
+                  @NonNull ExecutorService executorService,
+                  @NonNull String logPath) {
         this.mLocalBroadcastManager = mLocalBroadcastManager;
         this.mExecutorService = executorService;
 
         this.mConnections = new ConcurrentHashMap<>();
-    }
 
+        if (btDataMetric == null) {
+
+            try {
+                btDataMetric = new BTDataMetric(logPath);
+            } catch (IOException e){
+                Log.e(TAG, "Impossible to open BTDataMetric");
+                e.printStackTrace();
+            }
+        }
+    }
 
     void startListeningRunnable(@NonNull final UUID who) {
         BTio receiverConn = mConnections.get(who);
@@ -115,6 +126,15 @@ abstract class BTConnection implements Closeable {
             }
         }
         mExecutorService.shutdownNow();
+
+        if (btDataMetric != null) {
+            try {
+                btDataMetric.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Impossible to close metric");
+                e.printStackTrace();
+            }
+        }
     }
 
 
