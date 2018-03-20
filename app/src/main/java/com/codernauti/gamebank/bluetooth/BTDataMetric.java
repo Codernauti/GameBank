@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 
-public class BTDataMetric implements Closeable{
+class BTDataMetric implements Closeable {
 
     private final static String FILE_NAME = "BTMetric";
     private static final String TAG = "BTDataMetric";
@@ -26,13 +26,16 @@ public class BTDataMetric implements Closeable{
     abstract static class Measurement {
 
         final String timeStamp;
+        String mAction;
 
         Measurement() {
             this.timeStamp = String.valueOf((int)Calendar.getInstance().getTimeInMillis()/1000L);
         }
 
         abstract int getCount();
-        abstract String getReport();
+        String getReport() {
+            return "Action: " + mAction;
+        }
     }
 
     static class InputMeasurement extends Measurement {
@@ -52,11 +55,18 @@ public class BTDataMetric implements Closeable{
         @Override
         String getReport() {
 
-            return timeStamp + " - Received: " + getCount() + " B";
+            return timeStamp +
+                    " - Received: " +
+                    getCount() + " B. " +
+                    super.getReport();
         }
 
-        public InputStream getInputStream() {
+        InputStream getInputStream() {
             return mIs;
+        }
+
+        void setInputAction(@NonNull String bluetoothAction) {
+            mAction = bluetoothAction;
         }
     }
 
@@ -64,9 +74,10 @@ public class BTDataMetric implements Closeable{
 
         private final CountingOutputStream mOs;
 
-        OutputMeasurement(@NonNull OutputStream os) {
+        OutputMeasurement(@NonNull OutputStream os, @NonNull String bluetoothAction) {
             super();
             this.mOs = new CountingOutputStream(os);
+            this.mAction = bluetoothAction;
         }
 
         @Override
@@ -77,16 +88,19 @@ public class BTDataMetric implements Closeable{
         @Override
         String getReport() {
 
-            return timeStamp + " - Transferred: " + getCount() + " B";
+            return timeStamp +
+                    " - Transferred: " +
+                    getCount() + " B. " +
+                    super.getReport();
         }
 
-        public OutputStream getOutputStream() {
+        OutputStream getOutputStream() {
             return mOs;
         }
         
     }
 
-    public BTDataMetric(String path) throws IOException {
+    BTDataMetric(String path) throws IOException {
 
         Calendar time = Calendar.getInstance();
 

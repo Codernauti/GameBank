@@ -34,10 +34,10 @@ class BTio implements Closeable {
         mMetric = dataMetric;
     }
 
-    void writeData(@NonNull Serializable toSend) throws IOException {
+    void writeData(@NonNull BTBundle toSend) throws IOException {
 
         BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(
-                mBTSocket.getOutputStream());
+                mBTSocket.getOutputStream(), toSend.getBluetoothAction());
         ObjectOutputStream objos = new ObjectOutputStream(outputMeasurement.getOutputStream());
 
         Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
@@ -81,7 +81,7 @@ class BTio implements Closeable {
         Log.d(TAG, "FILE SENT");
     }
 
-    Object readData() throws IOException {
+    BTBundle readData() throws IOException {
         if (mBTSocket.isConnected()) {
 
             try {
@@ -91,8 +91,9 @@ class BTio implements Closeable {
 
                 Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
-                Object res = objis.readObject();
+                BTBundle res = (BTBundle)objis.readObject();
 
+                inputMeasurement.setInputAction(res.getBluetoothAction());
                 mMetric.log(inputMeasurement);
 
                 return res;
