@@ -4,14 +4,11 @@ import android.bluetooth.BluetoothSocket;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.codernauti.gamebank.GameBank;
-
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
