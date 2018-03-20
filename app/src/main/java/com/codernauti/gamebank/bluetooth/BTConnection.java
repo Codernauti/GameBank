@@ -28,7 +28,7 @@ abstract class BTConnection implements Closeable {
     final LocalBroadcastManager mLocalBroadcastManager;
 
     final ExecutorService mExecutorService;
-    static BTDataMetric btDataMetric;
+    private BTDataMetric btDataMetric;
     private final Map<UUID, BTio> mConnections;
 
     BTConnection (@NonNull LocalBroadcastManager mLocalBroadcastManager,
@@ -107,7 +107,7 @@ abstract class BTConnection implements Closeable {
     void addConnection(UUID clientUuid, BluetoothSocket newSocket) {
         Log.d(TAG, "Connection accepted from " + clientUuid);
 
-        BTio btio = new BTio(clientUuid, newSocket);
+        BTio btio = new BTio(clientUuid, newSocket, btDataMetric);
         mConnections.put(clientUuid, btio);
     }
 

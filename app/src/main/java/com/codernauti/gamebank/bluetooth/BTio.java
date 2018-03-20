@@ -26,10 +26,12 @@ class BTio implements Closeable {
 
     private final BluetoothSocket mBTSocket;
     private final UUID mUuid;
+    private final BTDataMetric mMetric;
 
-    BTio(UUID uuid, BluetoothSocket socket) {
+    BTio(UUID uuid, BluetoothSocket socket, BTDataMetric dataMetric) {
         mBTSocket = socket;
         mUuid = uuid;
+        mMetric = dataMetric;
     }
 
     void writeData(@NonNull Serializable toSend) throws IOException {
@@ -44,9 +46,7 @@ class BTio implements Closeable {
 
         Log.d(TAG, "DATA SENT");
 
-        if (BTConnection.btDataMetric != null) {
-            BTConnection.btDataMetric.log(outputMeasurement);
-        }
+        mMetric.log(outputMeasurement);
     }
 
     void writeFile(File file) throws IOException {
@@ -93,9 +93,7 @@ class BTio implements Closeable {
 
                 Object res = objis.readObject();
 
-                if (BTConnection.btDataMetric != null) {
-                    BTConnection.btDataMetric.log(inputMeasurement);
-                }
+                mMetric.log(inputMeasurement);
 
                 return res;
             } catch (ClassNotFoundException e) {
