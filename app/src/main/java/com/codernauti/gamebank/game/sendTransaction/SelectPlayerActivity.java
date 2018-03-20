@@ -8,6 +8,7 @@ import android.widget.ListView;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.RoomLogic;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 /**
  * Created by Eduard on 13-Mar-18.
@@ -31,19 +33,14 @@ public class SelectPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_select_player);
         ButterKnife.bind(this);
 
-        /*RoomPlayerAdapter mAdapter = new RoomPlayerAdapter(this);
+        RoomPlayerAdapter mAdapter = new RoomPlayerAdapter(
+                Realm.getDefaultInstance()
+                        .where(Player.class)
+                        .notEqualTo("mId", GameBank.BANK_UUID)
+                        .findAll()
+        );
 
-        ArrayList<RoomPlayerProfile> allPlayers = ((GameBank) getApplication())
-                .getRoomLogic().getRoomPlayers();
-
-        for (RoomPlayerProfile player : allPlayers) {
-            if (!player.getId().equals(GameBank.BT_ADDRESS)) {
-                mAdapter.add(player);
-            }
-        }
-
-
-        mPlayersList.setAdapter(mAdapter);*/
+        mPlayersList.setAdapter(mAdapter);
     }
 
 
