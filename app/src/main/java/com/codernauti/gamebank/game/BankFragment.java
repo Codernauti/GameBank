@@ -110,11 +110,11 @@ public class BankFragment extends Fragment {
             String from;
 
             if (mTransactionValue < 0) {
-                to = GameBank.BT_ADDRESS.toString();
                 from = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                to = GameBank.BT_ADDRESS.toString();
             } else {
-                to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
                 from = GameBank.BT_ADDRESS.toString();
+                to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
             }
 
             sendTransaction(to, from);
@@ -136,13 +136,14 @@ public class BankFragment extends Fragment {
 
         Player toPlayer = listOfPlayers.where().equalTo("mId", to).findFirst();
         Player fromPlayer = listOfPlayers.where().equalTo("mId", from).findFirst();
+        int matchId = SharePrefUtil.getCurrentMatchId(getContext());
 
         Transaction transaction = new Transaction(
                 (int)(Calendar.getInstance().getTimeInMillis()/1000L),
                 Math.abs(mTransactionValue),
-                fromPlayer,
-                toPlayer,
-                null
+                fromPlayer.getPlayerId(),
+                toPlayer.getPlayerId(),
+                matchId
         );
 
         // Send Transaction to all

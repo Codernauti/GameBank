@@ -16,24 +16,23 @@ public class Transaction extends RealmObject implements Serializable {
     @PrimaryKey
     private int mId;
     private int mAmount;
-    private Player mFrom;
-    private Player mTo;
-    private Match mMatch;
+    private String mFrom;
+    private String mTo;
+    private int mMatchId;
 
     public Transaction() {}
 
     public Transaction(
-            int id,
-            int amount,
-            @NonNull Player from,
-            @NonNull Player to,
-            @NonNull Match match
+            int id, int amount,
+            @NonNull String from,
+            @NonNull String to,
+            int match
     ) {
         this.mId = id;
         this.mAmount = amount;
         this.mFrom = from;
         this.mTo = to;
-        this.mMatch = match;
+        this.mMatchId = match;
     }
 
     public int getId() {
@@ -48,27 +47,27 @@ public class Transaction extends RealmObject implements Serializable {
         this.mAmount = quantity;
     }
 
-    public Player getSender() {
+    public String getSender() {
         return mFrom;
     }
 
-    public void setSender(@NonNull Player sender) {
+    public void setSender(@NonNull String sender) {
         this.mFrom = sender;
     }
 
-    public Player getRecipient() {
+    public String getRecipient() {
         return mTo;
     }
 
-    public void setRecipient(@NonNull Player to) {
+    public void setRecipient(@NonNull String to) {
         this.mTo = to;
     }
 
-    public Match getMatch() {
-        return mMatch;
+    public int getMatchId() {
+        return mMatchId;
     }
 
-    public void setMatch(@NonNull Match match) {
-        this.mMatch = match;
+    public void setMatch(int match) {
+        this.mMatchId = match;
     }
 }

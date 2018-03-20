@@ -17,8 +17,14 @@ public class TransactionSerializer implements JsonSerializer<Transaction> {
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mId", src.getId());
         jsonObject.addProperty("mAmount", src.getAmount());
-        jsonObject.add("mFrom", context.serialize(src.getSender(), Player.class));
-        jsonObject.add("mTo", context.serialize(src.getRecipient(), Player.class));
+
+        jsonObject.addProperty("mFrom", src.getSender());
+        jsonObject.addProperty("mTo", src.getRecipient());
+
+        //jsonObject.add("mFrom", context.serialize(src.getSender(), Player.class));
+        //jsonObject.add("mTo", context.serialize(src.getRecipient(), Player.class));
+
+        jsonObject.addProperty("mMatchId", src.getMatchId());
 
         return jsonObject;
     }

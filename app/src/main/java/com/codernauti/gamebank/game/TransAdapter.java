@@ -8,16 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.database.*;
+import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.database.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.realm.Realm;
+
 class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
     private UUID mMyUUID;
-    private List<com.codernauti.gamebank.database.Transaction> mTransactionsList = new ArrayList<>();
+    private List<Transaction> mTransactionsList = new ArrayList<>();
 
     TransAdapter(@NonNull UUID myUUID) {
         mMyUUID = myUUID;
@@ -39,14 +42,18 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
         com.codernauti.gamebank.database.Transaction transaction = mTransactionsList.get(position);
 
-        /*if (mMyUUID.equals(transaction.getToUUID())) {
-            viewHolder.positiveArrow();
-        } else {
-            viewHolder.negativeArrow();
-        }*/
+        Realm realm = Realm.getDefaultInstance();
 
-        viewHolder.userFromTextView.setText(transaction.getSender().getUsername());
-        viewHolder.userToTextView.setText(transaction.getRecipient().getUsername());
+        Player sender = realm.where(Player.class)
+                .equalTo("mId", transaction.getSender())
+                .findFirst();
+
+        Player receiver = realm.where(Player.class)
+                .equalTo("mId", transaction.getRecipient())
+                .findFirst();
+
+        viewHolder.userFromTextView.setText(sender.getUsername());
+        viewHolder.userToTextView.setText(receiver.getUsername());
         viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
     }
 
