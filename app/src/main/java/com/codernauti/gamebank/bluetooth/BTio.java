@@ -9,7 +9,6 @@ import java.io.Closeable;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,21 +26,27 @@ class BTio implements Closeable {
 
     private final BluetoothSocket mBTSocket;
     private final UUID mUuid;
+    private final BTDataMetric mMetric;
 
-    BTio(UUID uuid, BluetoothSocket socket) {
+    BTio(UUID uuid, BluetoothSocket socket, BTDataMetric dataMetric) {
         mBTSocket = socket;
         mUuid = uuid;
+        mMetric = dataMetric;
     }
 
     void writeData(@NonNull Serializable toSend) throws IOException {
 
-        ObjectOutputStream objos = new ObjectOutputStream(mBTSocket.getOutputStream());
+        BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(
+                mBTSocket.getOutputStream());
+        ObjectOutputStream objos = new ObjectOutputStream(outputMeasurement.getOutputStream());
 
         Log.d(TAG, "Sending data\n\tThread: " + Thread.currentThread().getName());
 
         objos.writeObject(toSend);
 
         Log.d(TAG, "DATA SENT");
+
+        mMetric.log(outputMeasurement);
     }
 
     void writeFile(File file) throws IOException {
@@ -80,11 +85,17 @@ class BTio implements Closeable {
         if (mBTSocket.isConnected()) {
 
             try {
-                ObjectInputStream objis = new ObjectInputStream(mBTSocket.getInputStream());
+                BTDataMetric.InputMeasurement inputMeasurement = new BTDataMetric.InputMeasurement(
+                        mBTSocket.getInputStream());
+                ObjectInputStream objis = new ObjectInputStream(inputMeasurement.getInputStream());
 
                 Log.d(TAG, "Read data\n\tThread: " + Thread.currentThread().getName());
 
-                return objis.readObject();
+                Object res = objis.readObject();
+
+                mMetric.log(inputMeasurement);
+
+                return res;
             } catch (ClassNotFoundException e) {
 
                 Log.e(TAG, "Data stream end unexpectedly: " + e.getMessage());

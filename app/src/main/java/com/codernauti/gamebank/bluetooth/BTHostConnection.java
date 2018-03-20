@@ -35,8 +35,9 @@ public class BTHostConnection extends BTConnection {
 
     BTHostConnection(int acceptedConnections, @NonNull String picturePath,
                      @NonNull BluetoothServerSocket btServerSocket,
-                     @NonNull LocalBroadcastManager localBroadcastManager) {
-        super(localBroadcastManager, Executors.newCachedThreadPool());
+                     @NonNull LocalBroadcastManager localBroadcastManager,
+                     @NonNull String logPath) {
+        super(localBroadcastManager, Executors.newCachedThreadPool(), logPath);
 
         mPicturePath = picturePath;
 

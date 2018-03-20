@@ -23,8 +23,9 @@ public class BTClientConnection extends BTConnection {
     private UUID mHostUUID;
 
     BTClientConnection(@NonNull BluetoothDevice server,
-                       @NonNull LocalBroadcastManager mLocalBroadcastManager) {
-        super(mLocalBroadcastManager, Executors.newCachedThreadPool());
+                       @NonNull LocalBroadcastManager mLocalBroadcastManager,
+                       @NonNull String logPath) {
+        super(mLocalBroadcastManager, Executors.newCachedThreadPool(), logPath);
 
         this.mServer = server;
     }
