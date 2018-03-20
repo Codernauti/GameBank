@@ -26,12 +26,11 @@
         <activity
             android:name=".game.DashboardActivity"
             android:parentActivityName=".lobby.LobbyActivity"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".lobby.LobbyActivity" />
         </activity>
-
         <activity
             android:name=".lobby.LobbyActivity"
             android:label="@string/title_activity_lobby"
@@ -51,13 +50,12 @@
         </activity>
         <activity
             android:name=".pairing.client.RoomActivity"
-            android:label="@string/loading"
-            />
+            android:label="@string/loading" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.MainActivity" />
@@ -67,12 +65,22 @@
             android:label="@string/title_activity_edit_text" />
         <activity android:name=".game.sendTransaction.SelectPlayerActivity" />
 
+        <activity
+        android:name=".LoadMatchActivity"
+        android:label="@string/load_match_activity_name"
+        android:parentActivityName=".MainActivity"
+        android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codernauti.gamebank.MainActivity" />
+        </activity>
+
+
         <!-- Services -->
         <service android:name=".bluetooth.BTClientService" />
         <service android:name=".bluetooth.BTHostService" />
-        <service android:name=".stateMonitors.JoinService" />
-        <service android:name=".stateMonitors.SyncStateService" />
-
+        <service android:name=".stateMonitors.HostJoinService" />
+        <service android:name=".stateMonitors.ClientSyncStateService" />
     </application>
 
 </manifest>

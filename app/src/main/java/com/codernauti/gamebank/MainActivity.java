@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.load_match_button)
     void onLoadingMatchClickButton() {
 
-        Log.e(TAG, "Missing implementation for onLoadingMatchClickButton");
+        startActivity(new Intent(this, LoadMatchActivity.class));
     }
 
     @OnClick(R.id.settings_button)

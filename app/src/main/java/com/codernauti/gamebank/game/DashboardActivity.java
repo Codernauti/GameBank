@@ -19,8 +19,8 @@ import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.lobby.LobbyActivity;
-import com.codernauti.gamebank.stateMonitors.JoinService;
-import com.codernauti.gamebank.stateMonitors.SyncStateService;
+import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
+import com.codernauti.gamebank.stateMonitors.HostJoinService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -94,8 +94,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         stopService(new Intent(this, BTClientService.class));
         stopService(new Intent(this, BTHostService.class));
-        stopService(new Intent(this, JoinService.class));
-        stopService(new Intent(this, SyncStateService.class));
+        stopService(new Intent(this, HostJoinService.class));
+        stopService(new Intent(this, ClientSyncStateService.class));
     }
 
     @Override

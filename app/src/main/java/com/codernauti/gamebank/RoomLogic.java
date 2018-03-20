@@ -10,12 +10,26 @@ import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 03-Mar-18.
@@ -26,10 +40,7 @@ public final class RoomLogic {
     private static final String TAG = "RoomLogic";
 
     public interface Listener {
-        void onPlayerChange(RoomPlayerProfile player);
-        void onPlayerRemove(RoomPlayerProfile player);
-        void onNewPlayerJoined(ArrayList<RoomPlayerProfile> newPlayer);
-        void onRoomNameChange(String roomName);
+        void stateSynchronized();
     }
 
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -37,9 +48,7 @@ public final class RoomLogic {
 
     // Game logic fields
     // Lobby fields
-    private ArrayList<RoomPlayerProfile> mPlayers = new ArrayList<>();
     private final String mNickname;
-
     private String mRoomName;
     private int mInitBudget;
 
@@ -57,45 +66,55 @@ public final class RoomLogic {
 
                 if (BTEvent.MEMBER_CONNECTED.equals(action)) {
 
-                    RoomPlayerProfile newPlayer = (RoomPlayerProfile) btBundle.get(RoomPlayerProfile.class.getName());
-                    mPlayers.add(newPlayer);
+                    final String newPlayerJson = (String) btBundle.get(String.class.getName());
+                    Log.d(TAG, "Player json: \n" + newPlayerJson);
 
-                    if (mListener != null) {
-                        mListener.onNewPlayerJoined(mPlayers);
-                    }
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            Player playerFromJson = GameBank.gsonConverter.fromJson(newPlayerJson, Player.class);
+                            Log.d(TAG, "Valid: " + playerFromJson.isValid());
+
+                            realm.copyToRealmOrUpdate(playerFromJson);
+                        }
+                    });
 
                 } else if (Event.Game.MEMBER_READY.equals(action)) {
 
-                    UUID uuid = btBundle.getUuid();
-                    boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
+                    String uuid = btBundle.getUuid().toString();
+                    final boolean isReady = (boolean) btBundle.get(Boolean.class.getName());
+                    Log.d(TAG, "Player " + uuid + " is ready? " + isReady);
 
-                    for (RoomPlayerProfile player : mPlayers) {
-                        if (player.getId().equals(uuid)) {
+                    final Player player = Realm.getDefaultInstance()
+                            .where(Player.class)
+                            .equalTo("mId", uuid)
+                            .findFirst();
+
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
                             player.setReady(isReady);
-
-                            if (mListener != null) {
-                                mListener.onPlayerChange(player);
-                            }
                         }
-                    }
+                    });
 
                 } else if (BTEvent.MEMBER_DISCONNECTED.equals(action)) {
 
-                    UUID playerDisconnected = btBundle.getUuid();
+                    final String playerDisconnected = btBundle.get(UUID.class.getName()).toString();
+                    Log.d(TAG, "Player to remove: " + playerDisconnected);
 
-                    Iterator<RoomPlayerProfile> iterator = mPlayers.iterator();
-                    while (iterator.hasNext()) {
-                        RoomPlayerProfile player = iterator.next();
+                    final Player player = Realm.getDefaultInstance()
+                            .where(Player.class)
+                            .equalTo("mId", playerDisconnected)
+                            .findFirst();
 
-                        if (player.getId().equals(playerDisconnected)) {
-                            iterator.remove();
-
-                            if (mListener != null) {
-                                mListener.onPlayerRemove(player);
+                    if (player != null) {
+                        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                player.deleteFromRealm();
                             }
-                        }
+                        });
                     }
-
                 }
 
             }
@@ -104,6 +123,7 @@ public final class RoomLogic {
 
 
     RoomLogic(LocalBroadcastManager broadcastManager, String hostNickname) {
+        Log.d(TAG, "Create RoomLogic");
         mNickname = hostNickname;
         mLocalBroadcastManager = broadcastManager;
 
@@ -115,14 +135,76 @@ public final class RoomLogic {
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
 
+
+    public void createMatchInstance(final Context context, final String matchName) {
+
+        initRealmDatabase(context);
+
+        // insert initial data
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                // Get the current max id in the EntityName table
+                //Number id = realm.where(Match.class).max("mId");
+                // If id is null, set it to 1, else set increment it by 1
+                int matchId = 42;//(id == null) ? 1 : id.intValue() + 1;
+                final Match newMatch = realm.createObject(Match.class, matchId);
+
+                SharePrefUtil.saveCurrentMatchId(context, matchId);
+
+                // Set match nickname
+                newMatch.setMatchName(matchName);
+
+                // Set game date
+                Calendar now = Calendar.getInstance();
+                newMatch.setMatchStarted(
+                        now.get(Calendar.DATE) + "/" + now.get(Calendar.MONTH) + "/" + now.get(Calendar.YEAR)
+                );
+
+                newMatch.setPlayerList(new RealmList<Player>());
+                newMatch.setTransactionList(new RealmList<Transaction>());
+
+
+                Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
+                bank.setUsername("Bank");
+                bank.setReady(true);
+
+                Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());
+                myself.setUsername(SharePrefUtil.getNicknamePreference(context));
+                myself.setReady(true);
+
+                newMatch.getPlayerList().add(bank);
+                newMatch.getPlayerList().add(myself);
+            }
+        });
+    }
+
+    public void initRealmDatabase(Context context) {
+        // Create database associated with match
+        RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                .name("Test.realm")
+                .directory(new File(context.getFilesDir(), "matches"))
+                .build();
+
+        Realm.setDefaultConfiguration(myConfig);
+    }
+
+    public void clearDatabase() {
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.deleteAll();
+            }
+        });
+    }
+
     /**
      * @param listener: the Activity that listen the game state
      */
     public void setListener(@NonNull Listener listener) {
         Log.d(TAG, "Set listener: " + listener.getClass());
         mListener = listener;
-
-        listener.onNewPlayerJoined(mPlayers);
     }
 
     /**
@@ -137,57 +219,22 @@ public final class RoomLogic {
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
 
-    public void setIamHost(String pictureName) {
-        Log.d(TAG, "I am host!");
-        mPlayers.add(new RoomPlayerProfile(mNickname, GameBank.BT_ADDRESS, pictureName, true));
-
-        if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
-        }
-    }
-
 
     public boolean matchCanStart() {
-        for (RoomPlayerProfile player : mPlayers) {
-            if (!player.isReady()) {
-                return false;
-            }
-        }
 
-        return true;
+        RealmResults<Player> playersNotReady = Realm.getDefaultInstance()
+                .where(Player.class)
+                .equalTo("mReady", false)
+                .findAll();
+
+        return playersNotReady.isEmpty();
     }
 
-    List<UUID> getMembersUUID() {
-        ArrayList<UUID> result = new ArrayList<>();
-
-        for (RoomPlayerProfile player : mPlayers) {
-            result.add(player.getId());
-        }
-
-        return result;
-    }
-
-    public ArrayList<RoomPlayerProfile> getRoomPlayers() {
-        return mPlayers;
-    }
-
-    public void syncState(@NonNull ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles,
-                          @NonNull String roomName, int initBudget) {
-        mPlayers.addAll(hostRoomPlayerProfiles);
-        mRoomName = roomName;
-        mInitBudget = initBudget;
+    public void syncState() {
+        Log.d(TAG, "sync state completed. Update UI");
 
         if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
-            mListener.onRoomNameChange(mRoomName);
-        }
-    }
-
-    public void clear() {
-        mPlayers.clear();
-
-        if (mListener != null) {
-            mListener.onNewPlayerJoined(mPlayers);
+            mListener.stateSynchronized();
         }
     }
 
@@ -195,16 +242,7 @@ public final class RoomLogic {
         mRoomName = roomName;
     }
 
-    public String getRoomName() {
-        return mRoomName;
-    }
-
-    public int getInitBudget() {
-        return mInitBudget;
-    }
-
     public void setInitBudget(int initBudget) {
         mInitBudget = initBudget;
     }
-
 }

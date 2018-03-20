@@ -11,18 +11,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.Event;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.game.sendTransaction.SelectPlayerActivity;
+import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class BankFragment extends Fragment {
 
@@ -55,9 +64,6 @@ public class BankFragment extends Fragment {
         final ViewGroup root = (ViewGroup) inflater
                 .inflate(R.layout.bank_fragment, container, false);
         ButterKnife.bind(this, root);
-
-        mAccountBalance = ((GameBank) getActivity().getApplication())
-                .getRoomLogic().getInitBudget();
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
@@ -100,23 +106,18 @@ public class BankFragment extends Fragment {
             mAccountBalance += mTransactionValue;
             mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
-            Transaction transaction;
-            UUID bankUUID = UUID.randomUUID();
-            UUID myUUUID = GameBank.BT_ADDRESS;
+            String to;
+            String from;
 
             if (mTransactionValue < 0) {
-                transaction = new Transaction(
-                        mNickname, "Bank", myUUUID, bankUUID, Math.abs(mTransactionValue));
+                to = GameBank.BT_ADDRESS.toString();
+                from = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
             } else {
-                transaction = new Transaction(
-                        "Bank", mNickname, bankUUID, myUUUID, mTransactionValue);
+                to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                from = GameBank.BT_ADDRESS.toString();
             }
 
-            Intent transIntent = BTBundle.makeIntentFrom(
-                    new BTBundle(Event.Game.TRANSACTION)
-                            .append(transaction)
-            );
-            mLocalBroadcastManager.sendBroadcast(transIntent);
+            sendTransaction(to, from);
 
             mTransactionValue = 0;
             mTransactionValueView.setText("0");
@@ -124,6 +125,36 @@ public class BankFragment extends Fragment {
         } else {
             Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void sendTransaction(String to, String from) {
+
+        Realm realm = Realm.getDefaultInstance();
+        Gson converter = GameBank.gsonConverter;
+
+        RealmResults<Player> listOfPlayers = realm.where(Player.class).findAll();
+
+        Player toPlayer = listOfPlayers.where().equalTo("mId", to).findFirst();
+        Player fromPlayer = listOfPlayers.where().equalTo("mId", from).findFirst();
+
+        Transaction transaction = new Transaction(
+                (int)(Calendar.getInstance().getTimeInMillis()/1000L),
+                Math.abs(mTransactionValue),
+                fromPlayer,
+                toPlayer,
+                null
+        );
+
+        // Send Transaction to all
+        String jsonToSend = converter.toJson(transaction);
+        Log.d(TAG, "Sending this json object: \n" + jsonToSend);
+
+        Intent transIntent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.TRANSACTION)
+                        .append(jsonToSend)
+        );
+
+        mLocalBroadcastManager.sendBroadcast(transIntent);
     }
 
     @OnClick(R.id.bank_change_debtor)

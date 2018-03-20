@@ -55,4 +55,9 @@ dependencies {
 
     // Io Stats
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    // Realm
+    apply plugin: 'realm-android'
+    compile 'io.realm:android-adapters:2.1.1'
+
+    compile 'com.google.code.gson:gson:2.8.2'
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by Eduard on 07-Mar-18.
@@ -56,35 +58,76 @@ public class SharePrefUtil {
         return nick;
     }
 
-    public static String getProfilePicturePreference(Context context) {
 
-        final String PROFILE_PICTURE_DEFAULT = GameBank.BT_ADDRESS + ".jpeg";
+    public static void loadDefaultProfilePicturePreference(Context context) {
 
         String fileName = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(PrefKey.PROFILE_PICTURE, DEFAULT_STRING_VALUE);
 
         if (fileName.equals(DEFAULT_STRING_VALUE)) {
+            // never set a image -> chose a random one
+            Log.d(TAG, "Initialize image.");
+
+            final String PROFILE_PICTURE_NAME = GameBank.BT_ADDRESS + ".jpeg";
 
             ProfilePicGenerator ppg = new ProfilePicGenerator();
             Bitmap profilePicture = BitmapFactory.decodeResource(context.getResources(), ppg.generateRandomContent());
 
-            try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_DEFAULT, Context.MODE_PRIVATE)) {
+            try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_NAME, Context.MODE_PRIVATE)) {
 
                 profilePicture.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-                fileName = PROFILE_PICTURE_DEFAULT;
 
-                saveStringPreference(context, PrefKey.PROFILE_PICTURE, fileName);
+                saveStringPreference(context, PrefKey.PROFILE_PICTURE, PROFILE_PICTURE_NAME);
 
                 Log.d(TAG, "Random profile picture copied");
             } catch (IOException e) {
                 e.printStackTrace();
-
-                return null;
             }
         }
+    }
 
-        Log.d(TAG, "Returning pp name: " + fileName);
-        return fileName;
+    @NonNull
+    public static UUID getBTAddressPreference(Context context) {
+
+        String uuid = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PrefKey.BT_ADDRESS, DEFAULT_STRING_VALUE);
+
+        UUID res;
+
+        if (uuid.equals(DEFAULT_STRING_VALUE)) {
+
+            res = UUID.randomUUID();
+            saveStringPreference(context, PrefKey.BT_ADDRESS, res.toString());
+
+            Log.d(TAG, "Random uuid generated for this device");
+        } else {
+
+            res = UUID.fromString(uuid);
+        }
+
+
+        return res;
+    }
+
+    @NonNull
+    public static int getCurrentMatchId(Context context) {
+
+        int res = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PrefKey.CURRENT_MATCH_ID, -1);
+
+        if (res < 0) {
+            throw new RuntimeException("No match id saved here");
+        }
+
+        return res;
+    }
+
+    public static void saveCurrentMatchId(Context context, int toSave) {
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(PrefKey.CURRENT_MATCH_ID, toSave)
+                .apply();
     }
 
 }

@@ -2,7 +2,11 @@ package com.codernauti.gamebank.pairing;
 
 import android.support.annotation.NonNull;
 
+import com.codernauti.gamebank.database.Player;
+
 import java.util.UUID;
+
+import io.realm.RealmModel;
 
 /**
  * Created by davide on 01/03/18.

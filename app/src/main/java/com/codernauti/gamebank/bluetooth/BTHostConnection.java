@@ -7,7 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.database.Player;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -71,21 +72,19 @@ public class BTHostConnection extends BTConnection {
                                 clientSocket.getInputStream());
                         BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
 
-                        Log.d(TAG, "Read rendezvous");
+                        Log.d(TAG, "Read rendezvous, action: " +
+                                btBundle.getBluetoothAction());
 
                         if (BTEvent.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
-                            RoomPlayerProfile newPlayer = (RoomPlayerProfile)
-                                    btBundle.get(RoomPlayerProfile.class.getName());
 
-                            Log.d(TAG, "Member connected: " + newPlayer.getId());
+                            Player newPlayerRealm = GameBank.gsonConverter.fromJson(
+                                    (String) btBundle.get(String.class.getName()), Player.class);
 
-                            // TEST
-                            //readPicture(clientSocket.getInputStream(), newPlayer.getImageName());
-                            // TEST STOP
+                            Log.d(TAG, "Player from Realm connected: " +
+                                    newPlayerRealm.getPlayerId());
 
-
-                            addConnection(newPlayer.getId(), clientSocket);
-                            startListeningRunnable(newPlayer.getId());
+                            addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
+                            startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));
 
                             Intent intentJoin = btBundle.getIntent();
                             mLocalBroadcastManager.sendBroadcast(intentJoin);

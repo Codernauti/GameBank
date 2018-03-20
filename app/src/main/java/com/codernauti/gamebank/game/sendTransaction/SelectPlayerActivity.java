@@ -31,7 +31,7 @@ public class SelectPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_select_player);
         ButterKnife.bind(this);
 
-        RoomPlayerAdapter mAdapter = new RoomPlayerAdapter(this);
+        /*RoomPlayerAdapter mAdapter = new RoomPlayerAdapter(this);
 
         ArrayList<RoomPlayerProfile> allPlayers = ((GameBank) getApplication())
                 .getRoomLogic().getRoomPlayers();
@@ -43,7 +43,7 @@ public class SelectPlayerActivity extends AppCompatActivity {
         }
 
 
-        mPlayersList.setAdapter(mAdapter);
+        mPlayersList.setAdapter(mAdapter);*/
     }
 
 

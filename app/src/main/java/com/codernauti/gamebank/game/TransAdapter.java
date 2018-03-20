@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.database.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.UUID;
 class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
     private UUID mMyUUID;
-    private List<Transaction> mTransactionsList = new ArrayList<>();
+    private List<com.codernauti.gamebank.database.Transaction> mTransactionsList = new ArrayList<>();
 
     TransAdapter(@NonNull UUID myUUID) {
         mMyUUID = myUUID;
@@ -36,7 +37,7 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
     @Override
     public void onBindViewHolder(TransactionViewHolder viewHolder, int position) {
 
-        Transaction transaction = mTransactionsList.get(position);
+        com.codernauti.gamebank.database.Transaction transaction = mTransactionsList.get(position);
 
         /*if (mMyUUID.equals(transaction.getToUUID())) {
             viewHolder.positiveArrow();
@@ -44,9 +45,9 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
             viewHolder.negativeArrow();
         }*/
 
-        viewHolder.userFromTextView.setText(transaction.getFromUser());
-        viewHolder.userToTextView.setText(transaction.getToUser());
-        viewHolder.cashTextView.setText(String.valueOf(transaction.getCash()));
+        viewHolder.userFromTextView.setText(transaction.getSender().getUsername());
+        viewHolder.userToTextView.setText(transaction.getRecipient().getUsername());
+        viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
     }
 
     @Override
@@ -54,7 +55,7 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
         return mTransactionsList.size();
     }
 
-    void addTransaction(Transaction trans){
+    void addTransaction(com.codernauti.gamebank.database.Transaction trans){
         mTransactionsList.add(trans);
         notifyItemInserted(mTransactionsList.size());
     }

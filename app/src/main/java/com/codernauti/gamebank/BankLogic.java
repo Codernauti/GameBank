@@ -10,12 +10,16 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.bluetooth.BTBundle;
-import com.codernauti.gamebank.game.Transaction;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.Calendar;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by Eduard on 05-Mar-18.
@@ -33,55 +37,32 @@ public class BankLogic {
     private LocalBroadcastManager mLocalBroadcastManager;
     private ListenerBank mListenerBank;
 
-    // Game fields
-    private HashMap<UUID, Integer> mPlayerAccounts = new HashMap<>();
-    private ArrayList<Transaction> mTransactions = new ArrayList<>();
-
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Received action " + action);
 
-            BTBundle btBundle = BTBundle.extractFrom(intent);
+            final BTBundle btBundle = BTBundle.extractFrom(intent);
             if (btBundle != null) {
 
                 if (Event.Game.TRANSACTION.equals(action)) {
 
-                    Transaction transaction = (Transaction) btBundle.get(
-                            Transaction.class.getName());
+                    final String jsonTransaction = (String) btBundle.get(String.class.getName());
 
-                    if (transaction != null) {
-
-                        UUID fromUser = transaction.getFromUUID();
-                        UUID toUser = transaction.getToUUID();
-
-
-                        if (mPlayerAccounts.containsKey(fromUser)) {
-
-                            int fromUserBalance = mPlayerAccounts.get(fromUser);
-                            mPlayerAccounts.put(fromUser, fromUserBalance - transaction.getCash());
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.createOrUpdateObjectFromJson(Transaction.class, jsonTransaction);
                         }
-
-                        if (mPlayerAccounts.containsKey(toUser)) {
-
-                            int toUserBalance = mPlayerAccounts.get(toUser);
-                            mPlayerAccounts.put(toUser, toUserBalance + transaction.getCash());
-                        }
+                    });
 
 
-                        mTransactions.add(transaction);
+                    Transaction transaction = GameBank.gsonConverter.fromJson(
+                            jsonTransaction, Transaction.class);
 
-                        if (mListenerBank != null) {
-                            mListenerBank.onNewTransaction(transaction);
-                        }
-
-                        Log.d(TAG, /*"Transaction from " + fromUser +
-                                " to " + toUser + "\n" +*/
-                                "Quantity: " + transaction.getCash());
-
-                    } else {
-                        Log.e(TAG, "Sent a transaction empty!");
+                    if (mListenerBank != null) {
+                        mListenerBank.onNewTransaction(transaction);
                     }
                 }
             }
@@ -89,14 +70,9 @@ public class BankLogic {
     };
 
 
-    BankLogic(@NonNull LocalBroadcastManager broadcastManager,
-                     @NonNull List<UUID> playerAccounts) {
+    BankLogic(@NonNull LocalBroadcastManager broadcastManager, final int matchId, final String bankuuid) {
 
-        for (UUID uuid : playerAccounts) {
-            mPlayerAccounts.put(uuid, 0);
-        }
-
-        mLocalBroadcastManager = broadcastManager;
+        this.mLocalBroadcastManager = broadcastManager;
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.Game.TRANSACTION);

@@ -1,6 +1,5 @@
 package com.codernauti.gamebank.pairing.client;
 
-import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,16 +24,23 @@ import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
 import com.codernauti.gamebank.Event;
-import com.codernauti.gamebank.stateMonitors.SyncStateService;
+import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 28-Feb-18.
@@ -107,9 +113,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         setSupportActionBar(mToolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mMembersAdapter = new RoomPlayerAdapter(this);
-        mMembersList.setAdapter(mMembersAdapter);
-
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         IntentFilter filter = new IntentFilter();
@@ -124,12 +127,20 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         if(extras != null) {
             BluetoothDevice selectedHost = (BluetoothDevice) extras.get(HOST_SELECTED_KEY);
 
-            Intent syncIntent = new Intent(this, SyncStateService.class);
+            Intent syncIntent = new Intent(this, ClientSyncStateService.class);
             startService(syncIntent);
 
             Intent intent = new Intent(this, BTClientService.class);
             intent.putExtra(BTClientService.HOST_DEVICE, selectedHost);
             startService(intent);
+
+            // Create database associated with match
+            RealmConfiguration myConfig = new RealmConfiguration.Builder()
+                    .name("Test.realm") // TODO which name set in client device?
+                    .directory(new File(getFilesDir(), "matches"))
+                    .build();
+
+            Realm.setDefaultConfiguration(myConfig);
 
         } else {
             Log.d(TAG, "No host pass, cannot start services");
@@ -141,16 +152,24 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         super.onDestroy();
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
         ((GameBank)getApplication()).getRoomLogic().removeListener();
-        mMembersAdapter.clear();
-        ((GameBank) getApplication()).initRoomLogic();
+
+        closeServices();
     }
 
     @Override
     public void onBackPressed() {
-
         closeServices();
-
         super.onBackPressed();
+    }
+
+    private void closeServices() {
+        Intent syncServiceIntent = new Intent(this, ClientSyncStateService.class);
+        stopService(syncServiceIntent);
+
+        Intent clientServiceIntent = new Intent(this, BTClientService.class);
+        stopService(clientServiceIntent);
+
+        ((GameBank)getApplication()).getRoomLogic().clearDatabase();
     }
 
     @OnClick(R.id.room_poke_fab)
@@ -177,39 +196,31 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         status.setImageResource(icon);
     }
 
+    // TODO: call when database is ready
+    private void initAdapter() {
+        mMembersAdapter = new RoomPlayerAdapter(
+                Realm.getDefaultInstance().where(Player.class)
+                        .notEqualTo("mId", GameBank.BANK_UUID)
+                        .findAll()
+        );
+        mMembersList.setAdapter(mMembersAdapter);
+    }
+
 
     // RoomLogic callbacks
 
     @Override
-    public void onNewPlayerJoined(ArrayList<RoomPlayerProfile> members) {
-        mMembersAdapter.clear();
-        mMembersAdapter.addAll(members);
-        Log.d(TAG, "Update all " + members.size() + " players.");
+    public void stateSynchronized() {
+        initAdapter();
+
+        String matchName = Realm.getDefaultInstance()
+                .where(Match.class)
+                .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
+                .findFirst()
+                .getMatchName();
+
+        mToolbar.setTitle(matchName);
+
     }
 
-    @Override
-    public void onRoomNameChange(@NonNull  final String roomName) {
-        Log.d(TAG, "Room name: " + roomName);
-        mToolbar.setTitle(getString(R.string.match) + ": " + roomName);
-    }
-
-    @Override
-    public void onPlayerChange(RoomPlayerProfile player) {
-        mMembersAdapter.updatePlayerState(player);
-        Log.d(TAG, "Update ui of: " + player.getId() + "\nisReady? " + player.getId());
-    }
-
-    @Override
-    public void onPlayerRemove(RoomPlayerProfile player) {
-        mMembersAdapter.removePlayer(player.getId());
-        Log.d(TAG, "Remove player: " + player.getId());
-    }
-
-    private void closeServices() {
-        Intent syncServiceIntent = new Intent(this, SyncStateService.class);
-        stopService(syncServiceIntent);
-
-        Intent clientServiceIntent = new Intent(this, BTClientService.class);
-        stopService(clientServiceIntent);
-    }
 }

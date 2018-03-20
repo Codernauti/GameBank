@@ -13,17 +13,18 @@ import android.util.Log;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
+import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
-import java.util.ArrayList;
+import io.realm.Realm;
 
 /**
  * Created by Eduard on 08-Mar-18.
  */
 
-public class SyncStateService extends Service {
+public class ClientSyncStateService extends Service {
 
-    private static final String TAG = "SyncStateService";
+    private static final String TAG = "ClientSyncStateService";
 
     private final BroadcastReceiver mFromBTClientConnection = new BroadcastReceiver() {
         @Override
@@ -36,20 +37,40 @@ public class SyncStateService extends Service {
 
                 if (BTEvent.CURRENT_STATE.equals(action)) {
                     Log.d(TAG, "(only client) Synchronize state with host");
+                    updateDbWithHostState(btBundle);
 
-                    final ArrayList<RoomPlayerProfile> hostRoomPlayerProfiles = (ArrayList<RoomPlayerProfile>)
-                            btBundle.get(ArrayList.class.getName());
-                    final String roomName = (String) btBundle.get(String.class.getName());
-                    final Integer initBudget = (Integer) btBundle.get(Integer.class.getName());
+                } else if (BTEvent.HOST_DISCONNECTED.equals(action)) {
 
-                    ((GameBank) getApplication()).getRoomLogic()
-                            .syncState(hostRoomPlayerProfiles, roomName, initBudget);
-
+                    ((GameBank) getApplication()).getRoomLogic().clearDatabase();
                 }
             }
 
         }
     };
+
+    private void updateDbWithHostState(final BTBundle btBundle) {
+
+        ((GameBank) getApplication()).getRoomLogic().initRealmDatabase(this);
+
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                String matchJson = (String) btBundle.get("MATCH");
+
+                Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
+                Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
+
+                realm.copyToRealm(matchFromJson);
+
+                SharePrefUtil.saveCurrentMatchId(ClientSyncStateService.this, matchFromJson.getId());
+            }
+        });
+
+        ((GameBank) getApplication()).getRoomLogic().syncState();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -57,6 +78,7 @@ public class SyncStateService extends Service {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BTEvent.CURRENT_STATE);
+        filter.addAction(BTEvent.HOST_DISCONNECTED);
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mFromBTClientConnection, filter);

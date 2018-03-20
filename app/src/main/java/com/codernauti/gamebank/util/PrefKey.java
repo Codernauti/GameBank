@@ -8,5 +8,8 @@ public interface PrefKey {
 
     String NICKNAME = "Nickname";
     String PROFILE_PICTURE = "ProfilePicture";
+    String BANK_UUID = "BankUUID";
+    String BT_ADDRESS = "BtAddress";
+    String CURRENT_MATCH_ID = "CurrentMatch";
 
 }
