@@ -58,34 +58,51 @@ public class HostJoinService extends Service {
                     final Player playerAdded = players.get(insertions[0]);
                     Log.d(TAG, "Player added: " + playerAdded.getPlayerId());
 
-                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
+                    sendCurrentState(playerAdded);
+                }
 
-                            Match match = Realm.getDefaultInstance()
-                                    .where(Match.class)
-                                    .equalTo("mId", SharePrefUtil.getCurrentMatchId(HostJoinService.this))
-                                    .findFirst();
+                final int[] changes = changeSet.getChanges();
+                if (changes.length == 1) {
+                    // player change -> sync state
 
-                            match.getPlayerList().add(playerAdded);
+                    final Player playerChanged = players.get(changes[0]);
+                    Log.d(TAG, "Player changed: " + playerChanged.getPlayerId());
 
-                            // Send to BT layer
-                            Intent stateIntent = BTBundle.makeIntentFrom(
-                                    new BTBundle(BTEvent.CURRENT_STATE)
-                                            .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
-                            );
-                            stateIntent.putExtra(BTHostService.RECEIVER_UUID,
-                                    UUID.fromString(playerAdded.getPlayerId()));
+                    // TODO: how to understand if this is a player reconnection?
+                    //sendCurrentState(playerChanged);
 
-                            LocalBroadcastManager.getInstance(HostJoinService.this)
-                                    .sendBroadcast(stateIntent);
-                        }
-                    });
                 }
             }
         });
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void sendCurrentState(final Player player) {
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                Match match = Realm.getDefaultInstance()
+                        .where(Match.class)
+                        .equalTo("mId", SharePrefUtil.getCurrentMatchId(HostJoinService.this))
+                        .findFirst();
+
+                match.getPlayerList().add(player);
+
+                // Send to BT layer
+                Intent stateIntent = BTBundle.makeIntentFrom(
+                        new BTBundle(BTEvent.CURRENT_STATE)
+                                .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
+                );
+                stateIntent.putExtra(BTHostService.RECEIVER_UUID,
+                        UUID.fromString(player.getPlayerId()));
+
+                Log.d(TAG, "Sending event: " + stateIntent.getAction());
+                LocalBroadcastManager.getInstance(HostJoinService.this)
+                        .sendBroadcast(stateIntent);
+            }
+        });
     }
 
     @Override

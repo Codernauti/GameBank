@@ -21,17 +21,19 @@ import io.realm.internal.OsRealmConfig;
  * Created by dpolonio on 15/03/18.
  */
 
-public class MatchManager {
+public class DatabaseMatchManager {
 
-    private static final String TAG = "MatchManager";
+    private static final String TAG = "DatabaseMatchManager";
 
     private static final String DATABASE_FOLDER_NAME = "matches";
     private static final String REALM_EXTENSION = "realm";
 
+    public static final String CLIENT_DB_NAME = "ClientDatabase";
+
     private final File databaseFolder;
     private Realm dbIstance;
 
-    public MatchManager(Context context) {
+    public DatabaseMatchManager(Context context) {
 
         databaseFolder = new File(context.getFilesDir(), DATABASE_FOLDER_NAME);
 
@@ -51,8 +53,15 @@ public class MatchManager {
         File[] savedMatchFiles = databaseFolder.listFiles();
 
         for (File savedMatchFile : savedMatchFiles) {
-            if (hasCorrectExtension(savedMatchFile)) {
-                DatabaseFile dbFile = new DatabaseFile(savedMatchFile);
+            if (hasCorrectExtension(savedMatchFile) && !isClientDatabase(savedMatchFile.getName())) {
+                RealmConfiguration configuration = new RealmConfiguration.Builder()
+                        .name(savedMatchFile.getName())
+                        .directory(new File(GameBank.FILES_DIR, "matches"))
+                        .build();
+                // Realm.getInstance(configuration);
+
+                DatabaseFile dbFile = new DatabaseFile(savedMatchFile, configuration);
+
                 result.add(dbFile);
             }
         }
@@ -62,6 +71,10 @@ public class MatchManager {
 
     private static boolean hasCorrectExtension(File savedFile) {
         return REALM_EXTENSION.equals(getFileExtension(savedFile.getName()));
+    }
+
+    private static boolean isClientDatabase(String filename) {
+        return filename.equals(CLIENT_DB_NAME + ".realm");
     }
 
     // Passing a builder here cause in this way we can add a custom directory

@@ -17,11 +17,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.NumberPicker;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
@@ -30,28 +26,23 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.stateMonitors.HostJoinService;
-import com.codernauti.gamebank.util.SharePrefUtil;
-
-import java.io.File;
-import java.util.Calendar;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class CreateMatchActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateMatchActivity";
+
+    public static final String LOAD_MATCH = "load_match";
 
     @BindView(R.id.create_match_toolbar)
     Toolbar toolbar;
@@ -114,6 +105,68 @@ public class CreateMatchActivity extends AppCompatActivity {
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
         mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
+        mRoomLogic.registerReceiver();
+
+        if (savedInstanceState == null) {
+            savedInstanceState = getIntent().getExtras();
+        }
+
+        if (savedInstanceState != null && savedInstanceState.getBoolean(LOAD_MATCH)) {
+            Log.d(TAG, "Load saved match");
+            loadSavedMatch();
+        }
+    }
+
+    private void loadSavedMatch() {
+
+        makeDeviceDiscoverable();
+
+        startBTServices();
+
+        Realm realm = Realm.getDefaultInstance();
+        // TODO: this assume that exist a single object Match inside database
+        Match savedMatch = realm.where(Match.class).findFirst();
+
+        // update UI
+        if (savedMatch != null) {
+            mLobbyName.setText(savedMatch.getMatchName());
+            mInitBudget.setText(String.valueOf(savedMatch.getInitBudget()));
+
+            // TODO: apply some filter for player already into database
+            updateUi(Realm.getDefaultInstance()
+                    .where(Player.class)
+                    .notEqualTo("mId", GameBank.BANK_UUID)
+                    .findAll());
+        } else {
+            Log.e(TAG, "No match found into database!");
+        }
+    }
+
+    private void makeDeviceDiscoverable() {
+        // Making the server discoverable for 5 minutes
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
+    }
+
+    private void startBTServices() {
+        Intent hostService = new Intent(this, BTHostService.class);
+        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 7);
+        startService(hostService);
+
+        Intent joinService = new Intent(this, HostJoinService.class);
+        startService(joinService);
+    }
+
+    private void updateUi(RealmResults<Player> data) {
+        mLobbyName.setEnabled(false);
+        mInitBudget.setEnabled(false);
+        openLobbyButton.setEnabled(false);
+        cancelMatchButton.setEnabled(true);
+        startMatchButton.setVisibility(View.VISIBLE);
+
+        mMembersAdapter = new RoomPlayerAdapter(data);
+        memberListJoined.setAdapter(mMembersAdapter);
     }
 
     @Override
@@ -133,23 +186,20 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
-        closeRoom();
+        //closeRoom();
     }
 
     private void closeRoom() {
-        // TODO: stop discoverability
-
-        Log.d(TAG, "onCloseRoom()");
 
         Intent joinService = new Intent(this, HostJoinService.class);
         stopService(joinService);
 
         Intent intent = new Intent(this, BTHostService.class);
         stopService(intent);
-
-        mRoomLogic.clearDatabase();
     }
+
 
 
     @OnClick(R.id.open_lobby)
@@ -169,35 +219,19 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         } else {
 
-            mLobbyName.setEnabled(false);
-            mInitBudget.setEnabled(false);
-            openLobbyButton.setEnabled(false);
-            cancelMatchButton.setEnabled(true);
-            startMatchButton.setVisibility(View.VISIBLE);
+            makeDeviceDiscoverable();
 
-            // Making the server discoverable for 5 minutes
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent);
-
-            Intent hostService = new Intent(this, BTHostService.class);
-            hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 7);
-            startService(hostService);
-
-            Intent joinService = new Intent(this, HostJoinService.class);
-            startService(joinService);
+            startBTServices();
 
             mRoomLogic.createMatchInstance(this,
                     roomName,
                     Integer.parseInt(initBudget)
             );
 
-            mMembersAdapter = new RoomPlayerAdapter(
-                    Realm.getDefaultInstance().where(Player.class)
-                            .notEqualTo("mId", GameBank.BANK_UUID)
-                            .findAll()
-            );
-            memberListJoined.setAdapter(mMembersAdapter);
+            updateUi(Realm.getDefaultInstance()
+                    .where(Player.class)
+                    .notEqualTo("mId", GameBank.BANK_UUID)
+                    .findAll());
         }
     }
 
@@ -211,6 +245,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         startMatchButton.setVisibility(View.INVISIBLE);
 
         closeRoom();
+
+        // TODO: remove the database file
+        //mRoomLogic.clearDatabase();
     }
 
     @OnClick(R.id.start_match)
@@ -219,10 +256,6 @@ public class CreateMatchActivity extends AppCompatActivity {
         Log.d(TAG, "onMatchStart");
 
         if (mRoomLogic.matchCanStart()) {
-
-            cancelMatchButton.setVisibility(View.INVISIBLE);
-            openLobbyButton.setVisibility(View.INVISIBLE);
-            startMatchButton.setEnabled(false);
 
             Intent startGame = BTBundle.makeIntentFrom(
                    new BTBundle(BTEvent.START)

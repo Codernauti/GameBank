@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
@@ -111,6 +112,8 @@ public class DashboardActivity extends AppCompatActivity {
                         Log.d(TAG, "User closed the match");
                         dialog.dismiss();
 
+                        ((GameBank) getApplication()).getRoomLogic()
+                                .unregisterReceiver();
                         returnToLobby();
                     }
                 })

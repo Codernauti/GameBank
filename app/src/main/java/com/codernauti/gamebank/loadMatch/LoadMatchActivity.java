@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.loadMatch;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -7,15 +8,14 @@ import android.util.Log;
 import android.widget.ListView;
 
 
-import com.codernauti.gamebank.MatchManager;
+import com.codernauti.gamebank.DatabaseMatchManager;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class LoadMatchActivity extends AppCompatActivity {
 
@@ -30,7 +30,7 @@ public class LoadMatchActivity extends AppCompatActivity {
 
 
     private LoadMatchAdapter mMatchAdapter;
-    private MatchManager mMatchManager;
+    private DatabaseMatchManager mMatchManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class LoadMatchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mMatchManager = new MatchManager(this);
+        mMatchManager = new DatabaseMatchManager(this);
         mMatchAdapter = new LoadMatchAdapter(this);
 
         // load files
@@ -56,9 +56,12 @@ public class LoadMatchActivity extends AppCompatActivity {
     @OnItemClick(R.id.match_list)
     void onMatchClicked(final int i) {
 
-        //Match selected = (Match) mMatchList.getItemAtPosition(i);
+        DatabaseFile saving = mMatchAdapter.getItem(i);
 
-        //Log.d(TAG, "Selected match: " + selected.getMatchName());
-        Log.e(TAG, "Loading match not implemented yet!");
+        Realm.setDefaultConfiguration(saving.getDbConficuration());
+
+        Intent loadMatch = new Intent(this, CreateMatchActivity.class);
+        loadMatch.putExtra(CreateMatchActivity.LOAD_MATCH, true);
+        startActivity(loadMatch);
     }
 }

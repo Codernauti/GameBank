@@ -115,12 +115,15 @@ public class GameBank extends Application {
         }
     }
 
-    public void initRoomLogic() {
-        mRoomLogic = new RoomLogic(LocalBroadcastManager.getInstance(this));
+    public RoomLogic getRoomLogic() {
+        if (mRoomLogic == null) {
+            initRoomLogic();
+        }
+        return mRoomLogic;
     }
 
-    public RoomLogic getRoomLogic() {
-        return mRoomLogic;
+    private void initRoomLogic() {
+        mRoomLogic = new RoomLogic(LocalBroadcastManager.getInstance(this));
     }
 
     public BankLogic getBankLogic() { return mBankLogic; }

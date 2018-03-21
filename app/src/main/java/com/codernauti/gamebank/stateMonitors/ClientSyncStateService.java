@@ -10,11 +10,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.DatabaseMatchManager;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.util.SharePrefUtil;
+
+import java.util.List;
 
 import io.realm.Realm;
 
@@ -56,7 +60,7 @@ public class ClientSyncStateService extends Service {
         final Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
 
         ((GameBank) getApplication()).getRoomLogic()
-                .initRealmDatabase(this);
+                .initRealmDatabase(this, DatabaseMatchManager.CLIENT_DB_NAME);
 
         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
             @Override

@@ -121,13 +121,6 @@ public final class RoomLogic {
     RoomLogic(LocalBroadcastManager broadcastManager) {
         Log.d(TAG, "Create RoomLogic");
         mLocalBroadcastManager = broadcastManager;
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTEvent.MEMBER_CONNECTED);
-        filter.addAction(Event.Game.MEMBER_READY);
-        filter.addAction(BTEvent.MEMBER_DISCONNECTED);
-
-        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
 
 
@@ -135,7 +128,11 @@ public final class RoomLogic {
         Log.d(TAG, "Create new match (aka new db).\n" +
                 "MatchName: " + matchName + " InitBudget: " + initBudget);
 
-        initRealmDatabase(context);
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String nameDatabase = isoFormat.format(Calendar.getInstance().getTime());
+
+        initRealmDatabase(context, nameDatabase);
 
         // insert initial data
         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
@@ -172,19 +169,27 @@ public final class RoomLogic {
         });
     }
 
-    public void initRealmDatabase(Context context) {
-
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String name = isoFormat.format(Calendar.getInstance().getTime());
-
+    public void initRealmDatabase(@NonNull Context context, @NonNull String nameDatabase) {
         // Create database associated with match
-        RealmConfiguration myConfig = new RealmConfiguration.Builder()
-                .name(name + ".realm")
-                .directory(new File(context.getFilesDir(), "matches"))
-                .build();
+        RealmConfiguration.Builder configBuilder = new RealmConfiguration.Builder()
+                .name(nameDatabase + ".realm")
+                .directory(new File(context.getFilesDir(), "matches"));
 
-        Realm.setDefaultConfiguration(myConfig);
+        if (nameDatabase.equals(DatabaseMatchManager.CLIENT_DB_NAME)) {
+            Log.d(TAG, "init ClientDatabase");
+
+            Realm.setDefaultConfiguration(configBuilder.build());
+
+            Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.deleteAll();
+                }
+            });
+
+        } else {
+            Realm.setDefaultConfiguration(configBuilder.build());
+        }
     }
 
     public void clearDatabase() {
@@ -211,6 +216,14 @@ public final class RoomLogic {
         mListener = null;
     }
 
+    public void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTEvent.MEMBER_CONNECTED);
+        filter.addAction(Event.Game.MEMBER_READY);
+        filter.addAction(BTEvent.MEMBER_DISCONNECTED);
+
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
+    }
 
     public void unregisterReceiver() {
         mLocalBroadcastManager.unregisterReceiver(mReceiver);

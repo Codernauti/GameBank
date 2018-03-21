@@ -121,8 +121,6 @@ public class LobbyActivity extends AppCompatActivity {
                     }
                 }
         );
-
-        ((GameBank) getApplication()).initRoomLogic();
     }
 
     private void restartBTDiscovery() {

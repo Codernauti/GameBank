@@ -1,6 +1,10 @@
 package com.codernauti.gamebank.loadMatch;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
+
+import io.realm.RealmConfiguration;
 
 /**
  * Created by Eduard on 21-Mar-18.
@@ -8,24 +12,18 @@ import java.io.File;
 
 public class DatabaseFile {
 
-    private String mDbName;
+    private final String mDbName;
+    private final RealmConfiguration mConfiguration;
     private String mMatchName;
 
-    public DatabaseFile(String dbName, String matchName) {
-        mDbName = dbName;
-        mMatchName = matchName;
-    }
 
-    public DatabaseFile(File savedMatchFile) {
+    public DatabaseFile(@NonNull File savedMatchFile, @NonNull RealmConfiguration config) {
         mDbName = savedMatchFile.getName();
+        mConfiguration = config;
     }
 
     public String getDbName() {
         return mDbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.mDbName = dbName;
     }
 
     public String getMatchName() {
@@ -34,5 +32,10 @@ public class DatabaseFile {
 
     public void setMatchName(String matchName) {
         this.mMatchName = matchName;
+    }
+
+    @NonNull
+    RealmConfiguration getDbConficuration() {
+        return mConfiguration;
     }
 }
