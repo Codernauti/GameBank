@@ -28,6 +28,8 @@ import io.realm.RealmResults;
 
 /**
  * Created by dpolonio on 08/03/18.
+ *  This class is used by HOST in order to send the current state of the match
+ *  to any new player connected
  */
 
 public class HostJoinService extends Service {
