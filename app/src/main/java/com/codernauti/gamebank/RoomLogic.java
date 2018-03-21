@@ -16,9 +16,12 @@ import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -170,9 +173,14 @@ public final class RoomLogic {
     }
 
     public void initRealmDatabase(Context context) {
+
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String name = isoFormat.format(Calendar.getInstance().getTime());
+
         // Create database associated with match
         RealmConfiguration myConfig = new RealmConfiguration.Builder()
-                .name("Test.realm")
+                .name(name + ".realm")
                 .directory(new File(context.getFilesDir(), "matches"))
                 .build();
 

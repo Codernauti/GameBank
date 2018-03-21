@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.codernauti.gamebank.loadMatch.LoadMatchActivity;
 import com.codernauti.gamebank.lobby.LobbyActivity;
 import com.codernauti.gamebank.util.PermissionManager;
 import com.luolc.emojirain.EmojiRainLayout;

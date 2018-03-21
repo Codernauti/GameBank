@@ -66,7 +66,7 @@
         <activity android:name=".game.sendTransaction.SelectPlayerActivity" />
 
         <activity
-        android:name=".LoadMatchActivity"
+        android:name=".loadMatch.LoadMatchActivity"
         android:label="@string/load_match_activity_name"
         android:parentActivityName=".MainActivity"
         android:theme="@style/AppTheme">

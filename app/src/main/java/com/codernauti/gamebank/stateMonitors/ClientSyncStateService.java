@@ -50,18 +50,17 @@ public class ClientSyncStateService extends Service {
 
     private void updateDbWithHostState(final BTBundle btBundle) {
 
-        ((GameBank) getApplication()).getRoomLogic().initRealmDatabase(this);
+        String matchJson = (String) btBundle.get("MATCH");
 
-        Realm realm = Realm.getDefaultInstance();
+        Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
+        final Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
 
-        realm.executeTransaction(new Realm.Transaction() {
+        ((GameBank) getApplication()).getRoomLogic()
+                .initRealmDatabase(this);
+
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-
-                String matchJson = (String) btBundle.get("MATCH");
-
-                Log.d(TAG, "updateDbWithHostState() json: \n" + matchJson);
-                Match matchFromJson = GameBank.gsonConverter.fromJson(matchJson, Match.class);
 
                 realm.copyToRealm(matchFromJson);
 

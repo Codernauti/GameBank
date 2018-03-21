@@ -4,8 +4,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.codernauti.gamebank.loadMatch.DatabaseFile;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -20,34 +23,45 @@ import io.realm.internal.OsRealmConfig;
 
 public class MatchManager {
 
-    private final static String DATABASE_FOLDER_NAME = "matches";
-    private final static String TAG = "MatchManager";
+    private static final String TAG = "MatchManager";
+
+    private static final String DATABASE_FOLDER_NAME = "matches";
+    private static final String REALM_EXTENSION = "realm";
 
     private final File databaseFolder;
     private Realm dbIstance;
 
-    public MatchManager(Context context) throws IOException {
+    public MatchManager(Context context) {
 
-        String path = context.getFilesDir().getAbsolutePath();
-        databaseFolder = new File(path + "/" + DATABASE_FOLDER_NAME);
+        databaseFolder = new File(context.getFilesDir(), DATABASE_FOLDER_NAME);
 
         if (!databaseFolder.exists()) {
             boolean res = databaseFolder.mkdir();
-
             Log.d(TAG, "Database folder created successfully? " + res);
-            if (!res) {
-                throw new IOException("Impossible to create database folder in " + databaseFolder);
-            }
         }
     }
+
 
     public Realm getMatch(){
         return dbIstance;
     }
 
-    public List<File> getSavedMatches() {
+    public List<DatabaseFile> getSavedMatches() {
+        ArrayList<DatabaseFile> result = new ArrayList<>();
+        File[] savedMatchFiles = databaseFolder.listFiles();
 
-        return Arrays.asList(databaseFolder.listFiles());
+        for (File savedMatchFile : savedMatchFiles) {
+            if (hasCorrectExtension(savedMatchFile)) {
+                DatabaseFile dbFile = new DatabaseFile(savedMatchFile);
+                result.add(dbFile);
+            }
+        }
+
+        return result;
+    }
+
+    private static boolean hasCorrectExtension(File savedFile) {
+        return REALM_EXTENSION.equals(getFileExtension(savedFile.getName()));
     }
 
     // Passing a builder here cause in this way we can add a custom directory
@@ -84,6 +98,12 @@ public class MatchManager {
 
     public void loadMatchFromDisk(String matchPath) {
 
+    }
+
+    private static String getFileExtension(String filename) {
+        String filenameArray[] = filename.split("\\.");
+        String extension = filenameArray[filenameArray.length-1];
+        return extension;
     }
 
 }
