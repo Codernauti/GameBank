@@ -21,9 +21,14 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.UUID;
 
+import io.realm.ObjectChangeSet;
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
+import io.realm.RealmObjectChangeListener;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -37,6 +42,21 @@ public class HostJoinService extends Service {
     private static final String TAG = "HostJoinService";
 
     private RealmResults<Player> mPlayers;
+
+    private BroadcastReceiver mRoomLogicReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received action: " + action);
+
+            if (BTEvent.MEMBER_RECONNECTED.equals(action)) {
+                String reconnectedPlayerId = intent.getStringExtra("RECONNECTED_PLAYER_ID");
+
+                sendCurrentStateToBtLayer(reconnectedPlayerId);
+            }
+        }
+    };
+    private Match mCurrentMatch;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -60,12 +80,12 @@ public class HostJoinService extends Service {
                     final Player playerAdded = players.get(insertions[0]);
                     Log.d(TAG, "Player added: " + playerAdded.getPlayerId());
 
-                    sendCurrentState(playerAdded);
+                    sendCurrentStateToBtLayer(playerAdded.getPlayerId());
                 }
 
                 final int[] changes = changeSet.getChanges();
                 if (changes.length == 1) {
-                    // player change -> sync state
+                    // player change -> sync state?
 
                     final Player playerChanged = players.get(changes[0]);
                     Log.d(TAG, "Player changed: " + playerChanged.getPlayerId());
@@ -77,39 +97,41 @@ public class HostJoinService extends Service {
             }
         });
 
+        // TODO: maybe we can listen to match changes?
+
+        IntentFilter filter = new IntentFilter(BTEvent.MEMBER_RECONNECTED);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(mRoomLogicReceiver, filter);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void sendCurrentState(final Player player) {
-        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
+    private void sendCurrentStateToBtLayer(String playerId) {
 
-                Match match = Realm.getDefaultInstance()
-                        .where(Match.class)
-                        .equalTo("mId", SharePrefUtil.getCurrentMatchId(HostJoinService.this))
-                        .findFirst();
+        Match match = Realm.getDefaultInstance().where(Match.class)
+                .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
+                .findFirst();
 
-                match.getPlayerList().add(player);
+        // Send to BT layer
+        Intent stateIntent = BTBundle.makeIntentFrom(
+                new BTBundle(BTEvent.CURRENT_STATE)
+                        .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
+        );
+        stateIntent.putExtra(BTHostService.RECEIVER_UUID,
+                UUID.fromString(playerId));
 
-                // Send to BT layer
-                Intent stateIntent = BTBundle.makeIntentFrom(
-                        new BTBundle(BTEvent.CURRENT_STATE)
-                                .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
-                );
-                stateIntent.putExtra(BTHostService.RECEIVER_UUID,
-                        UUID.fromString(player.getPlayerId()));
-
-                Log.d(TAG, "Sending event: " + stateIntent.getAction());
-                LocalBroadcastManager.getInstance(HostJoinService.this)
-                        .sendBroadcast(stateIntent);
-            }
-        });
+        Log.d(TAG, "Sending event: " + stateIntent.getAction());
+        LocalBroadcastManager.getInstance(HostJoinService.this)
+                .sendBroadcast(stateIntent);
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
+
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mRoomLogicReceiver);
+
         super.onDestroy();
     }
 

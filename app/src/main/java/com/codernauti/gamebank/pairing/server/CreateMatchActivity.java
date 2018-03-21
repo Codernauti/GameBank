@@ -31,6 +31,7 @@ import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.stateMonitors.HostJoinService;
+import com.codernauti.gamebank.util.SharePrefUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -127,8 +128,11 @@ public class CreateMatchActivity extends AppCompatActivity {
         // TODO: this assume that exist a single object Match inside database
         Match savedMatch = realm.where(Match.class).findFirst();
 
-        // update UI
         if (savedMatch != null) {
+
+            SharePrefUtil.saveCurrentMatchId(this, savedMatch.getId());
+
+            // update UI
             mLobbyName.setText(savedMatch.getMatchName());
             mInitBudget.setText(String.valueOf(savedMatch.getInitBudget()));
 

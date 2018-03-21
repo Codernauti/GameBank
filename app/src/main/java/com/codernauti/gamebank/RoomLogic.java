@@ -17,19 +17,12 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -51,7 +44,7 @@ public final class RoomLogic {
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             String action = intent.getAction();
 
             Log.d(TAG, "Received action: " + action + "\n" +
@@ -68,10 +61,41 @@ public final class RoomLogic {
                     Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            Player playerFromJson = GameBank.gsonConverter.fromJson(newPlayerJson, Player.class);
+                            final Player playerFromJson = GameBank.gsonConverter.fromJson(newPlayerJson, Player.class);
                             Log.d(TAG, "Valid: " + playerFromJson.isValid());
 
-                            realm.copyToRealmOrUpdate(playerFromJson);
+
+                            // new player or update
+                            Player oldPlayer = realm.where(Player.class)
+                                    .equalTo("mId", playerFromJson.getPlayerId())
+                                    .findFirst();
+                            if (oldPlayer == null) {
+                                // new player
+                                realm.copyToRealm(playerFromJson);
+                            } else {
+                                // reconnected player
+                                realm.copyToRealmOrUpdate(playerFromJson);
+
+                                Intent memberConnected = new Intent(BTEvent.MEMBER_RECONNECTED);
+                                memberConnected.putExtra("RECONNECTED_PLAYER_ID",
+                                        playerFromJson.getPlayerId());
+                                mLocalBroadcastManager.sendBroadcast(memberConnected);
+                            }
+
+
+                            // add player to match
+                            final int currentMatchId = SharePrefUtil.getCurrentMatchId(context);
+                            final Match currentMatch = realm
+                                    .where(Match.class)
+                                    .equalTo("mId", currentMatchId)
+                                    .findFirst();
+
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    currentMatch.getPlayerList().add(playerFromJson);
+                                }
+                            });
                         }
                     });
 
@@ -102,6 +126,8 @@ public final class RoomLogic {
                             .where(Player.class)
                             .equalTo("mId", playerDisconnected)
                             .findFirst();
+
+                    // TODO: remove player from match?
 
                     if (player != null) {
                         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
