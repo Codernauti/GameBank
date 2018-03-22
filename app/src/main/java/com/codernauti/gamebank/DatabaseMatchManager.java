@@ -9,7 +9,6 @@ import com.codernauti.gamebank.loadMatch.DatabaseFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -31,7 +30,7 @@ public class DatabaseMatchManager {
     public static final String CLIENT_DB_NAME = "ClientDatabase";
 
     private final File databaseFolder;
-    private Realm dbIstance;
+    private Realm dbInstance;
 
     public DatabaseMatchManager(Context context) {
 
@@ -45,7 +44,7 @@ public class DatabaseMatchManager {
 
 
     public Realm getMatch(){
-        return dbIstance;
+        return dbInstance;
     }
 
     public List<DatabaseFile> getSavedMatches() {
@@ -80,31 +79,31 @@ public class DatabaseMatchManager {
     // Passing a builder here cause in this way we can add a custom directory
     public void initializeNewMatch(@NonNull RealmConfiguration.Builder toBuildConfig) {
 
-        if (dbIstance != null) {
-            dbIstance.close();
+        if (dbInstance != null) {
+            dbInstance.close();
         }
         toBuildConfig.directory(databaseFolder);
-        dbIstance = Realm.getInstance(toBuildConfig.build());
+        dbInstance = Realm.getInstance(toBuildConfig.build());
     }
 
     public void deleteMatch(File match) throws IOException {
 
         // Same database, IOException for now
-        if (dbIstance != null && dbIstance.getPath().equals(match.getPath())) {
+        if (dbInstance != null && dbInstance.getPath().equals(match.getPath())) {
             throw new IOException("Cannot delete a database that's currently in use! Create a new one first");
         }
     }
 
     public void saveMatchToDisk(String filename) {
 
-        if (dbIstance != null) {
-            RealmConfiguration dbConfig = dbIstance.getConfiguration();
+        if (dbInstance != null) {
+            RealmConfiguration dbConfig = dbInstance.getConfiguration();
             Random r = new Random();
 
             if (dbConfig.getDurability().equals(OsRealmConfig.Durability.MEM_ONLY)) {
 
                 File toSave = new File(databaseFolder, filename != null? filename : "Match" + r.nextInt());
-                dbIstance.writeCopyTo(toSave);
+                dbInstance.writeCopyTo(toSave);
             }
         }
     }
