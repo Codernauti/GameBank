@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.codernauti.gamebank.BankLogic;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.database.Transaction;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,7 +58,7 @@ public class TransactionsFragment extends Fragment implements BankLogic.Listener
 
     // RoomLogic callbacks
     @Override
-    public void onNewTransaction(com.codernauti.gamebank.database.Transaction newTrans) {
+    public void onNewTransaction(Transaction newTrans) {
         mAdapter.addTransaction(newTrans);
         mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }
