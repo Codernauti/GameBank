@@ -8,6 +8,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,9 @@ import java.util.Calendar;
 class BTDataMetric implements Closeable {
 
     private final static String FILE_NAME = "BTMetric";
+    private final static String FOLDER_NAME = "btmetrics";
     private static final String TAG = "BTDataMetric";
+    private static final String SEPARATOR = ",";
 
     private final BufferedWriter mLogger;
 
@@ -33,8 +36,13 @@ class BTDataMetric implements Closeable {
         }
 
         abstract int getCount();
+        abstract String getTransmissionType();
+
         String getReport() {
-            return "Action: " + mAction;
+            return timeStamp + SEPARATOR +
+                    mAction + SEPARATOR +
+                    getTransmissionType() + SEPARATOR +
+                    getCount();
         }
     }
 
@@ -53,12 +61,8 @@ class BTDataMetric implements Closeable {
         }
 
         @Override
-        String getReport() {
-
-            return timeStamp +
-                    " - Received: " +
-                    getCount() + " B. " +
-                    super.getReport();
+        String getTransmissionType() {
+            return "input";
         }
 
         InputStream getInputStream() {
@@ -86,12 +90,8 @@ class BTDataMetric implements Closeable {
         }
 
         @Override
-        String getReport() {
-
-            return timeStamp +
-                    " - Transferred: " +
-                    getCount() + " B. " +
-                    super.getReport();
+        String getTransmissionType() {
+            return "output";
         }
 
         OutputStream getOutputStream() {
@@ -102,6 +102,17 @@ class BTDataMetric implements Closeable {
 
     BTDataMetric(String path) throws IOException {
 
+        File metricFolder = new File(path + "/" + FOLDER_NAME);
+
+        if (!metricFolder.exists()) {
+            boolean res = metricFolder.mkdir();
+
+            Log.d(TAG, "Database folder created successfully? " + res);
+            if (!res) {
+                throw new IOException("Impossible to create database folder in " + metricFolder);
+            }
+        }
+
         Calendar time = Calendar.getInstance();
 
         String now = time.get(Calendar.DATE) + "." +
@@ -110,7 +121,7 @@ class BTDataMetric implements Closeable {
                 time.get(Calendar.HOUR) + "." +
                 time.get(Calendar.MINUTE) + "." +
                 time.get(Calendar.SECOND);
-        this.mLogger = new BufferedWriter(new FileWriter(path + "/" + FILE_NAME + now + ".log"));
+        this.mLogger = new BufferedWriter(new FileWriter(metricFolder.getAbsolutePath() + "/" + FILE_NAME + now + ".csv"));
         this.mOverallDataTransmitted = 0;
     }
 
@@ -125,21 +136,12 @@ class BTDataMetric implements Closeable {
         }
     }
 
-    public long getOverallDataTransmitted() {
-        return mOverallDataTransmitted;
-    }
-
     @Override
     public void close() throws IOException {
         Log.d(TAG, "Closing the BTDataMetric");
-        mLogger.newLine();
-        mLogger.write("*****");
-        mLogger.newLine();
-        mLogger.write("Total data transmitted: " + mOverallDataTransmitted + " B " +
-         "(" + (float)mOverallDataTransmitted/1024 + " KB)");
-        mLogger.newLine();
-        mLogger.write("*****");
-        mLogger.newLine();
+        Log.d(TAG, "Total data transmitted: " + mOverallDataTransmitted + " B " +
+                "(" + (float)mOverallDataTransmitted/1024 + " KB)");
+
         mLogger.flush();
         mLogger.close();
     }
