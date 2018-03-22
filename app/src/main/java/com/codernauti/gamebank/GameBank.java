@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.MatchSerializer;
 import com.codernauti.gamebank.database.Player;
@@ -18,16 +17,15 @@ import com.codernauti.gamebank.database.TransactionSerializer;
 import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
-
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Created by davide on 01/03/18.
