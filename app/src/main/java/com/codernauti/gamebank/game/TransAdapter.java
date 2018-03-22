@@ -2,32 +2,38 @@ package com.codernauti.gamebank.game;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
+import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
+import io.realm.RealmRecyclerViewAdapter;
 
-class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
+class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionViewHolder> {
 
+    private static final String TAG = "TransAdapter";
     private UUID mMyUUID;
-    private List<Transaction> mTransactionsList = new ArrayList<>();
 
-    TransAdapter(@NonNull UUID myUUID) {
+    TransAdapter(@NonNull UUID myUUID, OrderedRealmCollection<Transaction> data) {
+        super(data, true);
+
+        Log.d(TAG, "Data received: " + data.size() + " transactions");
+
         mMyUUID = myUUID;
+        setHasStableIds(true);
     }
 
     @Override
-        public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    {
 
         Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.trans_list_row;
@@ -40,7 +46,7 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
     @Override
     public void onBindViewHolder(TransactionViewHolder viewHolder, int position) {
 
-        com.codernauti.gamebank.database.Transaction transaction = mTransactionsList.get(position);
+        Transaction transaction = getItem(position);
 
         Realm realm = Realm.getDefaultInstance();
 
@@ -57,14 +63,8 @@ class TransAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
         viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
     }
 
-    @Override
-    public int getItemCount() {
-        return mTransactionsList.size();
-    }
-
-    void addTransaction(com.codernauti.gamebank.database.Transaction trans){
-        mTransactionsList.add(trans);
-        notifyItemInserted(mTransactionsList.size());
+    void addTransaction(){
+        notifyDataSetChanged();
     }
 
 }
