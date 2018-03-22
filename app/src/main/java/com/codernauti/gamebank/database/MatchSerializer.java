@@ -26,7 +26,7 @@ public class MatchSerializer implements JsonSerializer<Match> {
         jsonObject.addProperty("mMatchStarted", src.getMatchStarted());
         jsonObject.addProperty("mInitBudget", src.getInitBudget());
 
-        jsonObject.add("mTransaction",
+        jsonObject.add("mTransactionList",
                 context.serialize(src.getTransactionList().toArray(), Transaction[].class));
 
         jsonObject.add("mPlayerList",
