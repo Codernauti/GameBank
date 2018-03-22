@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 
-public class TransactionsFragment extends Fragment implements BankLogic.ListenerBank {
+public class TransactionsFragment extends Fragment {
 
     private static final String TAG = "TransactionsFragment";
 
@@ -43,24 +43,10 @@ public class TransactionsFragment extends Fragment implements BankLogic.Listener
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new TransAdapter(GameBank.BT_ADDRESS, Realm.getDefaultInstance().where(Transaction.class).findAll());
+        mAdapter = new TransAdapter(Realm.getDefaultInstance().where(Transaction.class).findAll());
         mRecyclerView.setAdapter(mAdapter);
-
-        ((GameBank) getActivity().getApplication()).getBankLogic().setListener(this);
 
         return root;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ((GameBank) getActivity().getApplication()).getBankLogic().setListener(null);
-    }
-
-    // RoomLogic callbacks
-    @Override
-    public void onNewTransaction(Transaction newTrans) {
-        mAdapter.addTransaction();
-        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-    }
 }

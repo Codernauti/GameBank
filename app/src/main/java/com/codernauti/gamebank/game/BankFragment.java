@@ -81,8 +81,9 @@ public class BankFragment extends Fragment {
                 .where(Transaction.class)
                 .findAll();
 
+        mAccountBalance = match.getInitBudget();
+
         if (transactions.size() != 0) {
-            mAccountBalance = 0;
 
             for (final Transaction t : transactions) {
 
@@ -92,8 +93,6 @@ public class BankFragment extends Fragment {
                     mAccountBalance -= t.getAmount();
                 }
             }
-        } else {
-            mAccountBalance += match.getInitBudget();
         }
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
