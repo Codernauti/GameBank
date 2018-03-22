@@ -39,7 +39,7 @@ public class BankLogic {
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Received action " + action);
 
@@ -53,7 +53,16 @@ public class BankLogic {
                     Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            realm.createOrUpdateObjectFromJson(Transaction.class, jsonTransaction);
+
+                            Transaction newTransaction = realm
+                                    .createOrUpdateObjectFromJson(Transaction.class, jsonTransaction);
+
+                            // Update match transitions
+                            Match currentMatch = realm.where(Match.class)
+                                    .equalTo("mId", SharePrefUtil.getCurrentMatchId(context))
+                                    .findFirst();
+
+                            currentMatch.getTransactionList().add(newTransaction);
                         }
                     });
 
