@@ -66,15 +66,32 @@ public final class RoomLogic {
 
 
                             // new player or update
-                            Player oldPlayer = realm.where(Player.class)
+                            final Player oldPlayer = realm.where(Player.class)
                                     .equalTo("mId", playerFromJson.getPlayerId())
                                     .findFirst();
+
+                            final int currentMatchId = SharePrefUtil.getCurrentMatchId(context);
+                            final Match currentMatch = realm
+                                    .where(Match.class)
+                                    .equalTo("mId", currentMatchId)
+                                    .findFirst();
+
                             if (oldPlayer == null) {
                                 // new player
-                                realm.copyToRealm(playerFromJson);
+                                final Player player = realm.copyToRealm(playerFromJson);
+
+                                realm.executeTransaction(new Realm.Transaction() {
+                                    @Override
+                                    public void execute(Realm realm) {
+                                        currentMatch.getPlayerList().add(player);
+                                    }
+                                });
+
                             } else {
                                 // reconnected player
                                 realm.copyToRealmOrUpdate(playerFromJson);
+
+
 
                                 Intent memberConnected = new Intent(BTEvent.MEMBER_RECONNECTED);
                                 memberConnected.putExtra("RECONNECTED_PLAYER_ID",
@@ -82,20 +99,6 @@ public final class RoomLogic {
                                 mLocalBroadcastManager.sendBroadcast(memberConnected);
                             }
 
-
-                            // add player to match
-                            final int currentMatchId = SharePrefUtil.getCurrentMatchId(context);
-                            final Match currentMatch = realm
-                                    .where(Match.class)
-                                    .equalTo("mId", currentMatchId)
-                                    .findFirst();
-
-                            realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    currentMatch.getPlayerList().add(playerFromJson);
-                                }
-                            });
                         }
                     });
 

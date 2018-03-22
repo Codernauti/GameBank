@@ -83,7 +83,7 @@ public class HostJoinService extends Service {
                     sendCurrentStateToBtLayer(playerAdded.getPlayerId());
                 }
 
-                final int[] changes = changeSet.getChanges();
+                /*final int[] changes = changeSet.getChanges();
                 if (changes.length == 1) {
                     // player change -> sync state?
 
@@ -93,7 +93,7 @@ public class HostJoinService extends Service {
                     // TODO: how to understand if this is a player reconnection?
                     //sendCurrentState(playerChanged);
 
-                }
+                }*/
             }
         });
 
