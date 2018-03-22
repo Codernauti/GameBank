@@ -80,12 +80,7 @@ public final class RoomLogic {
                                 // new player
                                 final Player player = realm.copyToRealm(playerFromJson);
 
-                                realm.executeTransaction(new Realm.Transaction() {
-                                    @Override
-                                    public void execute(Realm realm) {
-                                        currentMatch.getPlayerList().add(player);
-                                    }
-                                });
+                                currentMatch.getPlayerList().add(player);
 
                             } else {
                                 // reconnected player
