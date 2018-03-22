@@ -15,11 +15,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.MainActivity;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
-import com.codernauti.gamebank.lobby.LobbyActivity;
 import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
 import com.codernauti.gamebank.stateMonitors.HostJoinService;
 
@@ -57,7 +57,7 @@ public class DashboardActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                returnToLobby();
+                                returnToTheFirstCommonActivity();
                             }
                         })
                         .create()
@@ -114,7 +114,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                         ((GameBank) getApplication()).getRoomLogic()
                                 .unregisterReceiver();
-                        returnToLobby();
+                        returnToTheFirstCommonActivity();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -137,9 +137,11 @@ public class DashboardActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(DashboardPagerAdapter.BANK_TAB);
     }
 
-    private void returnToLobby() {
+    private void returnToTheFirstCommonActivity() {
 
-        Intent returnToLobby = new Intent(this, LobbyActivity.class);
+        // Returning to the first activity in common between the client and the host
+        // Should we add an end match activity or something like that?
+        Intent returnToLobby = new Intent(this, MainActivity.class);
         returnToLobby.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         DashboardActivity.this.startActivity(returnToLobby);
     }
