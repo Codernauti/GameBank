@@ -109,7 +109,7 @@ public class BTHostService extends Service {
                         getFilesDir().toString(),
                         mServerSocket,
                         LocalBroadcastManager.getInstance(this),
-                        getFilesDir().toString());
+                        getFilesDir().getAbsolutePath());
 
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(BTEvent.MEMBER_CONNECTED);

@@ -71,7 +71,7 @@ public class BTClientService extends Service {
             if (host != null) {
                 mConnection = new BTClientConnection(host,
                         LocalBroadcastManager.getInstance(this),
-                        getFilesDir().toString());
+                        getFilesDir().getAbsolutePath());
 
                 IntentFilter filters = new IntentFilter();
                 filters.addAction(Event.Game.POKE);
