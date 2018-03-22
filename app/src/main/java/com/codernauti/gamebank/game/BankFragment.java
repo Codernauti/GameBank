@@ -77,7 +77,25 @@ public class BankFragment extends Fragment {
                 .equalTo("mId", matchId)
                 .findFirst();
 
-        mAccountBalance += match.getInitBudget();
+        RealmResults<Transaction> transactions = Realm.getDefaultInstance()
+                .where(Transaction.class)
+                .findAll();
+
+        if (transactions.size() != 0) {
+            mAccountBalance = 0;
+
+            for (final Transaction t : transactions) {
+
+                if (GameBank.BT_ADDRESS.toString().equals(t.getRecipient())) {
+                    mAccountBalance += t.getAmount();
+                } else if (GameBank.BT_ADDRESS.toString().equals(t.getSender())) {
+                    mAccountBalance -= t.getAmount();
+                }
+            }
+        } else {
+            mAccountBalance += match.getInitBudget();
+        }
+
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
