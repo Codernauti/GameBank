@@ -17,7 +17,7 @@ import com.codernauti.gamebank.R;
  * Created by dpolonio on 19/02/18.
  */
 
-class BTHostAdapter extends ArrayAdapter<BluetoothDevice> {
+public class BTHostAdapter extends ArrayAdapter<BluetoothDevice> {
 
     BTHostAdapter(Context context) {
         super(context, R.layout.bt_list_row);
