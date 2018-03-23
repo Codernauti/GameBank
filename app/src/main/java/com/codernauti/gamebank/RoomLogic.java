@@ -35,12 +35,10 @@ public final class RoomLogic {
 
     private static final String TAG = "RoomLogic";
 
-    public interface Listener {
-        void stateSynchronized();
-    }
+    public static final String RECONNECTED_PLAYER_ID = "reconnected_player_id";
 
     private final LocalBroadcastManager mLocalBroadcastManager;
-    private Listener mListener;
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -88,8 +86,8 @@ public final class RoomLogic {
 
 
 
-                                Intent memberConnected = new Intent(BTEvent.MEMBER_RECONNECTED);
-                                memberConnected.putExtra("RECONNECTED_PLAYER_ID",
+                                Intent memberConnected = new Intent(Event.MEMBER_RECONNECTED);
+                                memberConnected.putExtra(RECONNECTED_PLAYER_ID,
                                         playerFromJson.getPlayerId());
                                 mLocalBroadcastManager.sendBroadcast(memberConnected);
                             }
@@ -145,8 +143,18 @@ public final class RoomLogic {
     RoomLogic(LocalBroadcastManager broadcastManager) {
         Log.d(TAG, "Create RoomLogic");
         mLocalBroadcastManager = broadcastManager;
+
+        registerReceiver();
     }
 
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTEvent.MEMBER_CONNECTED);
+        filter.addAction(Event.Game.MEMBER_READY);
+        filter.addAction(BTEvent.MEMBER_DISCONNECTED);
+
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
+    }
 
     public void createMatchInstance(final Context context, final String matchName, final int initBudget) {
         Log.d(TAG, "Create new match (aka new db).\n" +
@@ -225,35 +233,6 @@ public final class RoomLogic {
         });
     }
 
-    /**
-     * @param listener: the Activity that listen the game state
-     */
-    public void setListener(@NonNull Listener listener) {
-        Log.d(TAG, "Set listener: " + listener.getClass());
-        mListener = listener;
-    }
-
-    /**
-     * Remove the reference to the Activity that listen game state
-     */
-    public void removeListener() {
-        mListener = null;
-    }
-
-    public void registerReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTEvent.MEMBER_CONNECTED);
-        filter.addAction(Event.Game.MEMBER_READY);
-        filter.addAction(BTEvent.MEMBER_DISCONNECTED);
-
-        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
-    }
-
-    public void unregisterReceiver() {
-        mLocalBroadcastManager.unregisterReceiver(mReceiver);
-    }
-
-
     public boolean matchCanStart() {
 
         RealmResults<Player> playersNotReady = Realm.getDefaultInstance()
@@ -262,14 +241,6 @@ public final class RoomLogic {
                 .findAll();
 
         return playersNotReady.isEmpty();
-    }
-
-    public void syncState() {
-        Log.d(TAG, "sync state completed. Update UI");
-
-        if (mListener != null) {
-            mListener.stateSynchronized();
-        }
     }
 
 }

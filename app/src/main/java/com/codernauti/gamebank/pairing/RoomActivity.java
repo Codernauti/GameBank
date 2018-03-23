@@ -38,7 +38,7 @@ import io.realm.Realm;
  * Created by Eduard on 28-Feb-18.
  */
 
-public class RoomActivity extends AppCompatActivity implements RoomLogic.Listener {
+public class RoomActivity extends AppCompatActivity {
 
     private static final String TAG = "RoomActivity";
 
@@ -91,9 +91,31 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
                         Toast.LENGTH_SHORT).show();
                 closeServices();
                 finish();
+
+            } else if (Event.STATE_SYNCHRONIZED.equals(action)) {
+
+                initAdapter();
+
+                String matchName = Realm.getDefaultInstance()
+                        .where(Match.class)
+                        .equalTo("mId", SharePrefUtil.getCurrentMatchId(context))
+                        .findFirst()
+                        .getMatchName();
+
+                mToolbar.setTitle(matchName);
+
             }
         }
     };
+
+    private void initAdapter() {
+        mMembersAdapter = new RoomPlayerAdapter(
+                Realm.getDefaultInstance().where(Player.class)
+                        .notEqualTo("mId", GameBank.BANK_UUID)
+                        .findAll()
+        );
+        mMembersList.setAdapter(mMembersAdapter);
+    }
 
 
     @Override
@@ -111,10 +133,11 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         filter.addAction(BTEvent.HOST_DISCONNECTED);
         filter.addAction(BTEvent.CONN_ESTABLISHED);
         filter.addAction(BTEvent.CONN_ERRONEOUS);
+        filter.addAction(Event.STATE_SYNCHRONIZED);
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
 
-        ((GameBank)getApplication()).getRoomLogic().setListener(this);
-        ((GameBank)getApplication()).getRoomLogic().registerReceiver();
+        // TODO: startService RoomLogic
+        ((GameBank)getApplication()).getRoomLogic();
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -136,7 +159,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
     protected void onDestroy() {
         super.onDestroy();
         mLocalBroadcastManager.unregisterReceiver(mReceiver);
-        ((GameBank)getApplication()).getRoomLogic().removeListener();
 
         closeServices();
     }
@@ -154,6 +176,7 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         Intent clientServiceIntent = new Intent(this, BTClientService.class);
         stopService(clientServiceIntent);
     }
+
 
     @OnClick(R.id.room_poke_fab)
     public void sendPoke() {
@@ -177,32 +200,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
         mLocalBroadcastManager.sendBroadcast(intent);
 
         status.setImageResource(icon);
-    }
-
-    // TODO: call when database is ready
-    private void initAdapter() {
-        mMembersAdapter = new RoomPlayerAdapter(
-                Realm.getDefaultInstance().where(Player.class)
-                        .notEqualTo("mId", GameBank.BANK_UUID)
-                        .findAll()
-        );
-        mMembersList.setAdapter(mMembersAdapter);
-    }
-
-
-    // RoomLogic callbacks
-
-    @Override
-    public void stateSynchronized() {
-        initAdapter();
-
-        String matchName = Realm.getDefaultInstance()
-                .where(Match.class)
-                .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
-                .findFirst()
-                .getMatchName();
-
-        mToolbar.setTitle(matchName);
     }
 
 }

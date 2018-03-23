@@ -68,8 +68,9 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private RoomPlayerAdapter mMembersAdapter;
-    private RoomLogic mRoomLogic;
     private LocalBroadcastManager mLocalBroadcastManager;
+
+    private CreateMatchDataSource mDataSource;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -104,8 +105,9 @@ public class CreateMatchActivity extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-        mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
-        mRoomLogic.registerReceiver();
+        // TODO: startService RoomLogic
+        ((GameBank)getApplication()).getRoomLogic();
+        mDataSource = new CreateMatchDataSource();
 
         if (savedInstanceState == null) {
             savedInstanceState = getIntent().getExtras();
@@ -226,7 +228,8 @@ public class CreateMatchActivity extends AppCompatActivity {
 
             startBTServices();
 
-            mRoomLogic.createMatchInstance(this,
+
+            mDataSource.createMatchInstance(this,
                     roomName,
                     Integer.parseInt(initBudget)
             );
@@ -250,7 +253,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         closeRoom();
 
         // TODO: remove the database file
-        //mRoomLogic.clearDatabase();
+        //mRoomLogic.deleteDatabase();
+        //mDataSource.deleteDatabase();
     }
 
     @OnClick(R.id.start_match)
@@ -258,7 +262,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         Log.d(TAG, "onMatchStart");
 
-        if (mRoomLogic.matchCanStart()) {
+        if (mDataSource.matchCanStart()) {
 
             Intent startGame = BTBundle.makeIntentFrom(
                    new BTBundle(BTEvent.START)

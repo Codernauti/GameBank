@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.codernauti.gamebank.DatabaseMatchManager;
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
@@ -45,6 +46,7 @@ public class ClientSyncStateService extends Service {
 
                 } else if (BTEvent.HOST_DISCONNECTED.equals(action)) {
 
+                    // FIXME use another class -> DataSource
                     ((GameBank) getApplication()).getRoomLogic().clearDatabase();
                 }
             }
@@ -72,7 +74,8 @@ public class ClientSyncStateService extends Service {
             }
         });
 
-        ((GameBank) getApplication()).getRoomLogic().syncState();
+        Intent stateSync = new Intent(Event.STATE_SYNCHRONIZED);
+        sendBroadcast(stateSync);
     }
 
     @Override
