@@ -236,6 +236,8 @@ public class UITest {
             Log.d(TAG, "Match value: " + match);
             onData(anything()).inAdapterView(withId(R.id.list))
                     .atPosition(match - 1).perform(click());
+
+            Thread.sleep(5000);
         }
     }
 
