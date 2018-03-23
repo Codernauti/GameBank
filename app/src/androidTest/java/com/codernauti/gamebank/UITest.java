@@ -215,7 +215,7 @@ public class UITest {
             BTHostAdapter bluetoothAdapter = (BTHostAdapter) f.get(currentActivity); //IllegalAccessException
 
             Assert.assertNotNull(bluetoothAdapter);
-            Assert.assertNotEquals(bluetoothAdapter.getClass().getDeclaredFields().length, 0);
+            /*Assert.assertNotEquals(bluetoothAdapter.getClass().getDeclaredFields().length, 0);
 
             for (Field k : bluetoothAdapter.getClass().getDeclaredFields()) {
                 Log.d(TAG, k.getName());
@@ -224,17 +224,18 @@ public class UITest {
             Field g = bluetoothAdapter.getClass().getDeclaredField("mOriginalValues");
             g.setAccessible(true);
             List<BluetoothDevice> devicesFound = (List<BluetoothDevice>) g.get(bluetoothAdapter);
-
+*/
             int match = 0;
             boolean flag = true;
-            for (; match < devicesFound.size() && flag; match++) {
-                if (devicesFound.get(match).getAddress().equals(savedAddress)) {
+            for (; match < bluetoothAdapter.getCount() && flag; match++) {
+                if (bluetoothAdapter.getItem(match).getAddress().equals(savedAddress)) {
                     flag = false;
                 }
             }
 
+            Log.d(TAG, "Match value: " + match);
             onData(anything()).inAdapterView(withId(R.id.list))
-                    .atPosition(match).perform(click());
+                    .atPosition(match - 1).perform(click());
         }
     }
 
