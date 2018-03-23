@@ -20,21 +20,17 @@ import io.realm.RealmRecyclerViewAdapter;
 class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionViewHolder> {
 
     private static final String TAG = "TransAdapter";
-    private UUID mMyUUID;
 
-    TransAdapter(@NonNull UUID myUUID, OrderedRealmCollection<Transaction> data) {
+    TransAdapter(OrderedRealmCollection<Transaction> data) {
         super(data, true);
 
         Log.d(TAG, "Data received: " + data.size() + " transactions");
 
-        mMyUUID = myUUID;
         setHasStableIds(true);
     }
 
     @Override
-    public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
-    {
-
+    public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.trans_list_row;
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -61,10 +57,6 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
         viewHolder.userFromTextView.setText(sender.getUsername());
         viewHolder.userToTextView.setText(receiver.getUsername());
         viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
-    }
-
-    void addTransaction(){
-        notifyDataSetChanged();
     }
 
 }

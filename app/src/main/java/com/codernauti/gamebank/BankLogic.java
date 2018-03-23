@@ -30,12 +30,8 @@ public class BankLogic {
 
     private static final String TAG = "BankLogic";
 
-    public interface ListenerBank {
-        void onNewTransaction(Transaction newTrans);
-    }
 
     private LocalBroadcastManager mLocalBroadcastManager;
-    private ListenerBank mListenerBank;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -65,21 +61,13 @@ public class BankLogic {
                             currentMatch.getTransactionList().add(newTransaction);
                         }
                     });
-
-
-                    Transaction transaction = GameBank.gsonConverter.fromJson(
-                            jsonTransaction, Transaction.class);
-
-                    if (mListenerBank != null) {
-                        mListenerBank.onNewTransaction(transaction);
-                    }
                 }
             }
         }
     };
 
 
-    BankLogic(@NonNull LocalBroadcastManager broadcastManager, final int matchId, final String bankuuid) {
+    BankLogic(@NonNull LocalBroadcastManager broadcastManager) {
 
         this.mLocalBroadcastManager = broadcastManager;
 
@@ -87,15 +75,6 @@ public class BankLogic {
         filter.addAction(Event.Game.TRANSACTION);
 
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
-    }
-
-
-    public void setListener(@Nullable ListenerBank listenerBank) {
-        if (listenerBank != null) {
-            Log.d(TAG, "Set listener: " + listenerBank.getClass());
-        }
-
-        mListenerBank = listenerBank;
     }
 
 }
