@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.pairing.client;
+package com.codernauti.gamebank.pairing;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,21 +25,14 @@ import com.codernauti.gamebank.bluetooth.BTClientService;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.stateMonitors.ClientSyncStateService;
 import com.codernauti.gamebank.util.SharePrefUtil;
-
-import java.io.File;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 28-Feb-18.
@@ -211,7 +203,6 @@ public class RoomActivity extends AppCompatActivity implements RoomLogic.Listene
                 .getMatchName();
 
         mToolbar.setTitle(matchName);
-
     }
 
 }

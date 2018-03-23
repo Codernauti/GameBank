@@ -21,11 +21,10 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTStateChange;
-import com.codernauti.gamebank.pairing.client.RoomActivity;
-import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
+import com.codernauti.gamebank.pairing.RoomActivity;
+import com.codernauti.gamebank.pairing.CreateMatchActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

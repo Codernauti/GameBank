@@ -1,4 +1,4 @@
-package com.codernauti.gamebank.pairing.server;
+package com.codernauti.gamebank.pairing;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -26,7 +26,6 @@ import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTHostService;
