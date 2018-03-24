@@ -41,6 +41,7 @@ public class GameBank extends Application {
 
     public static Gson gsonConverter;
 
+    // need to keep in memory inner Broadcast Receivers
     private RoomLogic mRoomLogic;
     private BankLogic mBankLogic;
 
@@ -106,13 +107,8 @@ public class GameBank extends Application {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
 
-    public RoomLogic getRoomLogic() {
-        if (mRoomLogic == null) {
-            mRoomLogic = new RoomLogic(LocalBroadcastManager.getInstance(this));
-        }
-        return mRoomLogic;
+        mRoomLogic = new RoomLogic(LocalBroadcastManager.getInstance(this));
     }
 
 }

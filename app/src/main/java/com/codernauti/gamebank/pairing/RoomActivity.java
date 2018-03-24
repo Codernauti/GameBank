@@ -46,8 +46,10 @@ public class RoomActivity extends AppCompatActivity {
 
     @BindView(R.id.room_members)
     ListView mMembersList;
+
     @BindView(R.id.member_set_status)
     FloatingActionButton status;
+
     @BindView(R.id.room_activity_toolbar)
     Toolbar mToolbar;
 
@@ -135,9 +137,6 @@ public class RoomActivity extends AppCompatActivity {
         filter.addAction(BTEvent.CONN_ERRONEOUS);
         filter.addAction(Event.STATE_SYNCHRONIZED);
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
-
-        // TODO: startService RoomLogic
-        ((GameBank)getApplication()).getRoomLogic();
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
