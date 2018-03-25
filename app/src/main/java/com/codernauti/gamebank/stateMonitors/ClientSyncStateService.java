@@ -58,7 +58,7 @@ public class ClientSyncStateService extends Service {
         dbManager.createClientMatchInstance(this, matchFromJson);
 
         Intent stateSync = new Intent(Event.STATE_SYNCHRONIZED);
-        sendBroadcast(stateSync);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(stateSync);
     }
 
     @Override
