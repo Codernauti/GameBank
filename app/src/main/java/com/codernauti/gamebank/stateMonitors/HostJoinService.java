@@ -21,14 +21,9 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 
 import java.util.UUID;
 
-import io.realm.ObjectChangeSet;
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmModel;
-import io.realm.RealmObjectChangeListener;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -56,7 +51,6 @@ public class HostJoinService extends Service {
             }
         }
     };
-    private Match mCurrentMatch;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -82,22 +76,8 @@ public class HostJoinService extends Service {
 
                     sendCurrentStateToBtLayer(playerAdded.getPlayerId());
                 }
-
-                /*final int[] changes = changeSet.getChanges();
-                if (changes.length == 1) {
-                    // player change -> sync state?
-
-                    final Player playerChanged = players.get(changes[0]);
-                    Log.d(TAG, "Player changed: " + playerChanged.getPlayerId());
-
-                    // TODO: how to understand if this is a player reconnection?
-                    //sendCurrentState(playerChanged);
-
-                }*/
             }
         });
-
-        // TODO: maybe we can listen to match changes?
 
         IntentFilter filter = new IntentFilter(BTEvent.MEMBER_RECONNECTED);
         LocalBroadcastManager.getInstance(this)

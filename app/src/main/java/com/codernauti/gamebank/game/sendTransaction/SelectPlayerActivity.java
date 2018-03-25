@@ -7,12 +7,8 @@ import android.widget.ListView;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
-import com.codernauti.gamebank.pairing.RoomPlayerProfile;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
