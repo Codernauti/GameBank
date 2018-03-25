@@ -2,7 +2,6 @@ package com.codernauti.gamebank;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
@@ -15,12 +14,11 @@ import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.codernauti.gamebank.lobby.BTHostAdapter;
-import com.codernauti.gamebank.lobby.LobbyActivity;
-import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
+import com.codernauti.gamebank.pairing.CreateMatchActivity;
+import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -31,7 +29,8 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
+
+import io.realm.Realm;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onData;
@@ -59,6 +58,8 @@ public class UITest {
     private static final int INIT_BUDGET = 5;
     private static final int STARTING_HOST_INITIAL_MEMBER_NUMBER = 1;
     private static final String TAG = "UITest";
+
+    private volatile boolean isReady = false;
 
     @Rule
     public ActivityTestRule<MainActivity> mainActivityActivityTestRule = new ActivityTestRule<>(
@@ -169,6 +170,10 @@ public class UITest {
                 }));
     }
 
+    private interface Listener {
+        void onCallback();
+    }
+
     @Test
     public void canStartMatch() throws UiObjectNotFoundException, NoSuchFieldException, IllegalAccessException, InterruptedException {
 
@@ -177,7 +182,7 @@ public class UITest {
                 "bluetooth_address");
 
         final String savedAddress = InstrumentationRegistry
-                .getTargetContext().getString(R.string.host_mac_address);
+                .getTargetContext().getString(R.string.test_host_mac_address);
 
         Log.d(TAG, "Device MAC address: " + macAddress);
         Log.d(TAG, "Defined host MAC address: " + savedAddress);
@@ -192,11 +197,68 @@ public class UITest {
                 .perform(click());
         if (savedAddress.equals(macAddress)) {
             // Host actions
-
             onView(withId(R.id.fab))
                     .perform(click());
 
             openLobby();
+
+            getActivityInstance();
+
+            Assert.assertNotNull(currentActivity);
+
+            Field f = currentActivity.getClass().getDeclaredField("mMembersAdapter");
+            f.setAccessible(true);
+            final RoomPlayerAdapter roomPlayerAdapter = (RoomPlayerAdapter) f.get(currentActivity);
+
+            Assert.assertNotNull(roomPlayerAdapter);
+
+            final int room_size = InstrumentationRegistry
+                    .getTargetContext().getResources().getInteger(R.integer.test_room_size) + 1;
+
+            Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    while (room_size != roomPlayerAdapter.getCount()) {
+
+                        Log.d(TAG, "Waiting, roomPlayerCount is: " + roomPlayerAdapter.getCount());
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    isReady = true;
+                }
+            });
+
+            /*currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            while (room_size != roomPlayerAdapter.getCount()) {
+
+                                Log.d(TAG, "Waiting, roomPlayerCount is: " + roomPlayerAdapter.getCount());
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            isReady = true;
+                        }
+                    });
+                }
+            });
+*/
+            while (!isReady) {
+                Thread.sleep(500);
+            }
+
+            // Now we can start the match
+            onView(withId(R.id.start_match))
+                    .perform(click());
 
         } else {
             // Client actions
@@ -215,16 +277,7 @@ public class UITest {
             BTHostAdapter bluetoothAdapter = (BTHostAdapter) f.get(currentActivity); //IllegalAccessException
 
             Assert.assertNotNull(bluetoothAdapter);
-            /*Assert.assertNotEquals(bluetoothAdapter.getClass().getDeclaredFields().length, 0);
 
-            for (Field k : bluetoothAdapter.getClass().getDeclaredFields()) {
-                Log.d(TAG, k.getName());
-            }
-
-            Field g = bluetoothAdapter.getClass().getDeclaredField("mOriginalValues");
-            g.setAccessible(true);
-            List<BluetoothDevice> devicesFound = (List<BluetoothDevice>) g.get(bluetoothAdapter);
-*/
             int match = 0;
             boolean flag = true;
             for (; match < bluetoothAdapter.getCount() && flag; match++) {
@@ -237,7 +290,15 @@ public class UITest {
             onData(anything()).inAdapterView(withId(R.id.list))
                     .atPosition(match - 1).perform(click());
 
-            Thread.sleep(5000);
+            Thread.sleep(7500);
+
+            // Set I'm ready
+            onView(withId(R.id.member_set_status))
+                    .perform(click());
+
+            // Test poke button
+            onView(withId(R.id.room_poke_fab))
+                    .perform(click());
         }
     }
 
