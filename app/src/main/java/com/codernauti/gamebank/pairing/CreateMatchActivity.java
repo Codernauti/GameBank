@@ -190,7 +190,6 @@ public class CreateMatchActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
-        stopService(new Intent(this, BTHostService.class));
         super.onDestroy();
 
     }

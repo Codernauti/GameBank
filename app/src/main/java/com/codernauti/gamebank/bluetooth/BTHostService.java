@@ -94,12 +94,15 @@ public class BTHostService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
         Bundle bundle = intent.getExtras();
 
         if (bundle != null) {
             int acceptedConn = bundle.getInt(ACCEPTED_CONNECTIONS);
 
             try {
+                clear();
+
                 BluetoothServerSocket mServerSocket =
                         mBluetoothAdapter.listenUsingRfcommWithServiceRecord(
                                 CONNECTION_NAME,
@@ -148,10 +151,16 @@ public class BTHostService extends Service {
 
         Log.d(TAG, "Calling onDestroy()");
 
-        mConnections.close();
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(mFromUiReceiver);
+        clear();
 
         super.onDestroy();
+    }
+
+    private void clear() {
+        if (mConnections != null) {
+            mConnections.close();
+        }
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mFromUiReceiver);
     }
 }
