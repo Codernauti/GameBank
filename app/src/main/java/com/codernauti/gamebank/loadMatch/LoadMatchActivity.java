@@ -42,7 +42,7 @@ public class LoadMatchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mMatchManager = new DatabaseMatchManager(this);
+        mMatchManager = new DatabaseMatchManager(getFilesDir());
         mMatchAdapter = new LoadMatchAdapter(this);
 
         // load files

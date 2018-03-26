@@ -11,7 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.bluetooth.BTHostService;
@@ -44,8 +46,8 @@ public class HostJoinService extends Service {
             String action = intent.getAction();
             Log.d(TAG, "Received action: " + action);
 
-            if (BTEvent.MEMBER_RECONNECTED.equals(action)) {
-                String reconnectedPlayerId = intent.getStringExtra("RECONNECTED_PLAYER_ID");
+            if (Event.MEMBER_RECONNECTED.equals(action)) {
+                String reconnectedPlayerId = intent.getStringExtra(RoomLogic.RECONNECTED_PLAYER_ID);
 
                 sendCurrentStateToBtLayer(reconnectedPlayerId);
             }
@@ -79,7 +81,7 @@ public class HostJoinService extends Service {
             }
         });
 
-        IntentFilter filter = new IntentFilter(BTEvent.MEMBER_RECONNECTED);
+        IntentFilter filter = new IntentFilter(Event.MEMBER_RECONNECTED);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mRoomLogicReceiver, filter);
 
