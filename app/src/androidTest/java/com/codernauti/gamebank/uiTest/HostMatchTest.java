@@ -3,6 +3,7 @@ package com.codernauti.gamebank.uiTest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
@@ -18,7 +19,9 @@ import android.view.View;
 import com.codernauti.gamebank.BuildConfig;
 import com.codernauti.gamebank.MainActivity;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.lobby.BTHostAdapter;
+import com.codernauti.gamebank.pairing.CreateMatchActivity;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 
 import org.junit.Assert;
@@ -29,8 +32,11 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onData;
@@ -134,32 +140,16 @@ public class HostMatchTest implements CommonVariables {
             final int room_size = InstrumentationRegistry
                     .getTargetContext().getResources().getInteger(R.integer.test_room_size) + 1;
 
-            Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    while (room_size != roomPlayerAdapter.getCount()) {
-
-                        Log.d(TAG, "Waiting, roomPlayerCount is: " + roomPlayerAdapter.getCount());
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    isReady = true;
-                }
-            });
-
-            while (!isReady) {
-                Thread.sleep(500);
-            }
-
-            Thread.sleep(2000);
+            // Waiting that everyone connects
+            Thread.sleep(20000);
 
             // Now we can start the match
             onView(withId(R.id.start_match))
                     .perform(click());
 
+            getActivityInstance();
+            // Check that I'm in the Dashboard activity
+            Assert.assertNotEquals(currentActivity.getClass().getName(), CreateMatchActivity.class.getName());
         } else {
             // Client actions
             BluetoothAdapter btAdapter;
