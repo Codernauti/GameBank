@@ -41,8 +41,8 @@
 
     <ImageView
         android:id="@+id/main_app_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="148dp"
+        android:layout_height="148dp"
         android:elevation="8dp"
 
         app:layout_constraintVertical_chainStyle="spread"
@@ -51,7 +51,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:layout_constraintBottom_toTopOf="@+id/lobby_button"
-        app:srcCompat="@mipmap/ic_launcher_c" />
+        app:srcCompat="@drawable/app_logo" />
 
     <Button
         android:id="@+id/lobby_button"
