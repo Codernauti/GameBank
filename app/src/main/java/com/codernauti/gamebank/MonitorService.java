@@ -53,14 +53,11 @@ public class MonitorService extends Service {
         filter.addAction(BTEvent.SEND_DATA_ERROR);
         filter.addAction(BTEvent.START);
         filter.addAction(BTEvent.STOP);
-        filter.addAction(BTEvent.);
-        filter.addAction();
-        filter.addAction();
-        filter.addAction();
-
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mBroadcastReceiver, filter);
+
+        Log.d(TAG, "onStartCommand");
 
         return super.onStartCommand(intent, flags, startId);
     }

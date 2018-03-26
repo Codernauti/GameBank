@@ -109,6 +109,10 @@ public class GameBank extends Application {
         }
 
         mRoomLogic = new RoomLogic(LocalBroadcastManager.getInstance(this));
+
+
+        Intent monitorServiceIntent = new Intent(this, MonitorService.class);
+        startService(monitorServiceIntent);
     }
 
 }
