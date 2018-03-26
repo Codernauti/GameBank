@@ -18,4 +18,20 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- Style of widgets -->
+    <style name="StyleButton" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:width">110dp</item>
+        <item name="android:height">70dp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="StyleImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:width">110dp</item>
+        <item name="android:height">70dp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+
 </resources>

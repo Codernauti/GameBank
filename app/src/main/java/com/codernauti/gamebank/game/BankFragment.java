@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +46,12 @@ public class BankFragment extends Fragment {
     @BindView(R.id.bank_total_trans)
     TextView mTransactionValueView;
 
+    @BindView(R.id.bank_to_bank)
+    ImageButton toBankChoice;
+
+    @BindView(R.id.bank_to_users)
+    ImageButton toUserChoice;
+
     private LocalBroadcastManager mLocalBroadcastManager;
     // TODO: move these to a Model class
     private int mAccountBalance;
@@ -65,9 +73,19 @@ public class BankFragment extends Fragment {
                 .inflate(R.layout.bank_fragment, container, false);
         ButterKnife.bind(this, root);
 
+        toBankChoice.setEnabled(false); // default bank activated
+        toUserChoice.setEnabled(true);
+
+        resetTransactionValue();
+
         setInitBudget();
 
         return root;
+    }
+
+    private void resetTransactionValue() {
+        mTransactionValue = 0;
+        mTransactionValueView.setText("0");
     }
 
     private void setInitBudget() {
@@ -125,7 +143,12 @@ public class BankFragment extends Fragment {
     @OnClick(R.id.bank_sent_btn)
     public void executeTransaction() {
 
-        if (mTransactionValue != 0) {
+        if (mTransactionValue == 0) {
+            Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!toBankChoice.isEnabled()) { // disable button mean it is activated its function
 
             Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
 
@@ -145,11 +168,10 @@ public class BankFragment extends Fragment {
 
             sendTransaction(to, from);
 
-            mTransactionValue = 0;
-            mTransactionValueView.setText("0");
+            resetTransactionValue();
 
         } else {
-            Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getContext(), SelectPlayerActivity.class));
         }
     }
 
@@ -187,11 +209,22 @@ public class BankFragment extends Fragment {
         mLocalBroadcastManager.sendBroadcast(transIntent);
     }
 
-    @OnClick(R.id.bank_change_debtor)
-    public void openSelectDebtorActivity() {
-        startActivity(new Intent(getContext(), SelectPlayerActivity.class));
+    @OnClick({R.id.bank_to_bank, R.id.bank_to_users})
+    public void changeReceiver() {
+
+        if (toBankChoice.isEnabled()) {
+
+            toBankChoice.setEnabled(false);
+            toUserChoice.setEnabled(true);
+            resetTransactionValue();
+
+        } else {
+
+            toBankChoice.setEnabled(true);
+            toUserChoice.setEnabled(false);
+            resetTransactionValue();
+            // TODO: disable negative buttons
+        }
     }
-
-
 
 }

@@ -7,40 +7,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/bank_change_debtor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-
-        app:layout_constraintTop_toTopOf="@+id/bank_line_separator"
-        app:layout_constraintBottom_toBottomOf="@+id/bank_line_separator"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-
-        app:layout_constraintHorizontal_bias="1"
-        />
-
-    <!--<android.support.design.widget.FloatingActionButton
-        android:id="@+id/bank_change_to_bank"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintStart_toStartOf="@+id/bank_change_debtor"
-        app:layout_constraintEnd_toEndOf="@+id/bank_change_debtor"
-        app:layout_constraintTop_toBottomOf="@+id/bank_change_debtor"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />-->
-
     <TextView
         android:id="@+id/bank_account_balance_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:text="Your Balance"
-
-        app:layout_constraintVertical_chainStyle="spread"
-        app:layout_constraintHorizontal_bias="0.1"
+        android:text="Balance"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bank_account_balance"
@@ -70,7 +42,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/colorPrimary"
-        android:layout_marginBottom="18dp"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_account_balance"
         app:layout_constraintBottom_toTopOf="@+id/bank_total_trans_label"
@@ -94,7 +65,7 @@
         app:layout_constraintHorizontal_chainStyle="spread_inside"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_line_separator"
-        app:layout_constraintBottom_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintBottom_toTopOf="@+id/bank_line_separator_bottom"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/bank_total_trans"
         />
@@ -108,9 +79,55 @@
         app:layout_constraintTop_toTopOf="@+id/bank_total_trans_label"
         app:layout_constraintBottom_toBottomOf="@+id/bank_total_trans_label"
         app:layout_constraintStart_toEndOf="@+id/bank_total_trans_label"
-        app:layout_constraintEnd_toStartOf="@+id/bank_sent_btn"
+        app:layout_constraintEnd_toEndOf="parent"
 
         tools:text="100"
+        />
+
+    <!-- end transaction row -->
+
+    <View
+        android:id="@+id/bank_line_separator_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_total_trans_label"
+        app:layout_constraintBottom_toTopOf="@+id/bank_to_bank"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        />
+
+    <ImageButton
+        android:id="@+id/bank_to_bank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/to_bank_btn"
+        android:theme="@style/StyleButton"
+        android:elevation="16dp"
+
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+
+        app:layout_constraintTop_toBottomOf="@+id/bank_line_separator_bottom"
+        app:layout_constraintBottom_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bank_to_users"
+        />
+
+    <ImageButton
+        android:id="@+id/bank_to_users"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/to_users_btn"
+        android:theme="@style/StyleButton"
+        android:elevation="16dp"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_to_bank"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_to_bank"
+        app:layout_constraintStart_toEndOf="@+id/bank_to_bank"
+        app:layout_constraintEnd_toStartOf="@+id/bank_sent_btn"
+
         />
 
     <Button
@@ -118,10 +135,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="send"
+        android:theme="@style/StyleButton"
 
-        app:layout_constraintTop_toTopOf="@+id/bank_total_trans_label"
-        app:layout_constraintBottom_toBottomOf="@+id/bank_total_trans_label"
-        app:layout_constraintStart_toEndOf="@+id/bank_total_trans"
+        app:layout_constraintTop_toTopOf="@+id/bank_to_bank"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_to_bank"
+        app:layout_constraintStart_toEndOf="@+id/bank_to_users"
         app:layout_constraintEnd_toEndOf="parent"
         />
 
@@ -132,8 +150,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ 1"
+        android:theme="@style/StyleButton"
 
-        app:layout_constraintTop_toBottomOf="@id/bank_total_trans_label"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+
+        app:layout_constraintTop_toBottomOf="@id/bank_to_bank"
         app:layout_constraintBottom_toTopOf="@id/bank_minus_1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/bank_plus_5"
@@ -144,6 +165,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ 5"
+        android:theme="@style/StyleButton"
+
+
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
 
         app:layout_constraintTop_toTopOf="@+id/bank_plus_1"
         app:layout_constraintBottom_toBottomOf="@+id/bank_plus_1"
@@ -156,6 +181,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ 10"
+        android:theme="@style/StyleButton"
 
         app:layout_constraintTop_toTopOf="@+id/bank_plus_1"
         app:layout_constraintBottom_toBottomOf="@+id/bank_plus_1"
@@ -170,6 +196,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="- 1"
+        android:theme="@style/StyleButton"
+
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_plus_1"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -182,6 +211,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="- 5"
+        android:theme="@style/StyleButton"
 
         app:layout_constraintTop_toTopOf="@+id/bank_minus_1"
         app:layout_constraintBottom_toBottomOf="@+id/bank_minus_1"
@@ -194,6 +224,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="- 10"
+        android:theme="@style/StyleButton"
 
         app:layout_constraintTop_toTopOf="@+id/bank_minus_1"
         app:layout_constraintBottom_toBottomOf="@+id/bank_minus_1"
