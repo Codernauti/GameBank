@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.DatabaseMatchManager;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
@@ -68,8 +69,9 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private RoomPlayerAdapter mMembersAdapter;
-    private RoomLogic mRoomLogic;
     private LocalBroadcastManager mLocalBroadcastManager;
+
+    private DatabaseMatchManager mDbManager;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -104,8 +106,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-        mRoomLogic = ((GameBank)getApplication()).getRoomLogic();
-        mRoomLogic.registerReceiver();
+        mDbManager = new DatabaseMatchManager(getFilesDir());
 
         if (savedInstanceState == null) {
             savedInstanceState = getIntent().getExtras();
@@ -191,7 +192,6 @@ public class CreateMatchActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        //closeRoom();
     }
 
     private void closeRoom() {
@@ -226,7 +226,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
             startBTServices();
 
-            mRoomLogic.createMatchInstance(this,
+            mDbManager.createMatchInstance(this,
                     roomName,
                     Integer.parseInt(initBudget)
             );
@@ -250,7 +250,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         closeRoom();
 
         // TODO: remove the database file
-        //mRoomLogic.clearDatabase();
+        //mRoomLogic.deleteDatabase();
+        //mDataSource.deleteDatabase();
     }
 
     @OnClick(R.id.start_match)
@@ -258,7 +259,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         Log.d(TAG, "onMatchStart");
 
-        if (mRoomLogic.matchCanStart()) {
+        if (matchCanStart()) {
 
             Intent startGame = BTBundle.makeIntentFrom(
                    new BTBundle(BTEvent.START)
@@ -269,6 +270,16 @@ public class CreateMatchActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Not all players are ready", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean matchCanStart() {
+
+        RealmResults<Player> playersNotReady = Realm.getDefaultInstance()
+                .where(Player.class)
+                .equalTo("mReady", false)
+                .findAll();
+
+        return playersNotReady.isEmpty();
     }
 
     @Override

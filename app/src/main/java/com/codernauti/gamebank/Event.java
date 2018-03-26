@@ -6,6 +6,10 @@ package com.codernauti.gamebank;
 
 public interface Event {
 
+    // Events emitted by Logic or StateMonitors
+    String STATE_SYNCHRONIZED = "state_synchronized";
+    String MEMBER_RECONNECTED = "member_reconnected";
+
     // Event emitted explicitly by Game part
     interface Game {
 
