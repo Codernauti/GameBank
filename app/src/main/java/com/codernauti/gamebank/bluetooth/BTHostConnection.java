@@ -155,8 +155,8 @@ public class BTHostConnection extends BTConnection {
 
     void closeServerSocket() {
         try {
-            mBtServerSocket.close();
             mServerSocketOpen = false;
+            mBtServerSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Impossible to close server socket: " +
                     mBtServerSocket.toString() + "\n" + e.getMessage());
