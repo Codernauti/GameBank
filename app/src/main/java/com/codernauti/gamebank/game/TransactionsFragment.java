@@ -8,8 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.codernauti.gamebank.BankLogic;
-import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.database.Transaction;
 

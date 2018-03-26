@@ -4,13 +4,12 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ListView;
 
 
 import com.codernauti.gamebank.DatabaseMatchManager;
 import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.pairing.server.CreateMatchActivity;
+import com.codernauti.gamebank.pairing.CreateMatchActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

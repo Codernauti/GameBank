@@ -2,8 +2,6 @@ package com.codernauti.gamebank.database;
 
 import android.support.annotation.NonNull;
 
-import com.codernauti.gamebank.pairing.ImagePlayerProfile;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
