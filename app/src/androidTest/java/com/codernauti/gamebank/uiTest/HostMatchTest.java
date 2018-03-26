@@ -1,4 +1,4 @@
-package com.codernauti.gamebank;
+package com.codernauti.gamebank.uiTest;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -14,15 +14,15 @@ import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 
+import com.codernauti.gamebank.BuildConfig;
+import com.codernauti.gamebank.MainActivity;
+import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.lobby.BTHostAdapter;
-import com.codernauti.gamebank.pairing.CreateMatchActivity;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,15 +36,10 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.runner.lifecycle.Stage.RESUMED;
 import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.Matchers.not;
 
 /**
  * Created by dpolonio on 22/03/18.
@@ -52,28 +47,16 @@ import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class UITest {
+public class HostMatchTest implements CommonVariables {
 
-    private static final String MATCH_NAME = "test123";
-    private static final int INIT_BUDGET = 5;
-    private static final int STARTING_HOST_INITIAL_MEMBER_NUMBER = 1;
-    private static final String TAG = "UITest";
+    private static final String TAG = "HostMatchTest";
 
     private volatile boolean isReady = false;
+    private Activity currentActivity;
 
     @Rule
     public ActivityTestRule<MainActivity> mainActivityActivityTestRule = new ActivityTestRule<>(
             MainActivity.class, true, true);
-
-/*
-    @Rule
-    public ActivityTestRule<LobbyActivity> lobbyActivityActivityTestRule = new ActivityTestRule<>(
-            LobbyActivity.class, true, false);
-*/
-
-    @Rule
-    public ActivityTestRule<CreateMatchActivity> matchActivityActivityTestRule = new ActivityTestRule<>(
-            CreateMatchActivity.class, true, false);
 
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule
@@ -85,22 +68,6 @@ public class UITest {
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             );
 
-    private void fillHostGame() {
-        onView(withId(R.id.match_name))
-                .perform(typeText(MATCH_NAME), closeSoftKeyboard());
-
-        onView(withId(R.id.match_init_budget_form))
-                .perform(typeText(String.valueOf(INIT_BUDGET)));
-    }
-
-    private void openLobby() throws UiObjectNotFoundException {
-        fillHostGame();
-
-        onView(withId(R.id.open_lobby))
-                .perform(click());
-
-        Util.allowBluetoothDiscovery();
-    }
 
     private Activity getCurrentActivity() {
         final Activity[] activity = new Activity[1];
@@ -112,7 +79,7 @@ public class UITest {
         });
         return activity[0];
     }
-    public Activity currentActivity;
+
     public void getActivityInstance(){
 
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -124,54 +91,6 @@ public class UITest {
                 }
             }
         });
-    }
-
-    @Test
-    public void hostGameFromMainActivity() throws NoSuchFieldException, IllegalAccessException, UiObjectNotFoundException, InterruptedException {
-
-        Util.stopEmojiRain(mainActivityActivityTestRule.getActivity());
-
-        onView(withId(R.id.lobby_button))
-                .perform(click());
-
-        onView(withId(R.id.fab))
-                .perform(click());
-
-        openLobby();
-
-        // ASSERTION: check the open lobby button gets locked
-        onView(withId(R.id.open_lobby))
-                .check(matches(not(isEnabled())));
-    }
-
-    @Test
-    public void hasDesiredNumberOfMembersWhenANewMatchStarts() throws InterruptedException, UiObjectNotFoundException {
-
-        matchActivityActivityTestRule.launchActivity(new Intent());
-
-        openLobby();
-
-        onView(withId(R.id.member_list_joined))
-                .check(matches(new TypeSafeMatcher<View>() {
-                    @Override
-                    protected boolean matchesSafely(View item) {
-
-                        ListView listView = (ListView) item;
-
-                        Assert.assertEquals(STARTING_HOST_INITIAL_MEMBER_NUMBER, listView.getCount());
-
-                        return true;
-                    }
-
-                    @Override
-                    public void describeTo(Description description) {
-
-                    }
-                }));
-    }
-
-    private interface Listener {
-        void onCallback();
     }
 
     @Test
@@ -200,7 +119,7 @@ public class UITest {
             onView(withId(R.id.fab))
                     .perform(click());
 
-            openLobby();
+            Util.openLobby(MATCH_NAME, INIT_BUDGET);
 
             getActivityInstance();
 
@@ -222,7 +141,7 @@ public class UITest {
 
                         Log.d(TAG, "Waiting, roomPlayerCount is: " + roomPlayerAdapter.getCount());
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(5000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -231,30 +150,11 @@ public class UITest {
                 }
             });
 
-            /*currentActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-                            while (room_size != roomPlayerAdapter.getCount()) {
-
-                                Log.d(TAG, "Waiting, roomPlayerCount is: " + roomPlayerAdapter.getCount());
-                                try {
-                                    Thread.sleep(500);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            isReady = true;
-                        }
-                    });
-                }
-            });
-*/
             while (!isReady) {
                 Thread.sleep(500);
             }
+
+            Thread.sleep(2000);
 
             // Now we can start the match
             onView(withId(R.id.start_match))
@@ -302,8 +202,8 @@ public class UITest {
         }
     }
 
-    @Test
+    /*@Test
     public void hostGameFromMainActivityFromSaveGame() {
 
-    }
+    }*/
 }
