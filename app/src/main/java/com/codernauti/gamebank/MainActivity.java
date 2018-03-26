@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, a.toString());
 
         mEmojiRainLayout.setPer(3);
+        mEmojiRainLayout.setDropFrequency(300);
         mEmojiRainLayout.setDuration(Integer.MAX_VALUE);
 
         PermissionManager.requestPermission(this, mPermissions, REQUEST_RW_EXTERNAL_STORAGE);
@@ -72,12 +73,13 @@ public class MainActivity extends AppCompatActivity {
                 getDrawable(R.drawable.gem_stone)
         };
 
-        Random r = new Random();
+        /*Random r = new Random();
 
         for (int i = 0; i < 3; i ++ ) {
 
             mEmojiRainLayout.addEmoji(listOfEmojis[r.nextInt(listOfEmojis.length-1)]);
-        }
+        }*/
+        mEmojiRainLayout.addEmoji(R.drawable.coin);
 
         mEmojiRainLayout.startDropping();
     }
