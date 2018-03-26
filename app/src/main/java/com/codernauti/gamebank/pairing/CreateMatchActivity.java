@@ -21,15 +21,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.DatabaseMatchManager;
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.RoomLogic;
+import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
+import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.database.Match;
 import com.codernauti.gamebank.database.Player;
-import com.codernauti.gamebank.Event;
-import com.codernauti.gamebank.R;
-import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.stateMonitors.HostJoinService;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
@@ -191,7 +190,9 @@ public class CreateMatchActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
+        stopService(new Intent(this, BTHostService.class));
         super.onDestroy();
+
     }
 
     private void closeRoom() {
