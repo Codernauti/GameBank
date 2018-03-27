@@ -2,11 +2,12 @@ package com.codernauti.gamebank.uiTest;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
+import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.rule.GrantPermissionRule;
@@ -15,28 +16,32 @@ import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 
 import com.codernauti.gamebank.BuildConfig;
 import com.codernauti.gamebank.MainActivity;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BTClientService;
+import com.codernauti.gamebank.bluetooth.BTHostService;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.lobby.BTHostAdapter;
 import com.codernauti.gamebank.pairing.CreateMatchActivity;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onData;
@@ -46,6 +51,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.runner.lifecycle.Stage.RESUMED;
 import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Created by dpolonio on 22/03/18.
@@ -99,6 +105,18 @@ public class HostMatchTest implements CommonVariables {
         });
     }
 
+    public static Matcher<View> withListSize (final int size) {
+        return new TypeSafeMatcher<View>() {
+            @Override public boolean matchesSafely (final View view) {
+                return ((ListView) view).getCount () == size;
+            }
+
+            @Override public void describeTo (final Description description) {
+                description.appendText ("ListView should have " + size + " items");
+            }
+        };
+    }
+
     @Test
     public void canStartMatch() throws UiObjectNotFoundException, NoSuchFieldException, IllegalAccessException, InterruptedException {
 
@@ -140,16 +158,31 @@ public class HostMatchTest implements CommonVariables {
             final int room_size = InstrumentationRegistry
                     .getTargetContext().getResources().getInteger(R.integer.test_room_size) + 1;
 
+
             // Waiting that everyone connects
-            Thread.sleep(20000);
+            //Thread.sleep(60000);
+
+            getActivityInstance();
+
+            ListView lv = currentActivity.findViewById(R.id.member_list_joined);
+
+            while (lv.getCount() < getInstrumentation().getContext().getResources().getInteger(R.integer.test_room_size)) {
+                Thread.sleep(1000);
+                Log.d(TAG, "Waiting...count: " + lv.getCount());
+            }
 
             // Now we can start the match
             onView(withId(R.id.start_match))
                     .perform(click());
 
             getActivityInstance();
+
+            Log.d(TAG, "I'm in the activity: " + currentActivity.getClass().getName());
+
             // Check that I'm in the Dashboard activity
             Assert.assertNotEquals(currentActivity.getClass().getName(), CreateMatchActivity.class.getName());
+
+            saveLog(BTHostService.class);
         } else {
             // Client actions
             BluetoothAdapter btAdapter;
@@ -158,7 +191,7 @@ public class HostMatchTest implements CommonVariables {
 
             getActivityInstance();
 
-            while(btAdapter.isDiscovering()) {Thread.sleep(500);}
+            while(btAdapter.isDiscovering()) {Thread.sleep(1000);}
 
             Assert.assertNotNull(currentActivity);
 
@@ -167,6 +200,8 @@ public class HostMatchTest implements CommonVariables {
             BTHostAdapter bluetoothAdapter = (BTHostAdapter) f.get(currentActivity); //IllegalAccessException
 
             Assert.assertNotNull(bluetoothAdapter);
+
+            Thread.sleep(7500);
 
             int match = 0;
             boolean flag = true;
@@ -180,7 +215,81 @@ public class HostMatchTest implements CommonVariables {
             onData(anything()).inAdapterView(withId(R.id.list))
                     .atPosition(match - 1).perform(click());
 
-            Thread.sleep(7500);
+            Thread.sleep(15000);
+
+            /*getActivityInstance();
+
+            Field mMembersAdapter = currentActivity.getClass().getDeclaredField("mMembersAdapter");
+            mMembersAdapter.setAccessible(true);
+            RoomPlayerAdapter roomPlayerAdapter = (RoomPlayerAdapter) mMembersAdapter.get(currentActivity);
+
+            Assert.assertNotNull(roomPlayerAdapter);
+
+            while (roomPlayerAdapter.getCount() == 0) {
+                Thread.sleep(1000);
+            }
+
+            final AtomicInteger value = new AtomicInteger(0);
+
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    *//*Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+
+                        @Override
+                        public void execute(Realm realm) {
+
+                            int i = 0;
+
+                            while (i == 0) {
+                                i = realm.where(Player.class)
+                                        .findAll().size();
+                            }
+
+                            value.set(i);
+                        }
+                    });*//*
+
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+
+                        @Override
+                        public void execute(Realm realm) {
+
+                            int i = 0;
+
+                            while (i == 0) {
+                                i = realm.where(Player.class)
+                                        .findAll().size();
+                            }
+
+                            value.set(i);
+                        }
+                    });
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    }).start();
+                }
+            });
+
+            while (value.get() == 0) {
+                Thread.sleep(500);
+            }*/
+
+            getActivityInstance();
+
+            ListView lv = currentActivity.findViewById(R.id.room_members);
+
+            while (lv.getCount() == 0) {
+                Thread.sleep(1000);
+                Log.d(TAG, "Waiting...count: " + lv.getCount());
+            }
+
+            /*onView(withId(R.id.room_members))
+                    .check(ViewAssertions.matches(not(withListSize(0))));*/
 
             // Set I'm ready
             onView(withId(R.id.member_set_status))
@@ -189,7 +298,26 @@ public class HostMatchTest implements CommonVariables {
             // Test poke button
             onView(withId(R.id.room_poke_fab))
                     .perform(click());
+
+            getActivityInstance();
+            Assert.assertNotNull(currentActivity);
+
+            String activityName = currentActivity.getClass().getName();
+
+            while (activityName.equals(currentActivity.getClass().getName())) {
+                getActivityInstance();
+                Assert.assertNotNull(currentActivity);
+            }
+
+            Log.d(TAG, "I'm in the game");
+            saveLog(BTClientService.class);
         }
+    }
+
+    private void saveLog(Class service) {
+        Context context = getInstrumentation().getContext();
+
+        context.stopService(new Intent(context, service));
     }
 
     /*@Test
