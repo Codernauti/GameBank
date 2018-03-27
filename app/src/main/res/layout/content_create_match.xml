@@ -96,10 +96,13 @@
 
     <Button
         android:id="@+id/cancel_match"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/btn_width"
         android:layout_height="wrap_content"
         android:text="@android:string/cancel"
         android:layout_marginTop="6dp"
+        android:theme="@style/StyleButton"
+
+        app:layout_constraintHorizontal_chainStyle="spread"
 
         app:layout_constraintTop_toBottomOf="@+id/match_init_budget"
         app:layout_constraintStart_toStartOf="parent"
@@ -108,9 +111,10 @@
 
     <Button
         android:id="@+id/open_lobby"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/btn_width"
         android:layout_height="wrap_content"
         android:text="@string/open_lobby_button"
+        android:theme="@style/StyleButton"
 
         app:layout_constraintTop_toTopOf="@+id/cancel_match"
         app:layout_constraintBottom_toBottomOf="@+id/cancel_match"

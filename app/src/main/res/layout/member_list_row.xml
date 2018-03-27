@@ -7,18 +7,21 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:paddingBottom="5dp"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
     android:paddingTop="5dp">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/member_icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline"
-        android:background="@color/grey"/>
+        tools:background="@color/grey"
+
+        app:civ_border_color="@color/grey"
+        />
 
     <TextView
         android:id="@+id/member_name"

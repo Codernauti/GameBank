@@ -43,5 +43,7 @@
     <string name="waiting_host">Waiting for the host to start the match</string>
     <string name="load_match_activity_name">Load a saved match</string>
     <string name="players">Players</string>
+    <string name="select_player_title">Send</string>
+    <string name="to">to</string>
 
 </resources>

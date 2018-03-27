@@ -1,9 +1,15 @@
 package com.codernauti.gamebank.game.sendTransaction;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
@@ -12,6 +18,7 @@ import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnItemClick;
 import io.realm.Realm;
 
 /**
@@ -20,8 +27,15 @@ import io.realm.Realm;
 
 public class SelectPlayerActivity extends AppCompatActivity {
 
+    private static final String TAG = "SelectPlayerAct";
+
+    private static final String TRANSACTION_VALUE_KEY = "transaction_value";
+
     @BindView(R.id.select_player_list)
     ListView mPlayersList;
+
+    private RoomPlayerAdapter mAdapter;
+    private int mTransactionValue;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,14 +43,54 @@ public class SelectPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_select_player);
         ButterKnife.bind(this);
 
-        RoomPlayerAdapter mAdapter = new RoomPlayerAdapter(
-                Realm.getDefaultInstance()
-                        .where(Player.class)
-                        .notEqualTo("mId", GameBank.BANK_UUID)
-                        .findAll()
-        );
+        Toolbar toolbar = findViewById(R.id.select_player_toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(R.string.select_player_title);
 
-        mPlayersList.setAdapter(mAdapter);
+        if (savedInstanceState == null) {
+            savedInstanceState = getIntent().getExtras();
+        }
+
+        if (savedInstanceState != null) {
+            mTransactionValue = savedInstanceState.getInt(TRANSACTION_VALUE_KEY);
+
+            String title = getString(R.string.select_player_title)
+                    + " " + mTransactionValue
+                    + " " + getString(R.string.to);
+
+            setTitle(title);
+
+
+            mAdapter = new RoomPlayerAdapter(
+                    Realm.getDefaultInstance()
+                            .where(Player.class)
+                            .notEqualTo("mId", GameBank.BANK_UUID)
+                            .findAll()
+            );
+
+            mPlayersList.setAdapter(mAdapter);
+
+        } else {
+            Toast.makeText(this, "No transaction value set.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "No transaction value set, use createActivity static method for open this activity");
+            finish();
+        }
+    }
+
+
+    @OnItemClick(R.id.select_player_list)
+    public void sendTransactionValueTo(int position) {
+        Player receiver = mAdapter.getItem(position);
+
+        Log.d(TAG, "Send " + mTransactionValue + " to: " + receiver.getPlayerId());
+    }
+
+
+    public static Intent createActivity(Context context, int transactionValue) {
+        Intent result = new Intent(context, SelectPlayerActivity.class);
+        result.putExtra(TRANSACTION_VALUE_KEY, transactionValue);
+
+        return result;
     }
 
 

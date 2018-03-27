@@ -27,13 +27,11 @@ import com.codernauti.gamebank.util.SharePrefUtil;
 import com.google.gson.Gson;
 
 import java.util.Calendar;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 
 public class BankFragment extends Fragment {
@@ -51,6 +49,13 @@ public class BankFragment extends Fragment {
 
     @BindView(R.id.bank_to_users)
     ImageButton toUserChoice;
+
+    @BindView(R.id.bank_minus_1)
+    Button minusOneBtn;
+    @BindView(R.id.bank_minus_5)
+    Button minusFiveBtn;
+    @BindView(R.id.bank_minus_10)
+    Button minusTenBtn;
 
     private LocalBroadcastManager mLocalBroadcastManager;
     // TODO: move these to a Model class
@@ -116,6 +121,18 @@ public class BankFragment extends Fragment {
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
+    @OnClick(R.id.bank_plus_1)
+    public void addOne() {
+        mTransactionValue += 1;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
+    @OnClick(R.id.bank_minus_1)
+    public void subtractOne() {
+        mTransactionValue -= 1;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
     @OnClick(R.id.bank_plus_5)
     public void addFive() {
         mTransactionValue += 5;
@@ -128,15 +145,15 @@ public class BankFragment extends Fragment {
         mTransactionValueView.setText(String.valueOf(mTransactionValue));
     }
 
-    @OnClick(R.id.bank_plus_1)
-    public void addOne() {
-        mTransactionValue += 1;
+    @OnClick(R.id.bank_plus_10)
+    public void addTen() {
+        mTransactionValue += 10;
         mTransactionValueView.setText(String.valueOf(mTransactionValue));
     }
 
-    @OnClick(R.id.bank_minus_1)
-    public void subtractOne() {
-        mTransactionValue -= 1;
+    @OnClick(R.id.bank_minus_10)
+    public void subtractTen() {
+        mTransactionValue -= 10;
         mTransactionValueView.setText(String.valueOf(mTransactionValue));
     }
 
@@ -171,7 +188,8 @@ public class BankFragment extends Fragment {
             resetTransactionValue();
 
         } else {
-            startActivity(new Intent(getContext(), SelectPlayerActivity.class));
+            startActivity(SelectPlayerActivity.createActivity(getContext(), mTransactionValue));
+            resetTransactionValue();
         }
     }
 
@@ -217,14 +235,23 @@ public class BankFragment extends Fragment {
             toBankChoice.setEnabled(false);
             toUserChoice.setEnabled(true);
             resetTransactionValue();
+            setEnableMinusButtons(true);
 
         } else {
 
             toBankChoice.setEnabled(true);
             toUserChoice.setEnabled(false);
             resetTransactionValue();
-            // TODO: disable negative buttons
+            setEnableMinusButtons(false);
         }
+    }
+
+    private void setEnableMinusButtons(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
+
+        minusOneBtn.setVisibility(visibility);
+        minusFiveBtn.setVisibility(visibility);
+        minusTenBtn.setVisibility(visibility);
     }
 
 }

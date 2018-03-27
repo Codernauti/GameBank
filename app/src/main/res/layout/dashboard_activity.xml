@@ -6,14 +6,13 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="10dp">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/dashboard_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary">
+            android:theme="@style/ThemeToolbar">
 
         </android.support.v7.widget.Toolbar>
 
@@ -21,7 +20,10 @@
             android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:tabMaxWidth="0dp" />
+            app:tabTextColor="@color/white"
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabMaxWidth="0dp"
+            />
 
     </android.support.design.widget.AppBarLayout>
 
