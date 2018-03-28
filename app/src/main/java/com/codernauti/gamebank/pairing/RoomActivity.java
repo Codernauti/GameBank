@@ -14,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -46,6 +47,9 @@ public class RoomActivity extends AppCompatActivity {
 
     @BindView(R.id.room_members)
     ListView mMembersList;
+
+    @BindView(R.id.room_poke_fab)
+    FloatingActionButton mPokeFab;
 
     @BindView(R.id.member_set_status)
     FloatingActionButton status;
@@ -106,6 +110,8 @@ public class RoomActivity extends AppCompatActivity {
 
                 mToolbar.setTitle(matchName);
 
+                status.setVisibility(View.VISIBLE);
+                mPokeFab.setVisibility(View.VISIBLE);
             }
         }
     };

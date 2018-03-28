@@ -54,12 +54,12 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="16dp"
-
         android:layout_marginBottom="8dp"
-
-
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_priority_high_white_24dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+
         app:layout_constraintBottom_toTopOf="@+id/member_set_status"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -69,12 +69,11 @@
         android:layout_height="56dp"
         android:layout_margin="16dp"
         android:layout_marginBottom="16dp"
-
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_check_white_24dp"
+        android:visibility="gone"
+        tools:visibility="visible"
 
-
-        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
