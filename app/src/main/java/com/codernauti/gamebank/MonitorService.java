@@ -39,8 +39,6 @@ public class MonitorService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.MEMBER_RECONNECTED);
         filter.addAction(Event.STATE_SYNCHRONIZED);
-        filter.addAction(Event.Game.LEADERBOARD);
-        filter.addAction(Event.Game.LIST_TRANSACTIONS);
         filter.addAction(Event.Game.MEMBER_READY);
         filter.addAction(Event.Game.POKE);
         filter.addAction(Event.Game.TRANSACTION);

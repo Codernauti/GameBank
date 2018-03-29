@@ -28,10 +28,15 @@ import com.google.gson.Gson;
 
 import java.util.Calendar;
 
+import javax.annotation.Nullable;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class BankFragment extends Fragment {
@@ -62,6 +67,8 @@ public class BankFragment extends Fragment {
     private int mAccountBalance;
     private int mTransactionValue;
 
+    private RealmResults<Transaction> mTransactionToken;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +80,33 @@ public class BankFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
+
+        mTransactionToken = Realm.getDefaultInstance()
+                .where(Transaction.class)
+                .equalTo("mTo", GameBank.BT_ADDRESS.toString())
+                .findAll();
+
+        mTransactionToken.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Transaction>>() {
+            @Override
+            public void onChange(RealmResults<Transaction> transactions,
+                                 @Nullable OrderedCollectionChangeSet changeSet) {
+
+                if (changeSet == null) {
+                    return;
+                }
+
+                final int[] insertions = changeSet.getInsertions();
+                if (insertions.length == 1) {
+                    // new transaction to me! -> update my balance
+
+                    final Transaction transaction = transactions.get(insertions[0]);
+                    Log.d(TAG, "Value added: " + transaction.getAmount());
+
+                    mAccountBalance += transaction.getAmount();
+                    mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+                }
+            }
+        });
 
         final ViewGroup root = (ViewGroup) inflater
                 .inflate(R.layout.bank_fragment, container, false);
@@ -169,15 +203,17 @@ public class BankFragment extends Fragment {
 
             Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
 
-            mAccountBalance += mTransactionValue;
-            mAccountBalanceText.setText(String.valueOf(mAccountBalance));
-
             String from;
             String to;
 
             if (mTransactionValue < 0) {
+                // update UI, TODO: negative value don't have Realm onUpdateListener
+                mAccountBalance += mTransactionValue;
+                mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+
                 from = GameBank.BT_ADDRESS.toString();
                 to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+
             } else {
                 from = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
                 to = GameBank.BT_ADDRESS.toString();
@@ -193,30 +229,23 @@ public class BankFragment extends Fragment {
         }
     }
 
-    private void sendTransaction(String to, String from) {
+    private void sendTransaction(String toPlayerId, String fromPlayerId) {
 
-        Realm realm = Realm.getDefaultInstance();
-        Gson converter = GameBank.gsonConverter;
-
-        RealmResults<Player> listOfPlayers = realm.where(Player.class).findAll();
-
-        Player toPlayer = listOfPlayers.where().equalTo("mId", to).findFirst();
-        Player fromPlayer = listOfPlayers.where().equalTo("mId", from).findFirst();
         int matchId = SharePrefUtil.getCurrentMatchId(getContext());
 
-        Log.d(TAG, "Transaction from " + fromPlayer.getUsername() +
-                        " to " + toPlayer.getUsername());
+        Log.d(TAG, "Transaction from " + fromPlayerId +
+                        " to " + toPlayerId);
 
         Transaction transaction = new Transaction(
                 (int)(Calendar.getInstance().getTimeInMillis()/1000L),
                 Math.abs(mTransactionValue),
-                fromPlayer.getPlayerId(),
-                toPlayer.getPlayerId(),
+                fromPlayerId,
+                toPlayerId,
                 matchId
         );
 
         // Send Transaction to all
-        String jsonToSend = converter.toJson(transaction);
+        String jsonToSend = GameBank.gsonConverter.toJson(transaction);
         Log.d(TAG, "Sending this json object: \n" + jsonToSend);
 
         Intent transIntent = BTBundle.makeIntentFrom(

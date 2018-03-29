@@ -5,21 +5,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
+import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.database.Player;
+import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
+import com.codernauti.gamebank.util.SharePrefUtil;
+import com.google.gson.Gson;
+
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 13-Mar-18.
@@ -65,6 +74,8 @@ public class SelectPlayerActivity extends AppCompatActivity {
                     Realm.getDefaultInstance()
                             .where(Player.class)
                             .notEqualTo("mId", GameBank.BANK_UUID)
+                            .and()
+                            .notEqualTo("mId", GameBank.BT_ADDRESS.toString())
                             .findAll()
             );
 
@@ -80,9 +91,37 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
     @OnItemClick(R.id.select_player_list)
     public void sendTransactionValueTo(int position) {
-        Player receiver = mAdapter.getItem(position);
+        Realm realm = Realm.getDefaultInstance();
+        Gson converter = GameBank.gsonConverter;
 
-        Log.d(TAG, "Send " + mTransactionValue + " to: " + receiver.getPlayerId());
+        String fromPlayerId = GameBank.BT_ADDRESS.toString();
+        String toPlayerId = mAdapter.getItem(position).getPlayerId();
+
+        Log.d(TAG, "Send " + mTransactionValue + " to: " + toPlayerId);
+
+        int matchId = SharePrefUtil.getCurrentMatchId(this);
+
+        Transaction transaction = new Transaction(
+                (int)(Calendar.getInstance().getTimeInMillis()/1000L),
+                Math.abs(mTransactionValue),
+                fromPlayerId,
+                toPlayerId,
+                matchId
+        );
+
+        // Send Transaction to all
+        String jsonToSend = converter.toJson(transaction);
+        Log.d(TAG, "Sending this json object: \n" + jsonToSend);
+
+        Intent transIntent = BTBundle.makeIntentFrom(
+                new BTBundle(Event.Game.TRANSACTION)
+                        .append(jsonToSend)
+        );
+
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(transIntent);
+
+        finish();
     }
 
 

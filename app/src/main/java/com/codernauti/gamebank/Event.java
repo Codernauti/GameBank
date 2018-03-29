@@ -15,8 +15,6 @@ public interface Event {
 
         // Bank
         String TRANSACTION = "transaction";
-        String LIST_TRANSACTIONS = "list_transactions";
-        String LEADERBOARD = "leaderboard";
 
         // Lobby
         String POKE = "poke";
