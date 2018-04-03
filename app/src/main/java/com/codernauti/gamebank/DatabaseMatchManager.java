@@ -34,7 +34,7 @@ public class DatabaseMatchManager {
 
     private static final String TAG = "DatabaseMatchManager";
 
-    private static final String DATABASE_FOLDER_NAME = "matches";
+    public static final String DATABASE_FOLDER_NAME = "matches";
     private static final String REALM_EXTENSION = "realm";
 
     private static final String CLIENT_DB_NAME = "ClientDatabase";
@@ -171,10 +171,6 @@ public class DatabaseMatchManager {
                 dbInstance.writeCopyTo(toSave);
             }
         }*/
-    }
-
-    public void loadMatchFromDisk(String matchPath) {
-
     }
 
     private static String getFileExtension(String filename) {

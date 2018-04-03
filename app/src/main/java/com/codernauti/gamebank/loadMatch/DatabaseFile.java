@@ -1,6 +1,9 @@
 package com.codernauti.gamebank.loadMatch;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+
+import com.codernauti.gamebank.DatabaseMatchManager;
 
 import java.io.File;
 
@@ -37,5 +40,26 @@ public class DatabaseFile {
     @NonNull
     RealmConfiguration getDbConficuration() {
         return mConfiguration;
+    }
+
+    boolean deleteFiles(File filesDir) {
+
+        String location = filesDir +  "/" + DatabaseMatchManager.DATABASE_FOLDER_NAME;
+
+        File dbFile = new File(location, mDbName);
+        File dbLockFile = new File(location, mDbName + ".lock");
+        File dbManagementFolder = new File(location, mDbName + ".management");
+
+        boolean isRealmFileDeleted = dbFile.delete();
+        boolean isLockFileDeleted = dbLockFile.delete();
+
+        if (dbManagementFolder.isDirectory()) {
+            String[] children = dbManagementFolder.list();
+            for (String child : children) {
+                new File(dbManagementFolder, child).delete();
+            }
+        }
+
+        return isRealmFileDeleted;
     }
 }
