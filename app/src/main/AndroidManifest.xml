@@ -16,61 +16,77 @@
         android:roundIcon="@mipmap/ic_launcher_c"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".game.DashboardActivity"
             android:parentActivityName=".lobby.LobbyActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".lobby.LobbyActivity" />
         </activity>
+
         <activity
             android:name=".lobby.LobbyActivity"
             android:label="@string/title_activity_lobby"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.MainActivity" />
         </activity>
+
         <activity
             android:name=".pairing.CreateMatchActivity"
             android:label="@string/title_activity_create_match"
             android:parentActivityName=".lobby.LobbyActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.lobby.LobbyActivity" />
         </activity>
+
         <activity
             android:name=".pairing.RoomActivity"
-            android:label="@string/loading" />
+            android:label="@string/loading"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.MainActivity" />
         </activity>
+
         <activity
             android:name=".util.EditTextActivity"
-            android:label="@string/title_activity_edit_text" />
+            android:label="@string/title_activity_edit_text"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".game.sendTransaction.SelectPlayerActivity" />
+        <activity android:name=".game.sendTransaction.SelectPlayerActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
-        android:name=".loadMatch.LoadMatchActivity"
-        android:label="@string/load_match_activity_name"
-        android:parentActivityName=".MainActivity"
-        android:theme="@style/AppTheme">
+            android:name=".loadMatch.LoadMatchActivity"
+            android:label="@string/load_match_activity_name"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codernauti.gamebank.MainActivity" />
