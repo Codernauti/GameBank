@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import io.realm.internal.OsRealmConfig;
 
 /**
@@ -143,9 +144,13 @@ public class DatabaseMatchManager {
             @Override
             public void execute(Realm realm) {
                 realm.deleteAll();
+            }
+        });
 
+        Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
                 realm.copyToRealm(matchFromJson);
-
                 SharePrefUtil.saveCurrentMatchId(context, matchFromJson.getId());
             }
         });

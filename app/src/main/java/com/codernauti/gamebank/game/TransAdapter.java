@@ -30,17 +30,16 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
     }
 
     @Override
-    public TransactionViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.trans_list_row;
-        LayoutInflater inflater = LayoutInflater.from(context);
+    public TransactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.trans_list_row, parent, false);
 
-        View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
         return new TransactionViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TransactionViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull TransactionViewHolder viewHolder,
+                                 int position) {
 
         Transaction transaction = getItem(position);
 
@@ -59,4 +58,8 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
         viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
     }
 
+    @Override
+    public long getItemId(int position) {
+        return getItem(position).getId();
+    }
 }

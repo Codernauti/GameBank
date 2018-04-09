@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.DatabaseMatchManager;
 import com.codernauti.gamebank.GameBank;
-import com.codernauti.gamebank.RoomLogic;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Match;
@@ -114,6 +113,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
         if (savedInstanceState != null && savedInstanceState.getBoolean(LOAD_MATCH)) {
             Log.d(TAG, "Load saved match");
+            getSupportActionBar().setTitle(R.string.load_match);
             loadSavedMatch();
         }
     }
@@ -136,11 +136,28 @@ public class CreateMatchActivity extends AppCompatActivity {
             mLobbyName.setText(savedMatch.getMatchName());
             mInitBudget.setText(String.valueOf(savedMatch.getInitBudget()));
 
-            // TODO: apply some filter for player already into database
-            updateUi(Realm.getDefaultInstance()
+            final RealmResults<Player> players = Realm.getDefaultInstance()
                     .where(Player.class)
                     .notEqualTo("mId", GameBank.BANK_UUID)
-                    .findAll());
+                    .findAll();
+
+            // TODO: test this
+            Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    for (Player player : players) {
+                        if (!player.getPlayerId().equals(GameBank.BT_ADDRESS.toString())) {
+                            player.setReady(false);
+                        }
+                    }
+                }
+            });
+
+            updateUi(players);
+
+            openLobbyButton.setVisibility(View.GONE);
+            cancelMatchButton.setVisibility(View.GONE);
+
         } else {
             Log.e(TAG, "No match found into database!");
         }
@@ -165,8 +182,12 @@ public class CreateMatchActivity extends AppCompatActivity {
     private void updateUi(RealmResults<Player> data) {
         mLobbyName.setEnabled(false);
         mInitBudget.setEnabled(false);
+
         openLobbyButton.setEnabled(false);
+        openLobbyButton.setAlpha(.5f);
+
         cancelMatchButton.setEnabled(true);
+
         startMatchButton.setVisibility(View.VISIBLE);
 
         mMembersAdapter = new RoomPlayerAdapter(data);
