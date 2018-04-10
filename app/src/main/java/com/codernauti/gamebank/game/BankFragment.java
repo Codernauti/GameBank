@@ -25,7 +25,7 @@ import com.codernauti.gamebank.game.sendTransaction.SelectPlayerActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 
-import java.util.Calendar;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -256,7 +256,7 @@ public class BankFragment extends Fragment {
                         " to " + toPlayerId);
 
         Transaction transaction = new Transaction(
-                (int)(Calendar.getInstance().getTimeInMillis()/1000L),
+                UUID.randomUUID().toString(),
                 Math.abs(mTransactionValue),
                 fromPlayerId,
                 toPlayerId,

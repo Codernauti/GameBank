@@ -14,7 +14,7 @@ import io.realm.annotations.PrimaryKey;
 public class Transaction extends RealmObject implements Serializable {
 
     @PrimaryKey
-    private int mId;
+    private String mId;
     private int mAmount;
     private String mFrom;
     private String mTo;
@@ -23,7 +23,7 @@ public class Transaction extends RealmObject implements Serializable {
     public Transaction() {}
 
     public Transaction(
-            int id, int amount,
+            String id, int amount,
             @NonNull String from,
             @NonNull String to,
             int match
@@ -35,7 +35,7 @@ public class Transaction extends RealmObject implements Serializable {
         this.mMatchId = match;
     }
 
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
@@ -43,24 +43,12 @@ public class Transaction extends RealmObject implements Serializable {
         return mAmount;
     }
 
-    public void setAmount(int quantity) {
-        this.mAmount = quantity;
-    }
-
     public String getSender() {
         return mFrom;
     }
 
-    public void setSender(@NonNull String sender) {
-        this.mFrom = sender;
-    }
-
     public String getRecipient() {
         return mTo;
-    }
-
-    public void setRecipient(@NonNull String to) {
-        this.mTo = to;
     }
 
     public int getMatchId() {

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,13 +22,12 @@ import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.SharePrefUtil;
 import com.google.gson.Gson;
 
-import java.util.Calendar;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 /**
  * Created by Eduard on 13-Mar-18.
@@ -103,7 +101,7 @@ public class SelectPlayerActivity extends AppCompatActivity {
         int matchId = SharePrefUtil.getCurrentMatchId(this);
 
         Transaction transaction = new Transaction(
-                (int)(Calendar.getInstance().getTimeInMillis()/1000L),
+                UUID.randomUUID().toString(),
                 Math.abs(mTransactionValue),
                 fromPlayerId,
                 toPlayerId,

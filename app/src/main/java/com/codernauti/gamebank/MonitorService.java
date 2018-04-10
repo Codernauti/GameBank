@@ -35,6 +35,7 @@ public class MonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Event.MEMBER_RECONNECTED);

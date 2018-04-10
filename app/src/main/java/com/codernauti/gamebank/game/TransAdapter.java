@@ -58,8 +58,4 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
         viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
     }
 
-    @Override
-    public long getItemId(int position) {
-        return getItem(position).getId();
-    }
 }
