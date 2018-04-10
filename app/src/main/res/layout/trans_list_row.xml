@@ -9,11 +9,11 @@
     android:padding="16dp">
 
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/trans_from_icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@color/grey"
+        tools:background="@color/grey"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -102,11 +102,11 @@
         tools:text="50 c."
         />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/trans_to_icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@color/grey"
+        tools:background="@color/grey"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -41,7 +41,9 @@ public class TransactionsFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new TransAdapter(Realm.getDefaultInstance().where(Transaction.class).findAll());
+        mAdapter = new TransAdapter(
+                Realm.getDefaultInstance().where(Transaction.class).findAll(),
+                getContext().getFilesDir());
         mRecyclerView.setAdapter(mAdapter);
 
         return root;

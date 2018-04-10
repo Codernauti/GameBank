@@ -12,6 +12,12 @@ import butterknife.ButterKnife;
 
 class TransactionViewHolder extends RecyclerView.ViewHolder{
 
+    @BindView(R.id.trans_from_icon)
+    ImageView userFromIcon;
+
+    @BindView(R.id.trans_to_icon)
+    ImageView userToIcon;
+
     @BindView(R.id.trans_row_from_name)
     TextView userFromTextView;
 
