@@ -84,6 +84,8 @@ public class GameBank extends Application {
         // Set a default image
         SharePrefUtil.loadDefaultProfilePicturePreference(this);
 
+        startService(new Intent(this, MonitorService.class));
+
         try {
             gsonConverter = new GsonBuilder()
                     .setExclusionStrategies(new ExclusionStrategy() {

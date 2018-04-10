@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.game.sendTransaction;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,7 +39,7 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
     private static final String TAG = "SelectPlayerAct";
 
-    private static final String TRANSACTION_VALUE_KEY = "transaction_value";
+    public static final String TRANSACTION_VALUE_KEY = "transaction_value";
 
     @BindView(R.id.select_player_list)
     ListView mPlayersList;
@@ -120,6 +121,10 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(transIntent);
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(TRANSACTION_VALUE_KEY, mTransactionValue);
+        setResult(Activity.RESULT_OK, resultIntent);
 
         finish();
     }

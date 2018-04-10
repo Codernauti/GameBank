@@ -94,10 +94,13 @@ public class HostJoinService extends Service {
                 .equalTo("mId", SharePrefUtil.getCurrentMatchId(this))
                 .findFirst();
 
+        String matchToJson = GameBank.gsonConverter.toJson(match);
+        Log.d(TAG, "Send state: " + matchToJson);
+
         // Send to BT layer
         Intent stateIntent = BTBundle.makeIntentFrom(
                 new BTBundle(BTEvent.CURRENT_STATE)
-                        .appendJson("MATCH", GameBank.gsonConverter.toJson(match))
+                        .appendJson("MATCH", matchToJson)
         );
         stateIntent.putExtra(BTHostService.RECEIVER_UUID,
                 UUID.fromString(playerId));

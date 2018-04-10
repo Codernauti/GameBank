@@ -1,5 +1,6 @@
 package com.codernauti.gamebank.game;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,12 +20,10 @@ import com.codernauti.gamebank.GameBank;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
 import com.codernauti.gamebank.database.Match;
-import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
 import com.codernauti.gamebank.game.sendTransaction.SelectPlayerActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
 
@@ -36,12 +35,13 @@ import butterknife.OnClick;
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class BankFragment extends Fragment {
 
     private static final String TAG = "BankFragment";
+
+    private static final int SEND_TO_PLAYER = 100;
 
     @BindView(R.id.bank_account_balance)
     TextView mAccountBalanceText;
@@ -155,6 +155,24 @@ public class BankFragment extends Fragment {
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == Activity.RESULT_OK && requestCode == SEND_TO_PLAYER) {
+
+            int valueSent = data.getIntExtra(SelectPlayerActivity.TRANSACTION_VALUE_KEY, 0);
+
+            mAccountBalance -= valueSent;
+            mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+
+        } else {
+            Log.e(TAG, "Something wrong happen from SelectPlayerActivity");
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     @OnClick(R.id.bank_plus_1)
     public void addOne() {
         mTransactionValue += 1;
@@ -224,7 +242,8 @@ public class BankFragment extends Fragment {
             resetTransactionValue();
 
         } else {
-            startActivity(SelectPlayerActivity.createActivity(getContext(), mTransactionValue));
+            Intent intent = SelectPlayerActivity.createActivity(getContext(), mTransactionValue);
+            startActivityForResult(intent, SEND_TO_PLAYER);
             resetTransactionValue();
         }
     }
