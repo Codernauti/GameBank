@@ -166,7 +166,7 @@ public class CreateMatchActivity extends AppCompatActivity {
     private void makeDeviceDiscoverable() {
         // Making the server discoverable for 5 minutes
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 900);
         startActivity(discoverableIntent);
     }
 
