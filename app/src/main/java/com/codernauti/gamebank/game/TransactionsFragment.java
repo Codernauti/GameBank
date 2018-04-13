@@ -2,6 +2,7 @@ package com.codernauti.gamebank.game;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -45,6 +46,11 @@ public class TransactionsFragment extends Fragment {
                 Realm.getDefaultInstance().where(Transaction.class).findAll(),
                 getContext().getFilesDir());
         mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(
+                mRecyclerView.getContext(),
+                mLayoutManager.getOrientation()
+        ));
 
         return root;
     }

@@ -20,8 +20,16 @@
         <item>Calm</item>
         <item>Brave</item>
         <item>Gentle</item>
+        <item>White</item>
+        <item>Black</item>
+        <item>Red</item>
+        <item>Blue</item>
+        <item>Space</item>
+        <item>Homemade</item>
+        <item>Scuffed</item>
     </string-array>
     <string-array name="names">
+        <item>Bat</item>
         <item>Burglar</item>
         <item>Phone</item>
         <item>Dog</item>
@@ -35,5 +43,13 @@
         <item>Gamer</item>
         <item>Man</item>
         <item>Alien</item>
+        <item>Dragon</item>
+        <item>Ball</item>
+        <item>Glass</item>
+        <item>Light</item>
+        <item>Opal</item>
+        <item>Tree</item>
+        <item>Whale</item>
+        <item>Ink</item>
     </string-array>
 </resources>

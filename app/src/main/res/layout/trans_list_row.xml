@@ -11,8 +11,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/trans_from_icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         tools:background="@color/grey"
 
         app:layout_constraintStart_toStartOf="parent"
@@ -23,70 +23,71 @@
     <TextView
         android:id="@+id/trans_row_from_name"
         android:layout_width="wrap_content"
-        android:maxWidth="100dp"
+        android:maxWidth="170dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textSize="16sp"
         android:ellipsize="end"
         android:singleLine="true"
 
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0"
 
         app:layout_constraintTop_toTopOf="@+id/trans_from_icon"
-        app:layout_constraintBottom_toTopOf="@+id/trans_row_quantity_label"
+        app:layout_constraintBottom_toTopOf="@+id/trans_row_to_name"
         app:layout_constraintStart_toEndOf="@+id/trans_from_icon"
-        app:layout_constraintEnd_toStartOf="@+id/trans_row_to_name"
+        app:layout_constraintEnd_toStartOf="@+id/trans_to_icon"
 
-        tools:text="Giangigi Rossi" />
+        tools:text="Old-fashionedSnail9999" />
 
     <ImageView
         android:id="@+id/trans_row_arrow"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:src="@drawable/ic_arrow_forward_black_24dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:src="@drawable/ic_subdirectory_arrow_right_black_24dp"
 
-        app:layout_constraintTop_toTopOf="@+id/trans_row_from_name"
-        app:layout_constraintBottom_toBottomOf="@+id/trans_row_from_name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+
+        app:layout_constraintTop_toTopOf="@+id/trans_row_to_name"
+        app:layout_constraintBottom_toBottomOf="@+id/trans_row_to_name"
+        app:layout_constraintStart_toStartOf="@+id/trans_row_from_name"
+        app:layout_constraintEnd_toStartOf="@+id/trans_row_to_name"
         />
 
     <TextView
         android:id="@+id/trans_row_to_name"
         android:layout_width="wrap_content"
-        android:maxWidth="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:maxWidth="190dp"
         android:textSize="16sp"
         android:ellipsize="end"
         android:singleLine="true"
 
-        app:layout_constraintTop_toTopOf="@+id/trans_row_from_name"
-        app:layout_constraintBottom_toBottomOf="@+id/trans_row_from_name"
-        app:layout_constraintStart_toEndOf="@+id/trans_row_from_name"
+        app:layout_constraintTop_toBottomOf="@+id/trans_row_from_name"
+        app:layout_constraintBottom_toBottomOf="@+id/trans_from_icon"
+        app:layout_constraintStart_toEndOf="@+id/trans_row_arrow"
         app:layout_constraintEnd_toStartOf="@+id/trans_to_icon"
-        tools:text="Pierino Paperino"
+        tools:text="Pierino Paperino 94 future war"
         />
 
 
-    <TextView
+    <!--<TextView
         android:id="@+id/trans_row_quantity_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="13sp"
-        android:text="Quantity"
+        android:text="@string/transaction_quantity_label"
+        android:layout_marginEnd="3dp"
 
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="1"
 
-        app:layout_constraintTop_toBottomOf="@+id/trans_row_from_name"
-        app:layout_constraintStart_toStartOf="@+id/trans_row_from_name"
+        app:layout_constraintTop_toTopOf="@+id/trans_row_from_name"
+        app:layout_constraintBottom_toBottomOf="@+id/trans_row_from_name"
 
-        app:layout_constraintBottom_toBottomOf="@+id/trans_from_icon"
+        app:layout_constraintStart_toEndOf="@+id/trans_row_from_name"
         app:layout_constraintEnd_toStartOf="@+id/trans_row_quantity"
-
-        />
+        />-->
 
     <TextView
         android:id="@+id/trans_row_quantity"
@@ -94,18 +95,35 @@
         android:layout_height="wrap_content"
         android:textSize="13sp"
 
-        app:layout_constraintTop_toTopOf="@+id/trans_row_quantity_label"
-        app:layout_constraintStart_toEndOf="@+id/trans_row_quantity_label"
-        app:layout_constraintEnd_toEndOf="@+id/trans_row_to_name"
-        app:layout_constraintBottom_toBottomOf="@+id/trans_row_quantity_label"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="1"
 
-        tools:text="50 c."
+        app:layout_constraintTop_toTopOf="@+id/trans_row_from_name"
+        app:layout_constraintBottom_toBottomOf="@+id/trans_row_from_name"
+        app:layout_constraintStart_toEndOf="@+id/trans_row_from_name"
+        app:layout_constraintEnd_toStartOf="@+id/trans_row_quantity_icon"
+
+        tools:text="500"
+        />
+
+    <ImageView
+        android:id="@+id/trans_row_quantity_icon"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_attach_money_black_24dp"
+
+        app:layout_constraintTop_toTopOf="@+id/trans_row_quantity"
+        app:layout_constraintBottom_toBottomOf="@+id/trans_row_quantity"
+        app:layout_constraintStart_toEndOf="@+id/trans_row_quantity"
+        app:layout_constraintEnd_toStartOf="@+id/trans_to_icon"
+
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/trans_to_icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         tools:background="@color/grey"
 
         app:layout_constraintEnd_toEndOf="parent"

@@ -2,6 +2,7 @@ package com.codernauti.gamebank.game;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +51,6 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder viewHolder,
                                  int position) {
-
         Transaction transaction = getItem(position);
 
         Realm realm = Realm.getDefaultInstance();
@@ -78,15 +78,15 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
                         .apply(requestOpts)
                         .into(viewHolder.userFromIcon);
             } else {
-                viewHolder.userFromIcon.setImageBitmap(null);
+                viewHolder.userFromIcon.setImageResource(R.mipmap.ic_launcher_c);
                 Log.w(TAG, file.getAbsolutePath() + " doesn't exist");
             }
         } else {
-            viewHolder.userFromIcon.setImageBitmap(null);
+            viewHolder.userFromIcon.setImageResource(R.mipmap.ic_launcher_c);
         }
 
         if (receiver.getPictureNameFile() != null) {
-            File file = new File(mFilesDir, sender.getPictureNameFile());
+            File file = new File(mFilesDir, receiver.getPictureNameFile());
 
             if (file.exists()) {
                 Glide.with(viewHolder.userToIcon.getContext())
@@ -95,11 +95,11 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
                         .apply(requestOpts)
                         .into(viewHolder.userToIcon);
             } else {
-                viewHolder.userToIcon.setImageBitmap(null);
+                viewHolder.userToIcon.setImageResource(R.mipmap.ic_launcher_c);
                 Log.w(TAG, file.getAbsolutePath() + " doesn't exist");
             }
         } else {
-            viewHolder.userToIcon.setImageBitmap(null);
+            viewHolder.userToIcon.setImageResource(R.mipmap.ic_launcher_c);
         }
     }
 
