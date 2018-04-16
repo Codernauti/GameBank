@@ -1,6 +1,9 @@
 package com.codernauti.gamebank;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +18,7 @@ import com.codernauti.gamebank.util.EditTextActivity;
 import com.codernauti.gamebank.util.PrefKey;
 import com.codernauti.gamebank.util.SharePrefUtil;
 import com.codernauti.gamebank.util.generators.NicknameGenerator;
+import com.codernauti.gamebank.util.generators.ProfilePicGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -134,13 +138,16 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if (resultCode == NaraeImagePicker.PICK_SUCCESS) {
 
-                    final String pictureFileNamePath = GameBank.BT_ADDRESS + ".jpeg";
+                    final String pictureFileName = GameBank.BT_ADDRESS + ".jpeg";
                     final File pickedUpFile = new File(imageList.get(0));
 
                     Log.d(TAG, "Profile picture changed, updating it");
 
-                    try(final FileInputStream is = new FileInputStream(pickedUpFile);
-                        final FileOutputStream os = openFileOutput(pictureFileNamePath, MODE_PRIVATE);
+                    compressSelectedImage(pickedUpFile.toString(), pictureFileName);
+
+
+                    /*try(final FileInputStream is = new FileInputStream(pickedUpFile);
+                        final FileOutputStream os = openFileOutput(pictureFileName, MODE_PRIVATE);
                     ) {
 
                         // Transfer bytes from in to out
@@ -153,10 +160,10 @@ public class SettingsActivity extends AppCompatActivity {
                         Log.d(TAG, "Copy completed");
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                     Glide.with(SettingsActivity.this)
-                            .load(getFilesDir() + "/" + pictureFileNamePath)
+                            .load(getFilesDir() + "/" + pictureFileName)
                             .apply(new RequestOptions()
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                                     .skipMemoryCache(true))
@@ -164,6 +171,39 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void compressSelectedImage(String pictureFilePath, String pictureFileName) {
+        Log.d(TAG, "Initialize selected image.");
+
+        Bitmap profilePicture = BitmapFactory.decodeFile(pictureFilePath);
+
+        final int sizeThreshold = 512;
+        int width = profilePicture.getWidth();
+        int height = profilePicture.getHeight();
+
+        if (width > sizeThreshold) {
+            width = sizeThreshold;
+        }
+
+        if (height > sizeThreshold) {
+            height = sizeThreshold;
+        }
+
+        // Resize image
+        profilePicture = Bitmap.createScaledBitmap(profilePicture, width, height, false);
+
+        try (final FileOutputStream fos = openFileOutput(pictureFileName, Context.MODE_PRIVATE)) {
+
+            // compress
+            profilePicture.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+
+            SharePrefUtil.saveStringPreference(this, PrefKey.PROFILE_PICTURE, pictureFileName);
+
+            Log.d(TAG, "Copy completed");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

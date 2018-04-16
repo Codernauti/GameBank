@@ -45,11 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        Log.d(TAG, "Getting the emojis...");
-        Drawable a = getDrawable(R.drawable.banknote_with_dollar_sign);
-
-        Log.d(TAG, a.toString());
-
         mEmojiRainLayout.setPer(3);
         mEmojiRainLayout.setDropFrequency(300);
         mEmojiRainLayout.setDuration(Integer.MAX_VALUE);
@@ -60,25 +55,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        Drawable[] listOfEmojis = {
-                getDrawable(R.drawable.banknote_with_dollar_sign),
-                getDrawable(R.drawable.banknote_with_euro_sign),
-                getDrawable(R.drawable.banknote_with_yen_sign),
-                getDrawable(R.drawable.banknote_with_pound_sign),
-                getDrawable(R.drawable.money_bag),
-                getDrawable(R.drawable.money_with_wings),
-                getDrawable(R.drawable.bank),
-                getDrawable(R.drawable.credit_card),
-                getDrawable(R.drawable.gem_stone)
-        };
-
-        /*Random r = new Random();
-
-        for (int i = 0; i < 3; i ++ ) {
-
-            mEmojiRainLayout.addEmoji(listOfEmojis[r.nextInt(listOfEmojis.length-1)]);
-        }*/
         mEmojiRainLayout.addEmoji(R.drawable.coin);
 
         mEmojiRainLayout.startDropping();
