@@ -46,5 +46,7 @@
     <string name="select_player_title">Send</string>
     <string name="to">to</string>
     <string name="transaction_quantity_label">Quantity:</string>
+    <string name="your_balance">Your Balance</string>
+    <string name="transaction_value">Transaction value:</string>
 
 </resources>

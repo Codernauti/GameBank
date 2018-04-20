@@ -46,5 +46,7 @@
     <string name="select_player_title">Invia</string>
     <string name="to">a</string>
     <string name="transaction_quantity_label">Quantità:</string>
+    <string name="your_balance">Bilancio</string>
+    <string name="transaction_value">Valore transazione:</string>
 
 </resources>

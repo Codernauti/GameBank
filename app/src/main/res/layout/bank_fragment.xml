@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:text="Your Balance"
+        android:text="@string/your_balance"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bank_account_balance"
@@ -60,7 +60,7 @@
         android:paddingEnd="5dp"
         android:textSize="21sp"
         android:gravity="center"
-        android:text="Transaction value:"
+        android:text="@string/transaction_value"
 
         app:layout_constraintHorizontal_chainStyle="spread_inside"
 
