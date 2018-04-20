@@ -1,11 +1,15 @@
 package com.codernauti.gamebank.game.sendTransaction;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,10 +18,13 @@ import android.widget.Toast;
 
 import com.codernauti.gamebank.Event;
 import com.codernauti.gamebank.GameBank;
+import com.codernauti.gamebank.MainActivity;
 import com.codernauti.gamebank.R;
 import com.codernauti.gamebank.bluetooth.BTBundle;
+import com.codernauti.gamebank.bluetooth.BTEvent;
 import com.codernauti.gamebank.database.Player;
 import com.codernauti.gamebank.database.Transaction;
+import com.codernauti.gamebank.game.DashboardActivity;
 import com.codernauti.gamebank.pairing.RoomPlayerAdapter;
 import com.codernauti.gamebank.util.SharePrefUtil;
 import com.google.gson.Gson;
@@ -41,6 +48,35 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
     @BindView(R.id.select_player_list)
     ListView mPlayersList;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BTEvent.HOST_DISCONNECTED.equals(action)) {
+
+                Log.d(TAG, "onHostDisconnect");
+
+                new AlertDialog.Builder(SelectPlayerActivity.this)
+                        .setTitle(R.string.host_disconnected_title)
+                        .setMessage(R.string.host_disconnected_message)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                returnToTheFirstCommonActivity();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+
+        }
+    };
+
 
     private RoomPlayerAdapter mAdapter;
     private int mTransactionValue;
@@ -80,6 +116,10 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
             mPlayersList.setAdapter(mAdapter);
 
+            IntentFilter filter = new IntentFilter(BTEvent.HOST_DISCONNECTED);
+            LocalBroadcastManager.getInstance(this)
+                    .registerReceiver(mReceiver, filter);
+
         } else {
             Toast.makeText(this, "No transaction value set.", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "No transaction value set, use createActivity static method for open this activity");
@@ -87,6 +127,12 @@ public class SelectPlayerActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(mReceiver);
+    }
 
     @OnItemClick(R.id.select_player_list)
     public void sendTransactionValueTo(int position) {
@@ -135,8 +181,12 @@ public class SelectPlayerActivity extends AppCompatActivity {
         return result;
     }
 
-
-
-
+    private void returnToTheFirstCommonActivity() {
+        // Returning to the first activity in common between the client and the host
+        // Should we add an end match activity or something like that?
+        Intent returnToLobby = new Intent(this, MainActivity.class);
+        returnToLobby.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(returnToLobby);
+    }
 
 }
