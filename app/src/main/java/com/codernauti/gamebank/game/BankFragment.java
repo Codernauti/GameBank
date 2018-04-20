@@ -175,38 +175,57 @@ public class BankFragment extends Fragment {
 
     @OnClick(R.id.bank_plus_1)
     public void addOne() {
-        mTransactionValue += 1;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        addTransactionValue(1);
     }
 
     @OnClick(R.id.bank_minus_1)
     public void subtractOne() {
-        mTransactionValue -= 1;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        removeFromAccount(1);
     }
 
     @OnClick(R.id.bank_plus_5)
     public void addFive() {
-        mTransactionValue += 5;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        addTransactionValue(5);
     }
 
     @OnClick(R.id.bank_minus_5)
     public void subtractFive() {
-        mTransactionValue -= 5;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        removeFromAccount(5);
     }
 
     @OnClick(R.id.bank_plus_10)
     public void addTen() {
-        mTransactionValue += 10;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        addTransactionValue(10);
     }
 
     @OnClick(R.id.bank_minus_10)
     public void subtractTen() {
-        mTransactionValue -= 10;
-        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        removeFromAccount(10);
+    }
+
+    // NB this method in bank mode add money to balance
+    // in to user mode remove money to balance
+    private void addTransactionValue(int value) {
+
+        if (!toBankChoice.isEnabled()) {
+            mTransactionValue += value;
+            mTransactionValueView.setText(String.valueOf(mTransactionValue));
+
+        } else if (!toUserChoice.isEnabled() && mTransactionValue + value <= mAccountBalance) { // take money from balance
+            mTransactionValue += value;
+            mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        } else {
+            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void removeFromAccount(int value) {
+        if (mAccountBalance + mTransactionValue - value >= 0) {
+            mTransactionValue -= value;
+            mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        } else {
+            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @OnClick(R.id.bank_sent_btn)

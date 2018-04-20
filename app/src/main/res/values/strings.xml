@@ -48,5 +48,6 @@
     <string name="transaction_quantity_label">Quantity:</string>
     <string name="your_balance">Your Balance</string>
     <string name="transaction_value">Transaction value:</string>
+    <string name="bank_balance_insufficient">You balance is insufficient</string>
 
 </resources>

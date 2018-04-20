@@ -53,7 +53,9 @@ class BankLogic {
                             Transaction newTransaction = realm
                                     .createOrUpdateObjectFromJson(Transaction.class, jsonTransaction);
 
-                            Log.d(TAG, "Create transaction. Key: " + newTransaction.getId());
+                            Log.d(TAG, "Create transaction." +
+                                    " Value: " + newTransaction.getAmount() +
+                                    " Key: " + newTransaction.getId());
 
                             // Update match transitions
                             Match currentMatch = realm.where(Match.class)

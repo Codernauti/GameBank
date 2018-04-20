@@ -48,5 +48,6 @@
     <string name="transaction_quantity_label">Quantità:</string>
     <string name="your_balance">Bilancio</string>
     <string name="transaction_value">Valore transazione:</string>
+    <string name="bank_balance_insufficient">Il tuo bilancio è insufficente</string>
 
 </resources>
