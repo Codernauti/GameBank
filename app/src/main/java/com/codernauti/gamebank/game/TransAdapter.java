@@ -36,12 +36,11 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
 
         mFilesDir = filesDir;
         Log.d(TAG, "Data received: " + data.size() + " transactions");
-
-        setHasStableIds(true);
     }
 
+    @NonNull
     @Override
-    public TransactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.trans_list_row, parent, false);
 
