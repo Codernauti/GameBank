@@ -46,7 +46,7 @@
         android:src="@drawable/ic_subdirectory_arrow_right_black_24dp"
 
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
 
         app:layout_constraintTop_toTopOf="@+id/trans_row_to_name"
         app:layout_constraintBottom_toBottomOf="@+id/trans_row_to_name"
@@ -66,8 +66,8 @@
         app:layout_constraintTop_toBottomOf="@+id/trans_row_from_name"
         app:layout_constraintBottom_toBottomOf="@+id/trans_from_icon"
         app:layout_constraintStart_toEndOf="@+id/trans_row_arrow"
-        app:layout_constraintEnd_toStartOf="@+id/trans_to_icon"
-        tools:text="Pierino Paperino 94 future war"
+        app:layout_constraintEnd_toEndOf="@+id/trans_row_quantity_icon"
+        tools:text="Pierino Paperino 94 cool"
         />
 
 
