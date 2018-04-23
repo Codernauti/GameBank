@@ -32,7 +32,8 @@ class BTDataMetric implements Closeable {
         String mAction;
 
         Measurement() {
-            this.timeStamp = String.valueOf((int)Calendar.getInstance().getTimeInMillis()/1000L);
+            long timestamp = System.currentTimeMillis();
+            this.timeStamp = String.valueOf(timestamp);
         }
 
         abstract int getCount();
