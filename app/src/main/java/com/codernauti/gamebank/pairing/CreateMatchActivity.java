@@ -233,6 +233,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         String roomName = mLobbyName.getText().toString();
         String initBudget = mInitBudget.getText().toString();
 
+        cancelMatchButton.setVisibility(View.VISIBLE);
+
         if (roomName.isEmpty()) {
 
             Toast.makeText(this, "Room name cannot be empty", Toast.LENGTH_SHORT).show();
@@ -265,7 +267,8 @@ public class CreateMatchActivity extends AppCompatActivity {
         mLobbyName.setEnabled(true);
         mInitBudget.setEnabled(true);
         openLobbyButton.setEnabled(true);
-        cancelMatchButton.setEnabled(false);
+
+        cancelMatchButton.setVisibility(View.INVISIBLE);
         startMatchButton.setVisibility(View.INVISIBLE);
 
         closeRoom();
