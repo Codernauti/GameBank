@@ -73,9 +73,6 @@ public class LobbyActivity extends AppCompatActivity {
 
                 String deviceName = device.getName();
 
-                /* FIXME @ed revert to base adapter and check if the bt devices has already been
-                 * discovered
-                 */
                 if (deviceName != null && !deviceName.equals("null")){
                     mAdapter.add(device);
 
@@ -120,6 +117,8 @@ public class LobbyActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        requestPermission();
     }
 
     private void restartBTDiscovery() {
@@ -166,12 +165,6 @@ public class LobbyActivity extends AppCompatActivity {
         registerReceiver(mBTStateChangeReceiver, btChangeStateFilter);
 
         swipeRefreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        requestPermission();
     }
 
     private void requestPermission() {
@@ -227,6 +220,8 @@ public class LobbyActivity extends AppCompatActivity {
                 restartBTDiscovery();
 
             } else {
+                Log.d(TAG, "User doesn't accept permissions");
+
                 mPermissionDialog = new AlertDialog.Builder(this)
                         .setTitle(R.string.dialog_coarse_permission_title)
                         .setMessage(R.string.dialog_coarse_permission_description)
@@ -234,6 +229,12 @@ public class LobbyActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
+                            }
+                        })
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                requestPermission();
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)

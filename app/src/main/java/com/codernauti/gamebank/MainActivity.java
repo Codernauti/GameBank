@@ -77,10 +77,6 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                // FIXME: debug code
-                /*Bitmap bitmap = BitmapFactory.decodeFile(path);
-                ((ImageView) findViewById(R.id.main_app_logo)).setImageBitmap(bitmap);*/
-
             } else {
 
                 Log.d(TAG, "User doesn't accept permissions");

@@ -3,6 +3,7 @@ package com.codernauti.gamebank.lobby;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,5 +49,19 @@ class BTHostAdapter extends ArrayAdapter<BluetoothDevice> {
                         ContextCompat.getDrawable(getContext(), drawableResource));
 
         return view;
+    }
+
+    @Override
+    public void add(@Nullable BluetoothDevice object) {
+        boolean isAlreadyAdded = false;
+        for (int i = 0; i < getCount(); i++) {
+            if (getItem(i).getAddress().equals(object.getAddress())) {
+                isAlreadyAdded = true;
+            }
+        }
+
+        if (!isAlreadyAdded) {
+            super.add(object);
+        }
     }
 }
