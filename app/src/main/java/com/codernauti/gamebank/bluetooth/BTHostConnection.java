@@ -83,8 +83,10 @@ public class BTHostConnection extends BTConnection {
                             Log.d(TAG, "Player from Realm connected: " +
                                     newPlayerRealm.getPlayerId());
 
+                            // Add a BTio not yet ready
                             addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
-                            startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));
+                            // FIXME: start listening only after CURR_STATE is sent
+                            /*startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));*/
 
                             Intent intentJoin = btBundle.getIntent();
                             mLocalBroadcastManager.sendBroadcast(intentJoin);

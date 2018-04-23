@@ -54,6 +54,10 @@ public class BTHostService extends Service {
                         Log.d(TAG, "Send to " + receiver);
                         mConnections.sendTo(btBundle, receiver);
 
+                        // FIXME: start listening only after CURR_STATE is sent
+                        mConnections.setReady(receiver);
+                        mConnections.startListeningRunnable(receiver);
+
                     } else if (BTEvent.START.equals(action)) {
 
                         Log.d(TAG, "Close server connection.\nSend Broadcast");

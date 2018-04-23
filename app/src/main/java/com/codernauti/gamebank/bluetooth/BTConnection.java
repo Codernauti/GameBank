@@ -170,4 +170,7 @@ abstract class BTConnection implements Closeable {
         }
     }
 
+    void setReady(UUID ready) {
+        mConnections.get(ready).setReady();
+    }
 }
