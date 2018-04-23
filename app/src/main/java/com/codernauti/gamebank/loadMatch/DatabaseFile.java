@@ -2,10 +2,16 @@ package com.codernauti.gamebank.loadMatch;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.codernauti.gamebank.DatabaseMatchManager;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import io.realm.RealmConfiguration;
 
@@ -27,6 +33,24 @@ public class DatabaseFile {
 
     public String getDbName() {
         return mDbName;
+    }
+
+    String getPrettySavedMatchName() {
+        DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+        String filenameArray[] = mDbName.split("\\.");
+
+        DateFormat prettyFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+
+        try {
+            Date date = timestampFormat.parse(filenameArray[0]);
+
+            String name = prettyFormat.format(date);
+            return name;
+
+        } catch (ParseException e) {
+            Log.e("DatabaseFile", "Error parsing name of file");
+            return mDbName;
+        }
     }
 
     public String getMatchName() {

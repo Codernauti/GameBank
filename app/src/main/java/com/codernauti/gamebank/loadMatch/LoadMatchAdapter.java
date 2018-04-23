@@ -39,7 +39,7 @@ public class LoadMatchAdapter extends ArrayAdapter<DatabaseFile> {
                 .setText(selectedDatabase.getMatchStarted());*/
 
         ((TextView)convertView.findViewById(R.id.match_name))
-                .setText(String.valueOf(selectedDatabase.getDbName()));
+                .setText(String.valueOf(selectedDatabase.getPrettySavedMatchName()));
 
         /*((TextView)convertView.findViewById(R.id.match_player_number))
                 .setText(String.valueOf(getContext().getResources().getString(R.string.players) + ": " + selectedDatabase.getPlayerList().size()));*/

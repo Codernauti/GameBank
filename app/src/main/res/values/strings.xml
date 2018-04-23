@@ -49,5 +49,6 @@
     <string name="your_balance">Your Balance</string>
     <string name="transaction_value">Transaction value:</string>
     <string name="bank_balance_insufficient">You balance is insufficient</string>
+    <string name="date_label">Date:</string>
 
 </resources>

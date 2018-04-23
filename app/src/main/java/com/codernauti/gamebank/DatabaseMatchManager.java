@@ -77,6 +77,12 @@ public class DatabaseMatchManager {
         return REALM_EXTENSION.equals(getFileExtension(savedFile.getName()));
     }
 
+    private static String getFileExtension(String filename) {
+        String filenameArray[] = filename.split("\\.");
+        String extension = filenameArray[filenameArray.length-1];
+        return extension;
+    }
+
     private static boolean isClientDatabase(String filename) {
         return filename.equals(CLIENT_DB_NAME + ".realm");
     }
@@ -154,34 +160,6 @@ public class DatabaseMatchManager {
                 SharePrefUtil.saveCurrentMatchId(context, matchFromJson.getId());
             }
         });
-    }
-
-    public void deleteMatch(File match) throws IOException {
-
-        // Same database, IOException for now
-        /*if (dbInstance != null && dbInstance.getPath().equals(match.getPath())) {
-            throw new IOException("Cannot delete a database that's currently in use! Create a new one first");
-        }*/
-    }
-
-    public void saveMatchToDisk(String filename) {
-
-        /*if (dbInstance != null) {
-            RealmConfiguration dbConfig = dbInstance.getConfiguration();
-            Random r = new Random();
-
-            if (dbConfig.getDurability().equals(OsRealmConfig.Durability.MEM_ONLY)) {
-
-                File toSave = new File(databaseFolder, filename != null? filename : "Match" + r.nextInt());
-                dbInstance.writeCopyTo(toSave);
-            }
-        }*/
-    }
-
-    private static String getFileExtension(String filename) {
-        String filenameArray[] = filename.split("\\.");
-        String extension = filenameArray[filenameArray.length-1];
-        return extension;
     }
 
 }
