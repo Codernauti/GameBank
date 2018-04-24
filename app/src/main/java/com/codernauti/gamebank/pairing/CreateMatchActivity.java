@@ -267,6 +267,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         mLobbyName.setEnabled(true);
         mInitBudget.setEnabled(true);
         openLobbyButton.setEnabled(true);
+        openLobbyButton.setAlpha(1f);
 
         cancelMatchButton.setVisibility(View.INVISIBLE);
         startMatchButton.setVisibility(View.INVISIBLE);

@@ -52,10 +52,10 @@ public class BTHostService extends Service {
 
                         UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
                         Log.d(TAG, "Send to " + receiver);
-                        mConnections.sendTo(btBundle, receiver);
 
                         // FIXME: start listening only after CURR_STATE is sent
                         mConnections.setReady(receiver);
+                        mConnections.sendTo(btBundle, receiver);
                         mConnections.startListeningRunnable(receiver);
 
                     } else if (BTEvent.START.equals(action)) {

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -28,7 +27,7 @@ class BTio implements Closeable {
     private final UUID mUuid;
     private final BTDataMetric mMetric;
 
-    private boolean mNotReady = true;
+    private boolean mReady = false;
 
     BTio(UUID uuid, BluetoothSocket socket, BTDataMetric dataMetric) {
         mBTSocket = socket;
@@ -37,7 +36,7 @@ class BTio implements Closeable {
     }
 
     void writeData(@NonNull BTBundle toSend) throws IOException {
-        if (mNotReady) {
+        if (mReady) {
 
             BTDataMetric.OutputMeasurement outputMeasurement = new BTDataMetric.OutputMeasurement(
                     mBTSocket.getOutputStream(), toSend.getBluetoothAction());
@@ -52,7 +51,7 @@ class BTio implements Closeable {
             mMetric.log(outputMeasurement);
 
         } else {
-            Log.d(TAG, "BTio " + mUuid + " not ready yet to write data");
+            Log.w(TAG, "BTio " + mUuid + " not ready yet to write data");
         }
     }
 
@@ -126,7 +125,7 @@ class BTio implements Closeable {
     }
 
     void setReady() {
-        mNotReady = true;
+        mReady = true;
     }
 
 }
