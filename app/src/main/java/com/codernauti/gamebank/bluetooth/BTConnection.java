@@ -99,11 +99,20 @@ abstract class BTConnection implements Closeable {
         });
     }
 
+    /**
+     * Be <b>careful!</b> This method is called by a Thread into ThreadPool
+     * @param clienUuid
+     */
     private void removeConnection(UUID clienUuid) {
         Log.d(TAG, "Disconnect " + clienUuid);
         mConnections.remove(clienUuid);
     }
 
+    /**
+     * Be <b>careful!</b> This method is called by a Thread into ThreadPool
+     * @param clientUuid
+     * @param newSocket
+     */
     void addConnection(UUID clientUuid, BluetoothSocket newSocket) {
         Log.d(TAG, "Connection accepted from " + clientUuid);
 
@@ -170,7 +179,22 @@ abstract class BTConnection implements Closeable {
         }
     }
 
-    void setReady(UUID ready) {
-        mConnections.get(ready).setReady();
+    /**
+     * Call this method when you are sure that client received the state of match.
+     * If this 'who' connection is set ready and doesn't received the state the protocol
+     * could be broken because 'who' without a match state could receive an event from
+     * other clients or host.
+     * @param who client uuid of the connection that have to start listen to
+     */
+    void setReady(UUID who) {
+        mConnections.get(who).setReady();
+    }
+
+    /**
+     * Be <b>careful!</b> this method could be subjected by a race condition
+     * @return the total number of connections opened
+     */
+    int getSizeOpenConnections() {
+        return mConnections.size();
     }
 }

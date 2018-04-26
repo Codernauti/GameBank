@@ -16,4 +16,5 @@ public interface BTEvent {
     String MEMBER_DISCONNECTED = "member_disconnected";
     String CURRENT_STATE = "current_state";
     String HOST_DISCONNECTED = "host_disconnected";
+    String MAX_CLIENT_CONN_REACHED = "max_client_conn_reached";
 }
