@@ -140,7 +140,11 @@ public class SelectPlayerActivity extends AppCompatActivity {
         Gson converter = GameBank.gsonConverter;
 
         String fromPlayerId = GameBank.BT_ADDRESS.toString();
-        String toPlayerId = mAdapter.getItem(position).getPlayerId();
+        String fromPlayerName = SharePrefUtil.getNicknamePreference(this);
+
+        Player toPlayer = mAdapter.getItem(position);
+        String toPlayerId = toPlayer.getPlayerId();
+        String toPlayerName = toPlayer.getUsername();
 
         Log.d(TAG, "Send " + mTransactionValue + " to: " + toPlayerId);
 
@@ -150,7 +154,9 @@ public class SelectPlayerActivity extends AppCompatActivity {
                 UUID.randomUUID().toString(),
                 Math.abs(mTransactionValue),
                 fromPlayerId,
+                fromPlayerName,
                 toPlayerId,
+                toPlayerName,
                 matchId
         );
 

@@ -35,9 +35,12 @@ public class GameBank extends Application {
 
     private static final String TAG = "GameBankApp";
 
+
     public static UUID BT_ADDRESS;
     public static String FILES_DIR;
+
     public static final String BANK_UUID = "610b1d4d-81b1-4487-956b-2b5c964339cc";
+    public static final String BANK_NAME = "Bank";
 
     public static Gson gsonConverter;
 
