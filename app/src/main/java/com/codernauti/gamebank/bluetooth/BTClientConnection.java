@@ -48,6 +48,7 @@ public class BTClientConnection extends BTConnection {
                     mHostUUID = UUID.randomUUID();  // Unique for each client device
 
                     addConnection(mHostUUID, hostSocket);
+                    setReady(mHostUUID);
                     sendTo(rendezvous, mHostUUID);
                     startListeningRunnable(mHostUUID);
 

@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codernauti.gamebank.GameBank;
@@ -56,6 +57,9 @@ public class RoomActivity extends AppCompatActivity {
 
     @BindView(R.id.room_activity_toolbar)
     Toolbar mToolbar;
+
+    @BindView(R.id.room_load_progress_bar)
+    ProgressBar mProgressBar;
 
 
     private RoomPlayerAdapter mMembersAdapter;
@@ -110,6 +114,7 @@ public class RoomActivity extends AppCompatActivity {
 
                 mToolbar.setTitle(matchName);
 
+                mProgressBar.setVisibility(View.GONE);
                 status.setVisibility(View.VISIBLE);
                 mPokeFab.setVisibility(View.VISIBLE);
             }

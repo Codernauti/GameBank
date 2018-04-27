@@ -240,8 +240,8 @@ public class BankFragment extends Fragment {
 
             Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
 
-            String from;
-            String to;
+            String from, fromName;
+            String to, toName;
 
             if (mTransactionValue < 0) {
                 // update UI, TODO: negative value don't have Realm onUpdateListener
@@ -249,14 +249,20 @@ public class BankFragment extends Fragment {
                 mAccountBalanceText.setText(String.valueOf(mAccountBalance));
 
                 from = GameBank.BT_ADDRESS.toString();
+                fromName = SharePrefUtil.getNicknamePreference(getContext());
+
                 to = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                toName = GameBank.BANK_NAME;
 
             } else {
                 from = SharePrefUtil.getStringPreference(getContext(), PrefKey.BANK_UUID);
+                fromName = GameBank.BANK_NAME;
+
                 to = GameBank.BT_ADDRESS.toString();
+                toName = SharePrefUtil.getNicknamePreference(getContext());
             }
 
-            sendTransaction(to, from);
+            sendTransaction(to, toName, from, fromName);
 
             resetTransactionValue();
 
@@ -267,7 +273,8 @@ public class BankFragment extends Fragment {
         }
     }
 
-    private void sendTransaction(String toPlayerId, String fromPlayerId) {
+    private void sendTransaction(String toPlayerId, String toPlayerName,
+                                 String fromPlayerId, String fromPlayerName) {
 
         int matchId = SharePrefUtil.getCurrentMatchId(getContext());
 
@@ -278,7 +285,9 @@ public class BankFragment extends Fragment {
                 UUID.randomUUID().toString(),
                 Math.abs(mTransactionValue),
                 fromPlayerId,
+                fromPlayerName,
                 toPlayerId,
+                toPlayerName,
                 matchId
         );
 

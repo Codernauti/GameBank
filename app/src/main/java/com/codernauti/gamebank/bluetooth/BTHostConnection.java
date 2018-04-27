@@ -27,14 +27,16 @@ public class BTHostConnection extends BTConnection {
 
     private static final String TAG = "BTHostConnection";
 
-    private final int mAcceptedConnections;
+    private final int mMaxConnections;
     private final BluetoothServerSocket mBtServerSocket;
     private final String mPicturePath;
 
+    // FIXME: this variable need to become useless
     private volatile boolean mServerSocketOpen;
+    private volatile int mAcceptedConnections;
 
 
-    BTHostConnection(int acceptedConnections, @NonNull String picturePath,
+    BTHostConnection(int maxConnections, @NonNull String picturePath,
                      @NonNull BluetoothServerSocket btServerSocket,
                      @NonNull LocalBroadcastManager localBroadcastManager,
                      @NonNull String logPath) {
@@ -42,9 +44,9 @@ public class BTHostConnection extends BTConnection {
 
         mPicturePath = picturePath;
 
-        if (acceptedConnections > 0 && acceptedConnections < 8) {
+        if (maxConnections > 0 && maxConnections < 8) {
 
-            this.mAcceptedConnections = acceptedConnections;
+            this.mMaxConnections = maxConnections;
             this.mBtServerSocket = btServerSocket;
         } else {
             throw new RuntimeException();
@@ -52,6 +54,65 @@ public class BTHostConnection extends BTConnection {
 
     }
 
+    void acceptSingleClientConnection() {
+        Log.d(TAG, "Start task for accepting a connection");
+        mServerSocketOpen = true;
+
+        if (getSizeOpenConnections() <= mMaxConnections) {
+
+            mExecutorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.d(TAG, "Waiting for a new connection...");
+                        final BluetoothSocket clientSocket = mBtServerSocket.accept();
+                        Log.d(TAG, "New connection!");
+
+                        // Read init information from client just connected
+                        ObjectInputStream bundleInputStream = new ObjectInputStream(
+                                clientSocket.getInputStream());
+                        BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
+
+                        Log.d(TAG, "Read rendezvous, action: " +
+                                btBundle.getBluetoothAction());
+
+                        if (BTEvent.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
+
+                            Player newPlayerRealm = GameBank.gsonConverter.fromJson(
+                                    (String) btBundle.get(String.class.getName()), Player.class);
+
+                            Log.d(TAG, "Player connected: " + newPlayerRealm.getPlayerId());
+
+                            // Add a BTio NOT ready yet -> BTio doesn't listen
+                            addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
+                            // It will start listening only after CURR_STATE is sent -> See BTHostService
+
+                            Intent intentJoin = btBundle.getIntent();
+                            mLocalBroadcastManager.sendBroadcast(intentJoin);
+                        }
+
+                    } catch (IOException e) {
+                        Log.e(TAG, "Socket closed, connection accept abort.\n" + e.getMessage());
+                        e.printStackTrace();
+
+                    } catch (ClassNotFoundException e) {
+                        Log.e(TAG, "Init data from client is not a UUID");
+                        e.printStackTrace();
+                    }
+                    // IT DOES NOT CLOSE THE SERVER SOCKET
+                }
+            });
+
+        } else {
+            Intent intent = BTBundle.makeIntentFrom(
+                    new BTBundle(BTEvent.MAX_CLIENT_CONN_REACHED)
+                        .append("Max connections reached: " + getSizeOpenConnections())
+            );
+            mLocalBroadcastManager.sendBroadcast(intent);
+        }
+    }
+
+    @Deprecated
     void acceptConnections() {
 
         Log.d(TAG, "Accepting connections");
@@ -61,7 +122,7 @@ public class BTHostConnection extends BTConnection {
             @Override
             public void run() {
 
-                for (int i = 0; i < mAcceptedConnections && mServerSocketOpen; i++) {
+                for (int i = 0; i < mMaxConnections && mServerSocketOpen; i++) {
                     try {
                         Log.d(TAG, "Waiting for a new connection...");
                         final BluetoothSocket clientSocket = mBtServerSocket.accept();
@@ -83,8 +144,10 @@ public class BTHostConnection extends BTConnection {
                             Log.d(TAG, "Player from Realm connected: " +
                                     newPlayerRealm.getPlayerId());
 
+                            // Add a BTio not yet ready
                             addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
-                            startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));
+                            // FIXME: start listening only after CURR_STATE is sent
+                            /*startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));*/
 
                             Intent intentJoin = btBundle.getIntent();
                             mLocalBroadcastManager.sendBroadcast(intentJoin);
