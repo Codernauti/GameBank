@@ -52,7 +52,14 @@ public class BTHostService extends Service {
 
                         UUID receiver = (UUID) intent.getSerializableExtra(RECEIVER_UUID);
                         Log.d(TAG, "Send to " + receiver);
+
+                        mConnections.setReady(receiver);
                         mConnections.sendTo(btBundle, receiver);
+                        // start listening only after CURR_STATE is sent
+                        mConnections.startListeningRunnable(receiver);
+
+                        // Explicit called
+                        mConnections.acceptSingleClientConnection();
 
                     } else if (BTEvent.START.equals(action)) {
 
@@ -123,7 +130,8 @@ public class BTHostService extends Service {
                 LocalBroadcastManager.getInstance(this)
                         .registerReceiver(mFromUiReceiver, filter);
 
-                mConnections.acceptConnections();
+                // First: implicit called
+                mConnections.acceptSingleClientConnection();
 
                 Log.d(TAG, "Accepting connections");
 

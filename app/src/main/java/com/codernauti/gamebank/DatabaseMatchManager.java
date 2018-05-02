@@ -118,7 +118,7 @@ public class DatabaseMatchManager {
 
 
                 Player bank = realm.createObject(Player.class, GameBank.BANK_UUID);
-                bank.setUsername("Bank");
+                bank.setUsername(GameBank.BANK_NAME);
                 bank.setReady(true);
 
                 Player myself = realm.createObject(Player.class, GameBank.BT_ADDRESS.toString());

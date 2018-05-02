@@ -3,10 +3,12 @@ package com.codernauti.gamebank.game;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -52,53 +54,30 @@ class TransAdapter extends RealmRecyclerViewAdapter<Transaction, TransactionView
                                  int position) {
         Transaction transaction = getItem(position);
 
-        Realm realm = Realm.getDefaultInstance();
+        if (transaction != null) {
 
-        Player sender = realm.where(Player.class)
-                .equalTo("mId", transaction.getSender())
-                .findFirst();
+            viewHolder.userFromTextView.setText(transaction.getFromName());
+            viewHolder.userToTextView.setText(transaction.getToName());
+            viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
 
-        Player receiver = realm.where(Player.class)
-                .equalTo("mId", transaction.getRecipient())
-                .findFirst();
-
-        viewHolder.userFromTextView.setText(sender.getUsername());
-        viewHolder.userToTextView.setText(receiver.getUsername());
-        viewHolder.cashTextView.setText(String.valueOf(transaction.getAmount()));
-
-
-        if (sender.getPictureNameFile() != null) {
-            File file = new File(mFilesDir, sender.getPictureNameFile());
-
-            if (file.exists()) {
-                Glide.with(viewHolder.userFromIcon.getContext())
-                        .load(file)
-                        // TODO: remove, this is useful for DEBUG
-                        .apply(requestOpts)
-                        .into(viewHolder.userFromIcon);
-            } else {
-                viewHolder.userFromIcon.setImageResource(R.mipmap.ic_launcher_c);
-                Log.w(TAG, file.getAbsolutePath() + " doesn't exist");
-            }
-        } else {
-            viewHolder.userFromIcon.setImageResource(R.mipmap.ic_launcher_c);
+            updateIconView(viewHolder.userFromIcon, transaction.getSender());
+            updateIconView(viewHolder.userToIcon, transaction.getRecipient());
         }
 
-        if (receiver.getPictureNameFile() != null) {
-            File file = new File(mFilesDir, receiver.getPictureNameFile());
+    }
 
-            if (file.exists()) {
-                Glide.with(viewHolder.userToIcon.getContext())
-                        .load(file)
-                        // TODO: remove, this is useful for DEBUG
-                        .apply(requestOpts)
-                        .into(viewHolder.userToIcon);
-            } else {
-                viewHolder.userToIcon.setImageResource(R.mipmap.ic_launcher_c);
-                Log.w(TAG, file.getAbsolutePath() + " doesn't exist");
-            }
+    private void updateIconView(ImageView imageView, String userId) {
+        File file = new File(mFilesDir, Player.getPictureNameFile(userId));
+
+        if (file.exists()) {
+            Glide.with(imageView.getContext())
+                    .load(file)
+                    // TODO: remove, this is useful for DEBUG
+                    .apply(requestOpts)
+                    .into(imageView);
         } else {
-            viewHolder.userToIcon.setImageResource(R.mipmap.ic_launcher_c);
+            imageView.setImageResource(R.mipmap.ic_launcher_c);
+            Log.w(TAG, file.getAbsolutePath() + " doesn't exist");
         }
     }
 

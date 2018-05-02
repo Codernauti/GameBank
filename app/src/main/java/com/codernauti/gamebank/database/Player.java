@@ -73,4 +73,8 @@ public class Player extends RealmObject {
     public String getPictureNameFile() {
         return mId + ".jpeg";
     }
+
+    static public String getPictureNameFile(String playerId) {
+        return playerId + ".jpeg";
+    }
 }

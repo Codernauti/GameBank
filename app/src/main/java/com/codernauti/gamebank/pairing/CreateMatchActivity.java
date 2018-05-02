@@ -84,8 +84,11 @@ public class CreateMatchActivity extends AppCompatActivity {
                 if (Event.Game.POKE.equals(action)) {
                     String msg = (String) btBundle.get(String.class.getName());
                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-                }
 
+                } else if (BTEvent.MAX_CLIENT_CONN_REACHED.equals(action)) {
+                    String msg = (String) btBundle.get(String.class.getName());
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     };
@@ -198,7 +201,9 @@ public class CreateMatchActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        IntentFilter filter = new IntentFilter(Event.Game.POKE);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Event.Game.POKE);
+        filter.addAction(BTEvent.MAX_CLIENT_CONN_REACHED);
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
     }
 
@@ -267,6 +272,7 @@ public class CreateMatchActivity extends AppCompatActivity {
         mLobbyName.setEnabled(true);
         mInitBudget.setEnabled(true);
         openLobbyButton.setEnabled(true);
+        openLobbyButton.setAlpha(1f);
 
         cancelMatchButton.setVisibility(View.INVISIBLE);
         startMatchButton.setVisibility(View.INVISIBLE);
