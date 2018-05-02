@@ -56,7 +56,9 @@ public class GameBank extends Application {
 
             if (BTEvent.START.equals(action)) {
 
-                mBankLogic = new BankLogic(LocalBroadcastManager.getInstance(context));
+                if (mBankLogic == null) {
+                    mBankLogic = new BankLogic(LocalBroadcastManager.getInstance(context));
+                }
 
                 Intent startGameAct = new Intent(context, DashboardActivity.class);
                 startGameAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
