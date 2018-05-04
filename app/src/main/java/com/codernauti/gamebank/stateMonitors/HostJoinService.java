@@ -117,6 +117,8 @@ public class HostJoinService extends Service {
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(mRoomLogicReceiver);
 
+        mPlayers.removeAllChangeListeners();
+
         super.onDestroy();
     }
 

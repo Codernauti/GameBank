@@ -28,7 +28,7 @@ abstract class BTConnection implements Closeable {
     final LocalBroadcastManager mLocalBroadcastManager;
 
     final ExecutorService mExecutorService;
-    private BTDataMetric btDataMetric;
+    protected BTDataMetric btDataMetric;
     private final Map<UUID, BTio> mConnections;
 
     BTConnection (@NonNull LocalBroadcastManager mLocalBroadcastManager,

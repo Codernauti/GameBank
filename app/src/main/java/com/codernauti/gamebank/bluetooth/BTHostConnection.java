@@ -68,10 +68,15 @@ public class BTHostConnection extends BTConnection {
                         final BluetoothSocket clientSocket = mBtServerSocket.accept();
                         Log.d(TAG, "New connection!");
 
+                        BTDataMetric.InputMeasurement inputMeasurement =
+                                new BTDataMetric.InputMeasurement(clientSocket.getInputStream());
+
                         // Read init information from client just connected
-                        ObjectInputStream bundleInputStream = new ObjectInputStream(
-                                clientSocket.getInputStream());
+                        ObjectInputStream bundleInputStream = new ObjectInputStream(inputMeasurement.getInputStream());
                         BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
+
+                        inputMeasurement.setInputAction(btBundle.getBluetoothAction());
+                        btDataMetric.log(inputMeasurement);
 
                         Log.d(TAG, "Read rendezvous, action: " +
                                 btBundle.getBluetoothAction());
@@ -110,67 +115,6 @@ public class BTHostConnection extends BTConnection {
             );
             mLocalBroadcastManager.sendBroadcast(intent);
         }
-    }
-
-    @Deprecated
-    void acceptConnections() {
-
-        Log.d(TAG, "Accepting connections");
-        mServerSocketOpen = true;
-
-        mExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-
-                for (int i = 0; i < mMaxConnections && mServerSocketOpen; i++) {
-                    try {
-                        Log.d(TAG, "Waiting for a new connection...");
-                        final BluetoothSocket clientSocket = mBtServerSocket.accept();
-                        Log.d(TAG, "New connection!");
-
-                        // Read init information from client just connected
-                        ObjectInputStream bundleInputStream = new ObjectInputStream(
-                                clientSocket.getInputStream());
-                        BTBundle btBundle = (BTBundle) bundleInputStream.readObject();
-
-                        Log.d(TAG, "Read rendezvous, action: " +
-                                btBundle.getBluetoothAction());
-
-                        if (BTEvent.MEMBER_CONNECTED.equals(btBundle.getBluetoothAction())) {
-
-                            Player newPlayerRealm = GameBank.gsonConverter.fromJson(
-                                    (String) btBundle.get(String.class.getName()), Player.class);
-
-                            Log.d(TAG, "Player from Realm connected: " +
-                                    newPlayerRealm.getPlayerId());
-
-                            // Add a BTio not yet ready
-                            addConnection(UUID.fromString(newPlayerRealm.getPlayerId()), clientSocket);
-                            // FIXME: start listening only after CURR_STATE is sent
-                            /*startListeningRunnable(UUID.fromString(newPlayerRealm.getPlayerId()));*/
-
-                            Intent intentJoin = btBundle.getIntent();
-                            mLocalBroadcastManager.sendBroadcast(intentJoin);
-                        }
-
-                    } catch (IOException e) {
-                        Log.e(TAG, "Socket closed, connection accept abort.\nAutomatically retry.");
-                        i--;
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        Log.e(TAG, "Init data from client is not a UUID");
-                        e.printStackTrace();
-                    }
-                }
-
-                Log.d(TAG, "Ended waiting for new connections");
-                try {
-                    mBtServerSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     private void readPicture(InputStream fileInputStream, String pictureName) throws IOException {
