@@ -73,6 +73,21 @@ public class SharePrefUtil {
             ProfilePicGenerator ppg = new ProfilePicGenerator();
             Bitmap profilePicture = BitmapFactory.decodeResource(context.getResources(), ppg.generateRandomContent());
 
+            final int sizeThreshold = 512;
+            int width = profilePicture.getWidth();
+            int height = profilePicture.getHeight();
+
+            if (width > sizeThreshold) {
+                width = sizeThreshold;
+            }
+
+            if (height > sizeThreshold) {
+                height = sizeThreshold;
+            }
+
+            // Resize image
+            profilePicture = Bitmap.createScaledBitmap(profilePicture, width, height, false);
+
             try (final FileOutputStream fos = context.openFileOutput(PROFILE_PICTURE_NAME, Context.MODE_PRIVATE)) {
 
                 profilePicture.compress(Bitmap.CompressFormat.JPEG, 90, fos);
@@ -83,6 +98,7 @@ public class SharePrefUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
