@@ -142,7 +142,7 @@ public class BTHostService extends Service {
             Log.e(TAG, "Start intent service not initialized!");
         }
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Nullable

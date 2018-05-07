@@ -87,7 +87,7 @@ public class BTClientService extends Service {
             }
         }
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void connect() {
