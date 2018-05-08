@@ -31,10 +31,6 @@ public class BTHostConnection extends BTConnection {
     private final BluetoothServerSocket mBtServerSocket;
     private final String mPicturePath;
 
-    // FIXME: this variable need to become useless
-    private volatile boolean mServerSocketOpen;
-    private volatile int mAcceptedConnections;
-
 
     BTHostConnection(int maxConnections, @NonNull String picturePath,
                      @NonNull BluetoothServerSocket btServerSocket,
@@ -44,7 +40,7 @@ public class BTHostConnection extends BTConnection {
 
         mPicturePath = picturePath;
 
-        if (maxConnections > 0 && maxConnections < 8) {
+        if (maxConnections > 0 && maxConnections < 7) {
 
             this.mMaxConnections = maxConnections;
             this.mBtServerSocket = btServerSocket;
@@ -56,7 +52,6 @@ public class BTHostConnection extends BTConnection {
 
     void acceptSingleClientConnection() {
         Log.d(TAG, "Start task for accepting a connection");
-        mServerSocketOpen = true;
 
         if (getSizeOpenConnections() <= mMaxConnections) {
 
@@ -162,7 +157,6 @@ public class BTHostConnection extends BTConnection {
 
     void closeServerSocket() {
         try {
-            mServerSocketOpen = false;
             mBtServerSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Impossible to close server socket: " +

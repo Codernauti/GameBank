@@ -175,7 +175,7 @@ public class CreateMatchActivity extends AppCompatActivity {
 
     private void startBTServices() {
         Intent hostService = new Intent(this, BTHostService.class);
-        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 7);
+        hostService.putExtra(BTHostService.ACCEPTED_CONNECTIONS, 6);    // max is 6
         startService(hostService);
 
         Intent joinService = new Intent(this, HostJoinService.class);
