@@ -140,10 +140,40 @@
         android:background="@color/colorPrimary"
 
         app:layout_constraintTop_toBottomOf="@+id/bank_to_bank"
-        app:layout_constraintBottom_toTopOf="@+id/bank_plus_1"
+        app:layout_constraintBottom_toTopOf="@+id/bank_divide"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
+        />
+
+    <!-- Multiplier -->
+
+    <Button
+        android:id="@+id/bank_divide"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="/ 10"
+        android:theme="@style/StyleButton"
+
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bank_line_separator_bottom"
+        app:layout_constraintBottom_toTopOf="@id/bank_plus_1"
+        app:layout_constraintEnd_toStartOf="@id/bank_multiply"
+        />
+
+    <Button
+        android:id="@+id/bank_multiply"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="* 10"
+        android:theme="@style/StyleButton"
+
+        app:layout_constraintTop_toTopOf="@+id/bank_divide"
+        app:layout_constraintBottom_toBottomOf="@+id/bank_divide"
+        app:layout_constraintStart_toEndOf="@id/bank_divide"
+        app:layout_constraintEnd_toEndOf="parent"
         />
 
     <!-- 1 row -->
@@ -157,7 +187,7 @@
 
         app:layout_constraintHorizontal_chainStyle="spread_inside"
 
-        app:layout_constraintTop_toBottomOf="@id/bank_line_separator_bottom"
+        app:layout_constraintTop_toBottomOf="@id/bank_divide"
         app:layout_constraintBottom_toTopOf="@id/bank_minus_1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/bank_plus_5"

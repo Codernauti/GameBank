@@ -173,6 +173,38 @@ public class BankFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    @OnClick(R.id.bank_multiply)
+    public void multiplyByTen() {
+        if (!toBankChoice.isEnabled()) {
+            mTransactionValue *= 10;
+            mTransactionValueView.setText(String.valueOf(mTransactionValue));
+
+        } else if (!toUserChoice.isEnabled() && mTransactionValue * 10 <= mAccountBalance) { // take money from balance
+            mTransactionValue *= 10;
+            mTransactionValueView.setText(String.valueOf(mTransactionValue));
+        } else {
+            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @OnClick(R.id.bank_divide)
+    public void divideByTen() {
+        if (mTransactionValue != 0 && mTransactionValue >= 10) {
+            if (!toBankChoice.isEnabled()) {
+                mTransactionValue /= 10;
+                mTransactionValueView.setText(String.valueOf(mTransactionValue));
+
+            } else if (!toUserChoice.isEnabled() && mTransactionValue / 10 <= mAccountBalance) { // take money from balance
+                mTransactionValue /= 10;
+                mTransactionValueView.setText(String.valueOf(mTransactionValue));
+            } else {
+                Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     @OnClick(R.id.bank_plus_1)
     public void addOne() {
         addTransactionValue(1);
