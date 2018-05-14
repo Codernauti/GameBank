@@ -54,7 +54,7 @@
             android:id="@+id/match_init_budget_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="9"
+            android:maxLength="8"
             android:hint="Initial budget"
             android:inputType="number"
 
