@@ -62,6 +62,8 @@ public class BankFragment extends Fragment {
     @BindView(R.id.bank_minus_10)
     Button minusTenBtn;
 
+    private static final int ONE_HUNDRED_MILLION = 100000000;
+
     private LocalBroadcastManager mLocalBroadcastManager;
     // TODO: move these to a Model class
     private int mAccountBalance;
@@ -122,8 +124,7 @@ public class BankFragment extends Fragment {
     }
 
     private void resetTransactionValue() {
-        mTransactionValue = 0;
-        mTransactionValueView.setText("0");
+        setTransactionValue(0);
     }
 
     private void setInitBudget() {
@@ -169,102 +170,96 @@ public class BankFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private boolean transactionWithBank() {
+        return !toBankChoice.isEnabled();   // disable button mean it is activated its function
+    }
+
+    private boolean transactionWithOtherPlayer() {
+        return !toUserChoice.isEnabled();
+    }
+
 
     @OnClick(R.id.bank_multiply)
     public void multiplyByTen() {
-        if (!toBankChoice.isEnabled()) {
-            mTransactionValue *= 10;
-            mTransactionValueView.setText(String.valueOf(mTransactionValue));
-
-        } else if (!toUserChoice.isEnabled() && mTransactionValue * 10 <= mAccountBalance) { // take money from balance
-            mTransactionValue *= 10;
-            mTransactionValueView.setText(String.valueOf(mTransactionValue));
-        } else {
-            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
-        }
+        updateTransactionValue(mTransactionValue * 10);
     }
-
 
     @OnClick(R.id.bank_divide)
     public void divideByTen() {
-        if (mTransactionValue != 0 && (mTransactionValue >= 10 || mTransactionValue <= -10) ) {
-            if (!toBankChoice.isEnabled()) {
-                mTransactionValue /= 10;
-                mTransactionValueView.setText(String.valueOf(mTransactionValue));
-
-            } else if (!toUserChoice.isEnabled() && mTransactionValue / 10 <= mAccountBalance) { // take money from balance
-                mTransactionValue /= 10;
-                mTransactionValueView.setText(String.valueOf(mTransactionValue));
-            } else {
-                Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
-            }
+        if (mTransactionValue >= 10 || mTransactionValue <= -10) {
+            updateTransactionValue(mTransactionValue / 10);
         }
     }
 
+    private void updateTransactionValue(int newTransactionValue) {
+
+        if (transactionWithBank()) {
+
+            if (mAccountBalance + newTransactionValue > ONE_HUNDRED_MILLION) {
+                setTransactionValue(ONE_HUNDRED_MILLION - mAccountBalance);
+            } else if (mAccountBalance + newTransactionValue >= 0) {
+                setTransactionValue(newTransactionValue);
+            } else {
+                setTransactionValue(-mAccountBalance);
+            }
+
+        } else if (transactionWithOtherPlayer()) { // take money from balance
+
+            if (newTransactionValue > mAccountBalance) {
+                showAToast(R.string.bank_balance_insufficient);
+            } else if (newTransactionValue < 0) {
+                showAToast(R.string.bank_value_send_positive);
+            } else if (newTransactionValue > ONE_HUNDRED_MILLION) {
+                setTransactionValue(mAccountBalance);
+            } else {
+                setTransactionValue(newTransactionValue);
+            }
+
+        }
+    }
+
+    private void setTransactionValue(int totalTransValue) {
+        mTransactionValue = totalTransValue;
+        mTransactionValueView.setText(String.valueOf(mTransactionValue));
+    }
+
+
     @OnClick(R.id.bank_plus_1)
     public void addOne() {
-        addTransactionValue(1);
+        changeTransactionBy(1);
     }
 
     @OnClick(R.id.bank_minus_1)
     public void subtractOne() {
-        removeFromAccount(1);
+        changeTransactionBy(-1);
     }
 
     @OnClick(R.id.bank_plus_5)
     public void addFive() {
-        addTransactionValue(5);
+        changeTransactionBy(5);
     }
 
     @OnClick(R.id.bank_minus_5)
     public void subtractFive() {
-        removeFromAccount(5);
+        changeTransactionBy(-5);
     }
 
     @OnClick(R.id.bank_plus_10)
     public void addTen() {
-        addTransactionValue(10);
+        changeTransactionBy(10);
     }
 
     @OnClick(R.id.bank_minus_10)
     public void subtractTen() {
-        removeFromAccount(10);
+        changeTransactionBy(-10);
     }
 
     // NB this method in bank mode add money to balance
     // in to user mode remove money to balance
-    private void addTransactionValue(int value) {
-
-        if (!toBankChoice.isEnabled()) { // transaction between bank
-
-            if (value + mAccountBalance <= ONE_HUNDRED_MILLION) {
-                mTransactionValue += value;
-            } else {
-                mTransactionValue = ONE_HUNDRED_MILLION - mAccountBalance;
-            }
-
-            mTransactionValueView.setText(String.valueOf(mTransactionValue));
-
-        } else if (!toUserChoice.isEnabled()) { // take money from balance to other user
-
-            if (mTransactionValue + value <= mAccountBalance) {
-                mTransactionValue += value;
-                mTransactionValueView.setText(String.valueOf(mTransactionValue));
-            } else {
-                Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
-            }
-        }
-
+    private void changeTransactionBy(int value) {
+        updateTransactionValue(mTransactionValue + value);
     }
 
-    private void removeFromAccount(int value) {
-        if (mAccountBalance + mTransactionValue - value >= 0) {
-            mTransactionValue -= value;
-            mTransactionValueView.setText(String.valueOf(mTransactionValue));
-        } else {
-            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
-        }
-    }
 
     @OnClick(R.id.bank_sent_btn)
     public void executeTransaction() {
@@ -274,7 +269,7 @@ public class BankFragment extends Fragment {
             return;
         }
 
-        if (!toBankChoice.isEnabled()) { // disable button mean it is activated its function
+        if (transactionWithBank()) {
 
             Log.d(TAG, "Execute transaction. Emit event: " + Event.Game.TRANSACTION);
 
@@ -343,31 +338,20 @@ public class BankFragment extends Fragment {
     @OnClick({R.id.bank_to_bank, R.id.bank_to_users})
     public void changeReceiver() {
 
-        if (toBankChoice.isEnabled()) {
+        if (transactionWithOtherPlayer()) {
 
+            // enableTransactionWithBank
             toBankChoice.setEnabled(false);
             toUserChoice.setEnabled(true);
             resetTransactionValue();
-            setEnableMinusButtons(true);
 
         } else {
-
+            // enableTransactionWithOtherPlayer
             toBankChoice.setEnabled(true);
             toUserChoice.setEnabled(false);
             resetTransactionValue();
-            setEnableMinusButtons(false);
         }
     }
-
-    private void setEnableMinusButtons(boolean visible) {
-        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
-
-        minusOneBtn.setVisibility(visibility);
-        minusFiveBtn.setVisibility(visibility);
-        minusTenBtn.setVisibility(visibility);
-    }
-
-    private static final int ONE_HUNDRED_MILLION = 100000000;
 
     private void setTotalAccountBalance(int totalAccountBalance) {
         if (totalAccountBalance > ONE_HUNDRED_MILLION) {
@@ -377,6 +361,16 @@ public class BankFragment extends Fragment {
         }
 
         mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+    }
+
+    private Toast mToast;
+
+    private void showAToast(int messageResId){
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mToast = Toast.makeText(getContext(), messageResId, Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
 }
