@@ -55,13 +55,6 @@ public class BankFragment extends Fragment {
     @BindView(R.id.bank_to_users)
     ImageButton toUserChoice;
 
-    @BindView(R.id.bank_minus_1)
-    Button minusOneBtn;
-    @BindView(R.id.bank_minus_5)
-    Button minusFiveBtn;
-    @BindView(R.id.bank_minus_10)
-    Button minusTenBtn;
-
     private static final int ONE_HUNDRED_MILLION = 100000000;
 
     private LocalBroadcastManager mLocalBroadcastManager;
@@ -170,15 +163,6 @@ public class BankFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private boolean transactionWithBank() {
-        return !toBankChoice.isEnabled();   // disable button mean it is activated its function
-    }
-
-    private boolean transactionWithOtherPlayer() {
-        return !toUserChoice.isEnabled();
-    }
-
-
     @OnClick(R.id.bank_multiply)
     public void multiplyByTen() {
         updateTransactionValue(mTransactionValue * 10);
@@ -216,6 +200,14 @@ public class BankFragment extends Fragment {
             }
 
         }
+    }
+
+    private boolean transactionWithBank() {
+        return !toBankChoice.isEnabled();   // disable button mean it is activated its function
+    }
+
+    private boolean transactionWithOtherPlayer() {
+        return !toUserChoice.isEnabled();
     }
 
     private void setTransactionValue(int totalTransValue) {
@@ -265,7 +257,7 @@ public class BankFragment extends Fragment {
     public void executeTransaction() {
 
         if (mTransactionValue == 0) {
-            Toast.makeText(getContext(), "Transaction cannot be 0", Toast.LENGTH_SHORT).show();
+            showAToast(R.string.bank_trans_zero);
             return;
         }
 

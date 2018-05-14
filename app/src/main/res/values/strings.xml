@@ -51,5 +51,6 @@
     <string name="bank_balance_insufficient">You balance is insufficient</string>
     <string name="date_label">Date:</string>
     <string name="bank_value_send_positive">Value transaction to other player must be greater than 0</string>
+    <string name="bank_trans_zero">Transaction value cannot be 0</string>
 
 </resources>
