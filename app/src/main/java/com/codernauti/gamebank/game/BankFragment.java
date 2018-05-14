@@ -102,8 +102,7 @@ public class BankFragment extends Fragment {
                     final Transaction transaction = transactions.get(insertions[0]);
                     Log.d(TAG, "Value added: " + transaction.getAmount());
 
-                    mAccountBalance += transaction.getAmount();
-                    mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+                    setTotalAccountBalance(mAccountBalance + transaction.getAmount());
                 }
             }
         });
@@ -138,21 +137,19 @@ public class BankFragment extends Fragment {
                 .where(Transaction.class)
                 .findAll();
 
-        mAccountBalance = match.getInitBudget();
+        setTotalAccountBalance(match.getInitBudget());
 
-        if (transactions.size() != 0) {
+        if (transactions.size() != 0) { // restore saved match
 
             for (final Transaction t : transactions) {
 
                 if (GameBank.BT_ADDRESS.toString().equals(t.getRecipient())) {
-                    mAccountBalance += t.getAmount();
+                    setTotalAccountBalance(mAccountBalance + t.getAmount());
                 } else if (GameBank.BT_ADDRESS.toString().equals(t.getSender())) {
-                    mAccountBalance -= t.getAmount();
+                    setTotalAccountBalance(mAccountBalance - t.getAmount());
                 }
             }
         }
-
-        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
 
@@ -163,8 +160,7 @@ public class BankFragment extends Fragment {
 
             int valueSent = data.getIntExtra(SelectPlayerActivity.TRANSACTION_VALUE_KEY, 0);
 
-            mAccountBalance -= valueSent;
-            mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+            setTotalAccountBalance(mAccountBalance - valueSent);
 
         } else {
             Log.e(TAG, "Something wrong happen from SelectPlayerActivity");
@@ -191,7 +187,7 @@ public class BankFragment extends Fragment {
 
     @OnClick(R.id.bank_divide)
     public void divideByTen() {
-        if (mTransactionValue != 0 && mTransactionValue >= 10) {
+        if (mTransactionValue != 0 && (mTransactionValue >= 10 || mTransactionValue <= -10) ) {
             if (!toBankChoice.isEnabled()) {
                 mTransactionValue /= 10;
                 mTransactionValueView.setText(String.valueOf(mTransactionValue));
@@ -239,16 +235,26 @@ public class BankFragment extends Fragment {
     // in to user mode remove money to balance
     private void addTransactionValue(int value) {
 
-        if (!toBankChoice.isEnabled()) {
-            mTransactionValue += value;
+        if (!toBankChoice.isEnabled()) { // transaction between bank
+
+            if (value + mAccountBalance <= ONE_HUNDRED_MILLION) {
+                mTransactionValue += value;
+            } else {
+                mTransactionValue = ONE_HUNDRED_MILLION - mAccountBalance;
+            }
+
             mTransactionValueView.setText(String.valueOf(mTransactionValue));
 
-        } else if (!toUserChoice.isEnabled() && mTransactionValue + value <= mAccountBalance) { // take money from balance
-            mTransactionValue += value;
-            mTransactionValueView.setText(String.valueOf(mTransactionValue));
-        } else {
-            Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+        } else if (!toUserChoice.isEnabled()) { // take money from balance to other user
+
+            if (mTransactionValue + value <= mAccountBalance) {
+                mTransactionValue += value;
+                mTransactionValueView.setText(String.valueOf(mTransactionValue));
+            } else {
+                Toast.makeText(getContext(), getString(R.string.bank_balance_insufficient), Toast.LENGTH_SHORT).show();
+            }
         }
+
     }
 
     private void removeFromAccount(int value) {
@@ -277,8 +283,7 @@ public class BankFragment extends Fragment {
 
             if (mTransactionValue < 0) {
                 // update UI, TODO: negative value don't have Realm onUpdateListener
-                mAccountBalance += mTransactionValue;
-                mAccountBalanceText.setText(String.valueOf(mAccountBalance));
+                setTotalAccountBalance(mAccountBalance + mTransactionValue);
 
                 from = GameBank.BT_ADDRESS.toString();
                 fromName = SharePrefUtil.getNicknamePreference(getContext());
@@ -360,6 +365,18 @@ public class BankFragment extends Fragment {
         minusOneBtn.setVisibility(visibility);
         minusFiveBtn.setVisibility(visibility);
         minusTenBtn.setVisibility(visibility);
+    }
+
+    private static final int ONE_HUNDRED_MILLION = 100000000;
+
+    private void setTotalAccountBalance(int totalAccountBalance) {
+        if (totalAccountBalance > ONE_HUNDRED_MILLION) {
+            mAccountBalance = ONE_HUNDRED_MILLION;
+        } else {
+            mAccountBalance = totalAccountBalance;
+        }
+
+        mAccountBalanceText.setText(String.valueOf(mAccountBalance));
     }
 
 }
