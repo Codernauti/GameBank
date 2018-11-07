@@ -8,6 +8,6 @@ https://www.youtube.com/watch?v=e_-qTu1swcI
 https://github.com/Codernauti/GameBank-Report/releases
 
 ## Credits
-This app was born from the collaboration of @Codernauti and @Augugrumi teams
+@[Codernauti](https://github.com/Codernauti/) meet @[Augugrumi](https://github.com/Augugrumi)!
 
-
+This app was born from the collaboration of these two teams.
